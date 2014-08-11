@@ -2,11 +2,13 @@
 // @name        Church Micro Stats
 // @namespace   inge.org.uk/userscripts
 // @description Adds your church micro stats badge onto your profile and the cache listing page for Church Micro caches.
-// @author      JRI
+// @oujs:author JRI
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2014, James Inge (http://geo.inge.org.uk/)
 // @attribution Church Micro stats provided by BaSHful (http://www.15ddv.me.uk/geo/cm/cm.html)
 // @attribution Image by Lorna Mulligan
+// @icon        http://geo.inge.org.uk/userscripts/churchIcon48.png
+// @icon64      http://geo.inge.org.uk/userscripts/churchIcon64.png
 // @include     http://www.geocaching.com/my/
 // @include     https://www.geocaching.com/my/
 // @include     http://www.geocaching.com/my/default.aspx
@@ -21,7 +23,7 @@
 // @include     http://www.geocaching.com/seek/cache_details.aspx*
 // @include     https://www.geocaching.com/seek/cache_details.aspx*
 // @grant       GM_xmlhttpRequest
-// @version     0.0.5
+// @version     0.0.6
 // @updateURL   http://geo.inge.org.uk/userscripts/Church_Micro_Stats.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Church_Micro_Stats.user.js
 // ==/UserScript==
@@ -36,11 +38,14 @@
     css = 'div.cms-container { border: 1px solid #30f; border-radius: 3px; margin-top: 1.5em; padding: 0; text-align: center; } .cms-container a { display: inline-block; padding-top: 1pt; text-decoration: none; text-align: left; } a.cms-badge { width: 195px; height: 116px; color: #30f; background: url(' + churchImage + '); } a.cms-msg { color: #555; background-image: none; border: 1px solid #999; border-radius: 3px; padding: 3pt; } .WidgetBody div.cms-container { border: none; margin-top: 0.5em; } .WidgetBody .cms-container a { border: 1px solid #000; padding-left: 3px; } .WidgetBody .cms-container img { margin: 0 2px } #ctl00_ContentBody_ProfilePanel1_pnlProfile div.cms-container { border: none; text-align: right;} .cms-award {font-weight: bold; } .cms-finds { font-style: italic; } .cms-level { font-family: Algerian, "Calisto MT", "Bookman Old Style", Bookman, "Goudy Old Style", Garamond, "Hoefler Text", "Bitstream Charter", Georgia, serif; font-size: 54pt; line-height: 0.8; }',
     currentPage,
     handler = document.createElement("script"),
+    images,
+    loop,
     jsonp = document.createElement("script"),
     profileName = document.getElementById("ctl00_ContentBody_ProfilePanel1_lblMemberName"),
     statsUri = "http://www.15ddv.me.uk/geo/cm/awards/cm_data.php?name=",
     userField = document.getElementsByClassName("SignedInProfileLink"),
-    userName = "";
+    userName = "",
+    userNames = [];
 
   function displayStats(stats, page) {
     function getAward(num) {
@@ -49,6 +54,20 @@
         return levels[num];
       }
       return "Infidel";
+    }
+    function getHtml(uname, level, award, finds) {
+      switch (level) {
+      case -1:
+        return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't got any Church Micro finds in the database yet.</a>";
+      case 0:
+        return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't qualified for a Church Micros award yet (only " + finds + " finds in the database).</a>";
+      default:
+        return "<a class='cms-badge' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful: " + uname + " is a Level " + level + " " + award + " after finding " + finds + " Church Micro caches'><span class='cms-user'>" + uname +
+          "</span><br /><span class='cms-award'>" + award +
+          "</span><br /><span class='cms-finds'>Finds: " + finds +
+          "</span><br /><span class='cms-level'>" + level +
+          "</span></a>";
+      }
     }
     function getLevel(num) {
       var n = parseInt(num, 10);
@@ -69,7 +88,7 @@
       headers = document.getElementsByTagName("H4");
       for (i = 0; i < headers.length; i++) {
         for (j = 0; j < statslist.length; j++) {
-          if (headers[i].parentElement.className === "FriendText" && headers[i].textContent.indexOf(statslist[j].name) !== -1) {
+          if (headers[i].parentElement.className === "FriendText" && (headers[i].textContent.indexOf(statslist[j].name) !== -1)) {
             list = headers[i].parentElement.getElementsByClassName("FriendList");
             if (list.length > 0) {
               list[0].innerHTML += "<dt><acronym title='Church Micro cache'>CM</acronym> finds:</dt><dd>" + statslist[j].finds + "</dd>";
@@ -78,15 +97,27 @@
         }
       }
     }
-    var finds = stats[0].finds,
-      level = getLevel(finds),
-      award = getAward(level),
+    var award,
       cmsWidget = document.createElement("div"),
-      uname = "" + stats[0].name
+      finds,
+      html = "",
+      i,
+      level,
+      name,
+      target;
+
+    for (i = 0; i < stats.length; i++) {
+      name = (stats[i].name + "")
         .replace(/;/g, ",")
         .replace(/'/g, "&apos;")
-        .replace(/"/g, "&quot;"),
-      target;
+        .replace(/"/g, "&quot;");
+      finds = stats[i].finds;
+      level = getLevel(finds);
+      award = getAward(level);
+      if (i === 0 || stats[i].name !== stats[0].name) {
+        html += getHtml(name, level, award, finds);
+      }
+    }
 
     switch (page) {
     case "my":
@@ -111,37 +142,50 @@
       return;
     }
 
-    switch (level) {
-    case -1:
-      cmsWidget.innerHTML = "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't got any Church Micro finds in the database yet.</a>";
-      break;
-    case 0:
-      cmsWidget.innerHTML = "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't qualified for a Church Micros award yet (only " + finds + " finds in the database).</a>";
-      break;
-    default:
-      cmsWidget.innerHTML = "<a class='cms-badge' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful: " + uname + " is a Level " + level + " " + award + " after finding " + finds + " Church Micro caches'><span class='cms-user'>" + uname +
-        "</span><br /><span class='cms-award'>" + award +
-        "</span><br /><span class='cms-finds'>Finds: " + finds +
-        "</span><br /><span class='cms-level'>" + level +
-        "</span></a>";
-      break;
+    if (html) {
+      cmsWidget.className = "cms-container";
+      cmsWidget.innerHTML = html;
+      target.parentNode.insertBefore(cmsWidget, target.nextSibling);
+    } else {
+      console.warn("Church Micro Stats: didn't generate any award badge.");
     }
-    cmsWidget.className = "cms-container";
-    target.parentNode.insertBefore(cmsWidget, target.nextSibling);
   }
 
   function getFriendNames() {
     var i, names = [], headers = document.getElementsByTagName("H4");
     for (i = 0; i < headers.length; i++) {
       if (headers[i].parentElement.className === "FriendText") {
-        names.push(headers[i].textContent.trim().replace(/,/g, ";"));
+        names.push(headers[i].textContent.trim());
       }
     }
-    return names.join();
+    return names;
+  }
+  function getHiderName() {
+    var i,
+      links = document.getElementsByTagName("a"),
+      pos;
+    if (links) {
+      for (i = 0; i < links.length; i++) {
+        pos = links[i].href.indexOf("/seek/nearest.aspx?u=");
+        if (pos !== -1) {
+          return links[i].href.substr(pos + 21);
+        }
+      }
+    }
+  }
+
+  function parseNames(names) {
+    // Filter out null or undefined entries, convert commas to semicolons, then convert to a comma-separated string.
+    return encodeURIComponent(names
+      .filter(function (n) {return n != undefined; })
+      .map(function (n) {return (n + "").replace(/,/g, ";"); })
+      .join());
   }
 
   // Don't run on frames or iframes
   if (window.top !== window.self) { return false; }
+
+  console.info("Church Micro Stats v0.0.6");
 
   if (/\/my\/myfriends\.aspx/.test(location.pathname)) {
     // Your Friends
@@ -164,26 +208,40 @@
     }
   }
 
-  if (currentPage === "friends") {
-    // Your Friends page
-    userName = getFriendNames();
-  } else {
+  switch (currentPage) {
+  case "friends":
+    userNames = getFriendNames();
+    break;
+  case "profile":
     if (profileName) {
-      // On someone else's profile
-      userName = profileName.textContent.trim();
-    } else {
-      // Use logged in user's id.
-      if (userField.length > 0) {
-        userName = userField[0].innerHTML;
-      }
+      userNames = [profileName.textContent.trim()];
     }
-    userName = userName.replace(/,/g, ";");
+    break;
+  default:
+    if (userField.length > 0) {
+      userNames.push(userField[0].innerHTML.trim());
+    }
+    userNames.push(getHiderName());
+    break;
   }
+
+  userName = parseNames(userNames);
   if (!userName) {
     console.error("Church Micro Stats: Aborted - couldn't work out user name");
     return;
   }
-  statsUri += encodeURIComponent(userName);
+  statsUri += userName;
+
+  // Abort if award badge already on profile page
+  if (currentPage === "profile") {
+    images = document.getElementsByTagName("IMG");
+    for (loop = 0; loop < images.length; loop++) {
+      if (images[loop].src === "http://www.15ddv.me.uk/geo/cm/awards/cm_award.php?name=" + userName) {
+        console.info("Church micro badge not inserted: already on profile of " + userName);
+        return;
+      }
+    }
+  }
 
   // Inject widget styling
   cmsCSS.type = 'text/css';
@@ -193,7 +251,6 @@
     cmsCSS.appendChild(document.createTextNode(css));
   }
   document.documentElement.firstChild.appendChild(cmsCSS);
-
   if (typeof GM_xmlhttpRequest === "function") { // jshint ignore:line
     // Use cross-site XHR to get raw stats
     GM_xmlhttpRequest({ // jshint ignore:line
@@ -237,7 +294,7 @@
     document.documentElement.firstChild.appendChild(jsonp);
     handler.text = "function handleCMstats(jsonp) { " +
       displayStats.toString() +
-      "if (jsonp.cmstats && jsonp.cmstats.length > 0) { displayStats('" + userName.replace(/'/g, "&apos;") + "', jsonp.cmstats[0].finds, '" + currentPage + "'); } else { console.error('Could not process Church Micro stats data.');}}";
+      "if (jsonp.cmstats && jsonp.cmstats.length > 0) { displayStats(jsonp.cmstats, '" + currentPage + "'); } else { console.error('Could not process Church Micro stats data.');}}";
     handler.type = "text/javascript";
     document.documentElement.firstChild.appendChild(handler);
     document.documentElement.firstChild.removeChild(handler);
