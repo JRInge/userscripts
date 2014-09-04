@@ -23,7 +23,7 @@
 // @include     http://www.geocaching.com/seek/cache_details.aspx*
 // @include     https://www.geocaching.com/seek/cache_details.aspx*
 // @grant       GM_xmlhttpRequest
-// @version     0.0.6
+// @version     0.0.7
 // @updateURL   http://geo.inge.org.uk/userscripts/Church_Micro_Stats.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Church_Micro_Stats.user.js
 // ==/UserScript==
@@ -168,7 +168,7 @@
       for (i = 0; i < links.length; i++) {
         pos = links[i].href.indexOf("/seek/nearest.aspx?u=");
         if (pos !== -1) {
-          return links[i].href.substr(pos + 21);
+          return decodeURIComponent(links[i].href.substr(pos + 21).replace(/\+/g, '%20'));
         }
       }
     }
@@ -185,7 +185,7 @@
   // Don't run on frames or iframes
   if (window.top !== window.self) { return false; }
 
-  console.info("Church Micro Stats v0.0.6");
+  console.info("Church Micro Stats v0.0.7");
 
   if (/\/my\/myfriends\.aspx/.test(location.pathname)) {
     // Your Friends
