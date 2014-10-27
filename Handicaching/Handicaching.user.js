@@ -7,6 +7,7 @@
 // @match       http://www.handicaching.com/rate.php*
 // @match       http://www.handicaching.com/show.php*
 // @version     0.0.6
+// @author      JRI
 // @oujs:author JRI
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2011-14, James Inge (http://geo.inge.org.uk/)
