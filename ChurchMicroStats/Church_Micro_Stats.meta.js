@@ -7,8 +7,8 @@
 // @copyright   2014, James Inge (http://geo.inge.org.uk/)
 // @attribution Church Micro stats provided by BaSHful (http://www.15ddv.me.uk/geo/cm/cm.html)
 // @attribution Image by Lorna Mulligan
-// @icon        http://geo.inge.org.uk/userscripts/churchIcon48.png
-// @icon64      http://geo.inge.org.uk/userscripts/churchIcon64.png
+// @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon48.png
+// @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon64.png
 // @include     http://www.geocaching.com/my/
 // @include     https://www.geocaching.com/my/
 // @include     http://www.geocaching.com/my/default.aspx

@@ -11,8 +11,8 @@
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2011-14, James Inge (http://geo.inge.org.uk/)
 // @version     1.2.1
-// @icon        http://geo.inge.org.uk/userscripts/QRicon48.png
-// @icon64      http://geo.inge.org.uk/userscripts/QRicon64.png
+// @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheQRCode/QRicon48.png
+// @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheQRCode/QRicon64.png
 // @grant       none
 // @updateURL   http://geo.inge.org.uk/userscripts/Geocache_QR_Code.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Geocache_QR_Code.user.js
