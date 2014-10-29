@@ -1,4 +1,4 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name        Geocache QR Code
 // @namespace   inge.org.uk/userscripts
 // @description Allows you to display a QR code linking to a geocache or trackable listing on geocaching.com
@@ -10,7 +10,7 @@
 // @oujs:author JRI
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2011-14, James Inge (http://geo.inge.org.uk/)
-// @version     1.2.1
+// @version     1.2.2
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheQRCode/QRicon48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheQRCode/QRicon64.png
 // @grant       none
