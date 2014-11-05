@@ -1,6 +1,6 @@
 ﻿// ==UserScript==
 // @name				Geocaching Map Enhancements
-// @version			0.7.1
+// @version			0.7.1.1
 // @author			JRI
 // @oujs:author JRI
 // @namespace		inge.org.uk/userscripts
@@ -85,7 +85,7 @@ var gmeResources = {
 		},
 		parameters: {
 			// Defaults
-			version: "0.7.1",
+			version: "0.7.1.1",
 			brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 			filterFinds: false, // True filters finds out of list searches.
 			follow: false,	// Locator widget follows current location (moving map mode)
@@ -912,7 +912,7 @@ var gmeResources = {
 						return window.btoa ? ("data:application/xml-gpx;base64," + window.btoa(this.getGPX())) : ("data:application/xml-gpx;base64," + encodeURIComponent(this.getGPX()));
 					},
 					getGPX:function() {
-						var author = ["\t<author>", $(".CommonUsername").attr("title") || "Geocaching.com user", "</author>\r\n"].join(""), date = !!Date.prototype.toISOString?["	<time>",new Date().toISOString(),"</time>\r\n"].join(""):"", i, l, gpx = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<gpx xmlns:xsd=\"http:/www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http:/www.w3.org/2001/XMLSchema-instance\" version=\"1.0\" creator=\"Geocaching Map Enhancements v", that.getVersion(),"\" xsi:schemaLocation=\"http:/www.topografix.com/GPX/1/0 http:/www.topografix.com/GPX/1/0/gpx.xsd\" xmlns=\"http:/www.topografix.com/GPX/1/0\">\r\n\t<name>GME Export</name>\r\n\t<desc>Route file exported by Geocaching Map Enhancements</desc>\r\n", author, date].join("");
+						var author = ["\t<author>", $(".CommonUsername").attr("title") || "Geocaching.com user", "</author>\r\n"].join(""), date = !!Date.prototype.toISOString?["	<time>",new Date().toISOString(),"</time>\r\n"].join(""):"", i, l, gpx = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<gpx creator=\"Geocaching Map Enhancements v", that.getVersion(), "\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\r\n\t<name>GME Export</name>\r\n\t<desc>Route file exported by Geocaching Map Enhancements</desc>\r\n", author, date].join("");
 						for (i = 0, l = this._latlngs.length; i < l; i++) {
 							gpx += [ "\t<wpt lat=\"", this._latlngs[i].lat, "\" lon=\"", this._latlngs[i].lng, "\">\r\n\t\t<name>P",i,"</name>\r\n\t\t<type>Waypoint</type>\r\n\t</wpt>\r\n"].join("");
 						}
