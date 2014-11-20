@@ -8,18 +8,22 @@
 // @grant       none
 // ==/UserScript==
 
+/*jslint browser: true, devel: true, bitwise: true, nomen: true, plusplus: true, indent: 2 */
+/*jshint multistr: true */
+/*global L, MapSettings */
+
 (function () {
-"use strict";
+  "use strict";
 
   function payload() {
     if (window.L === undefined) {
-      console.log("GC Flood Alerts requires Leaflet Maps to be enabled.");
+      console.error("GC Flood Alerts requires Leaflet Maps to be enabled.");
       return;
     }
     L.FloodLayer = L.TileLayer.extend({
-      tile2quad: function(x, y, z) {
+      tile2quad: function (x, y, z) {
         var i, digit, mask, quad = "";
-        for(i = z; i > 0; i--) {
+        for (i = z; i > 0; i--) {
           digit = 0;
           mask = 1 << (i - 1);
           if ((x & mask) !== 0) { digit += 1; }
@@ -28,17 +32,17 @@
         }
         return quad;
       },
-      getTileUrl: function(tilePoint) {
+      getTileUrl: function (tilePoint) {
         return L.Util.template(this._url, L.extend({
           q: this.tile2quad(tilePoint.x, tilePoint.y, this._getZoomForUrl()),
           z: this._getZoomForUrl()
         }, this.options));
       }
     });
-    
+
     L.FloodControl = L.Control.extend({
       _enabled: false,
-      _floodIcon: "", 
+      _floodIcon: "",
       getUpdate: function () {
         var s = document.createElement("script");
         s.setAttribute("type", "text/javascript");
@@ -84,7 +88,7 @@
                 if (severity > 5 || severity < 1) {
                   severity = 0;
                 }
-                marker = L.marker(L.latLng( json.floodAlerts[i].Center.Latitude, json.floodAlerts[i].Center.Longitude), {className: "gc-flood-icon gc-flood-sev" + severity, icon: icons[severity], title: json.floodAlerts[i].AreaDescription});
+                marker = L.marker(L.latLng(json.floodAlerts[i].Center.Latitude, json.floodAlerts[i].Center.Longitude), {className: "gc-flood-icon gc-flood-sev" + severity, icon: icons[severity], title: json.floodAlerts[i].AreaDescription});
                 marker.bindPopup("<div class='gc-flood-popup'><a href='http://www.environment-agency.gov.uk/homeandleisure/floods/34681.aspx?area=" + json.floodAlerts[i].AreaCode + "' target='_blank'><h4>" + severities[severity] + ": " + json.floodAlerts[i].AreaDescription + "</h4></a><div>" + json.floodAlerts[i].MessageEnglish + "</div><div class='gc-flood-updated'>Updated " + json.floodAlerts[i].FormattedTimePassed + ".</div></div>");
                 that._markers.addLayer(marker);
               }
@@ -97,11 +101,11 @@
       },
       onRemove: function (map) {
         window.allFloodAlerts = function () {};
-        if (that._map.hasLayer(that._floodLayer)) {
-          that._map.removeLayer(that._floodLayer);
+        if (map.hasLayer(that._floodLayer)) {
+          map.removeLayer(that._floodLayer);
         }
-        if (that._map.hasLayer(that._markers)) {
-          that._map.removeLayer(that._markers);
+        if (map.hasLayer(that._markers)) {
+          map.removeLayer(that._markers);
         }
         this._container.removeEventListener("click", this.toggleFloodAlerts());
         window.clearInterval(this._timer);
@@ -124,7 +128,7 @@
             if (en_bounds.contains(that._map.getCenter())) {
               that._enabled = true;
               that.getUpdate();
-              that._timer = window.setInterval( that.getUpdate, 600000 );
+              that._timer = window.setInterval(that.getUpdate, 600000);
               L.DomUtil.addClass(that._container, "gc-flood-active");
             } else {
               alert("Environment Agency Flood Warning information is only available in England and Wales");
@@ -134,9 +138,9 @@
         };
       }
     });
-    
-    function loadControl () {
-      if (MapSettings && MapSettings.Map) {
+
+    function loadControl() {
+      if (window.MapSettings && MapSettings.Map) {
         MapSettings.Map.addControl(new L.FloodControl());
       } else {
         window.setTimeout(loadControl, 1000);
@@ -145,7 +149,7 @@
 
     loadControl();
   }
-  
+
   var floodIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAOwSURBVFiFxZdriJVVFIbfc5zMnEonRctRusCY2AUMM%2FKHhVEoBEVIUOqUJGKlU0hYjHT5YQoVYSBCJFHRxSjI0vozEGmpRMgcmsLL2JRUDNrNRtBJj%2Bfpx3oPZ%2FflONOZObbgY%2B%2F17rX3er%2B11177%2B3IA%2Bh8lP4i53ZLWSOocFAOqk73ApYCA84G3q1yHagjsB8YAOWAW0ADkgQ%2FOBoHjwLXAOKBg7FfgJmAk8GWtCSwG6oGvMvhR4CqgEThSKwJv2X5jH%2BOdwGjggVoQ%2BBMYD9wIlM5g9wkwDGgbagIrvHChP0NgFXAZsS1DQmAPcA7w6EAWJBK1CVg2VARuAyYAPRn8M2AuMB3YlhlrI47m9sES2GybdzP4UeIoXuJ2NPBbxmY%2BEYlj1RLoBa4AbrX%2BDTAZ2AG0em4b8JH7zwAdwFNuDxFF6rFqCawGziUqH8RJaCJCK%2BB640VgqrE8UaJ%2F8tjLRPJm60a%2FBH4kCs6TGXwPsNT4HwneDbwIrHS%2FLCUTnflfCSwk9jWbeNXIp%2FazaaAE9hFhW2X9CHA3cDvwcWJXAO4iku3rBH8DuIWIRrkszyFqQ%2B9ACDQD5wGHrS%2Bmsr8jgO%2BJzJ5iXMQ9UALaiVuyzni5FhSMr%2B2PQCfx9sutt9vmBuA59%2B8EnnD%2FTaDF%2FVeB2Xa0i7g166gk5HzgAuJ09Engfk%2F6wfrjttlChO9y68McgZJJjyOqpYB5nrvV%2BmrrXcBwYElfBA7YeXOCtQIvJfpu4Gbb7EzwAjCDyJOuBF8HPJvoLSbfcToCi4jwfUvt5DCxDQuyBLqIt78jM6EHWAM8wr%2Fr%2FW6iyj3PP%2Fe1lyjdLcT1fCozr5nYikMpgSXu78oYz6GS6QI%2BN%2F4zcGGCz6LyndCSmbMhs%2BZ7JLkhopSOIep%2BKl94%2FGqiiOSJD5IicJ%2FH3qdyIl4HDhKRnE7s8yRgLHAC%2BIu4sHocgYnASSWO7rXjV%2BxolPEdxh%2B23uh2ofFu4s4YYYcCXvNY%2BdJqIE7JdcBJ4ooX8GFe0lb%2FIjS6HSnpd0njJW2UNNP4WkkrFD8z8yStM36xpC2SpkpCUqukBR57WtJDknKSpkjaLKlO0iiPHxTwoNlcA%2FxCbeUYUbDq7fOFHPCOpHvMqF7SIkkzJE2W1CTpovRHSlJJ0qnk6UsvSvpOUkFSu599HpOkaZI25QAkdUhaL2mnpP2STiROhyeLVvMj2yBpkqSJbq%2BUNNdbojKBVIqSDph9sQqHUkSy7LD%2BTIanI3BW5W90vu3kmpSPOgAAAABJRU5ErkJggg%3D%3D",
     css = ".gc-flood-active { border: 2px solid #63F; }\
       .gc-flood-control { background-color: #fff; width: 36px; height: 36px; border-radius: 7px; box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4); }\
@@ -159,11 +163,11 @@
       .gc-flood-updated { font-style: italic; }",
     s = document.createElement("script"),
     c = document.createElement("style");
-    
+
   s.setAttribute("type", "text/javascript");
   s.innerHTML = "(" + payload.toString() + ")(); if (window.L && L.FloodControl) { L.FloodControl.prototype._floodIcon = '" + floodIcon + "';}";
   document.getElementsByTagName("head")[0].appendChild(s);
-  
+
   c.setAttribute("type", "text/css");
   c.innerHTML = css;
   document.getElementsByTagName("head")[0].appendChild(c);
