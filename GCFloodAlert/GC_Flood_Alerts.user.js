@@ -2,8 +2,8 @@
 // @name        GC Flood Alerts
 // @namespace   inge.org.uk/userscripts
 // @description Show flood alerts on the Geocaching.com map
-// @include     http://www.geocaching.com/map/*
-// @exclude     http://www.geocaching.com/map/MapPreferences.aspx*
+// @include     https://www.geocaching.com/map/*
+// @exclude     https://www.geocaching.com/map/MapPreferences.aspx*
 // @version     0.1.0
 // @grant       none
 // ==/UserScript==
@@ -46,7 +46,7 @@
       getUpdate: function () {
         var s = document.createElement("script");
         s.setAttribute("type", "text/javascript");
-        s.src = "http://eafloodalertsblob.blob.core.windows.net/currentfloodalerts/floodalerts.js?callback=allFloodAlerts&_=" + new Date().getTime();
+        s.src = "https://eafloodalertsblob.blob.core.windows.net/currentfloodalerts/floodalerts.js?callback=allFloodAlerts&_=" + new Date().getTime();
         s.id = "gc-floods-jsonp";
         document.getElementsByTagName("head")[0].appendChild(s);
       },
