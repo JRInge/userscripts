@@ -745,6 +745,190 @@ var gmeResources = {
 			$("#GME_custom_export").bind("click", exportCustom);
 			$("#ctl00_liNavProfile .SubMenu").append("<li><a id='gme-config-link' href='#GME_config' title='Configure Geocaching Map Enhancements extension'>Geocaching Map Enhancements</a></li>");
 		},
+		labels: function () {
+      function GME_load_labels(control, div) {
+        function labelHandler() {
+          var action = this.getAttribute("data-gme-action"), cache = this.getAttribute("data-gme-cache");
+          switch (action) {
+            case "panTo":
+              if (control.labels.labels[cache]) {
+                control._map.panTo(control.labels.labels[cache][2]);
+              }
+              break;
+            case "refresh":
+              control.labels.refresh();
+              break;
+            case "clear":
+              control.labels.removeLabels();
+              break;
+            case "auto":
+              control.labels.toggleAuto();
+              break;
+            case "show":
+              control.labels.toggleShow();
+              break;
+          }
+          return false;
+        }
+        L.GME_identifyLayer = L.Class.extend({
+          initialize: function (latlng, options) {
+            L.Util.setOptions(this, options);
+            this._latlng = latlng;
+          },
+          onAdd: function (map) {
+            this._map = map;
+            this._el = L.DomUtil.create("div", "gme-identify-layer leaflet-zoom-hide");
+            this._el.innerHTML = this.options.label;
+            this._el.title = this.options.desc;
+            this._el.style.position = "absolute";
+            map.getPanes().overlayPane.appendChild(this._el);
+            map.on("viewreset", this._reset, this);
+            this._reset();
+          },
+          onRemove: function (map) {
+            map.getPanes().overlayPane.removeChild(this._el);
+            map.off("viewreset", this._reset, this);
+          },
+          options: {
+            label: "Cache",
+            desc: "Long cache name"
+          },
+          setPosition: function (ll) {
+            this._latlng = ll;
+            this._reset();
+          },
+          _reset: function () {
+            if (this._map) {
+              var pos = this._map.latLngToLayerPoint(this._latlng);
+              L.DomUtil.setPosition(this._el, pos);
+            }
+          }
+        });
+        control.labels = {
+          showLabels: false,
+          autoUpdate: false,
+          labels: {},
+          labelLayer: new L.LayerGroup(),
+          clearLabels:function () {
+            control._map.removeLayer(control.labels.labelLayer);
+          },
+          displayLabels:function () {
+            control._map.addLayer(control.labels.labelLayer);
+          },
+          refresh:function () {
+            if (!(window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.UTFGrid)) {
+              return;
+            }
+            var i, coords, tiles = $(".leaflet-tile-pane .leaflet-layer img[src*='geocaching.com/map.png']");
+            for (i = tiles.length-1; i>=0; i--) {
+              coords = tiles[i].src.match(/x=(\d+)&y=(\d+)&z=(\d+)/);
+              if (coords && !([coords[3],coords[1],coords[2]].join("_") in MapSettings.MapLayers.UTFGrid._cache)) {
+                MapSettings.MapLayers.UTFGrid._loadTile(coords[3],coords[1],coords[2]);
+              }
+            }
+            setTimeout(control.labels.refreshLabels, 500);
+          },
+          refreshLabels:function () {
+            var c, p, q, r, tile, tilepos, tileref, gridref, zoom = control._map.getZoom();
+            if (!(window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.UTFGrid)) {
+              return;
+            }
+            for (p in MapSettings.MapLayers.UTFGrid._cache) {
+              tileref = p.split("_");
+              if (tileref.length === 3) {
+                tile = $("img[src*='x=" + tileref[1] + "&y=" + tileref[2] + "&z=" + tileref[0] + "']")[0];
+                if (tile) {
+                  tilepos = L.DomUtil.getPosition(tile);
+                  if (MapSettings.MapLayers.UTFGrid._cache[p]) {
+                    for (q in MapSettings.MapLayers.UTFGrid._cache[p].data) {
+                      for (r in MapSettings.MapLayers.UTFGrid._cache[p].data[q]) {
+                        c = MapSettings.MapLayers.UTFGrid._cache[p].data[q][r];
+                        if (!control.labels.labels[c.i]) {
+                          gridref = q.match(/\((\d+), (\d+)\)/);
+                          if (gridref) {
+                            control.labels.labels[c.i] = [ c.i, c.n, control._map.layerPointToLatLng(tilepos.add(new L.Point(4*gridref[1], 4*gridref[2]))), zoom];
+    //JRI
+                            control.labels.labels[c.i][4] = new L.GME_identifyLayer(control.labels.labels[c.i][2], (that.parameters.labels === "names") ? {label:c.n, desc:c.i} : {label:c.i, desc:c.n});
+                          }
+                        } else {
+                          if (zoom > control.labels.labels[c.i][3]) {
+                            gridref = q.match(/\((\d+), (\d+)\)/);
+                            if (gridref) {
+                              control.labels.labels[c.i][2] = control._map.layerPointToLatLng(tilepos.add(new L.Point(4*gridref[1], 4*gridref[2])));
+                              control.labels.labels[c.i][3] = zoom;
+                              control.labels.labels[c.i][4].setPosition(control.labels.labels[c.i][2]);
+                            }
+                          }
+                        }
+                        control.labels.labelLayer.addLayer(control.labels.labels[c.i][4]);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            control.labels.updateCachePanel();
+            if (control.labels.showLabels) {
+              control.labels.clearLabels();
+              control.labels.displayLabels();
+            }
+          },
+          removeLabels:function () {
+            $("#gme_cachelist").html("");
+            control.labels.labelLayer.clearLayers();
+            control.labels.labels = {};
+          },
+          toggleAuto:function () {
+            if (control.labels.autoUpdate) {
+              control.labels.autoUpdate = false;
+              control._map.off("moveend",control.labels.refresh);
+              $(".gme-button-labels-auto").removeClass("gme-button-active");
+            } else {
+              control.labels.autoUpdate = true;
+              $(".gme-button-labels-auto").addClass("gme-button-active");
+              control._map.on("moveend",control.labels.refresh);
+              control.labels.refresh();
+            }
+          },
+          toggleShow:function () {
+            if (control.labels.showLabels) {
+              control.labels.showLabels = false;
+              $(".gme-button-labels-show").removeClass("gme-button-active");
+              control.labels.clearLabels();
+            } else {
+              control.labels.showLabels = true;
+              $(".gme-button-labels-show").addClass("gme-button-active");
+              control.labels.refresh();
+            }
+          },
+          updateCachePanel:function () {
+            var i, j, sortorder =[], html = "";
+            for (i in control.labels.labels) {
+              sortorder.push(i);
+            }
+            sortorder.sort();
+            j = sortorder.length;
+            for (i =0; i<j; i++){
+              html += "<tr><td><a href='http://coord.info/" + sortorder[i] + "' target='_blank'>" + control.labels.labels[sortorder[i]][1] + "</a></td><td class='gme-cache-code'>&nbsp;" + sortorder[i] + "</td><td><a class='gme-event' title='Pan map to cache location' data-gme-action='panTo' data-gme-cache='" + sortorder[i] + "'><img src='../images/silk/map.png' width='16' height='16' alt='Pan' /></a></td></tr>";
+            }
+            $("#gme_cachelist").html(html);
+          }
+        };
+        $("#searchtabs ul").append("<li id='gme_caches_button'><a href='#gme_caches' title='GME Cache Label List' id='gme_caches_link'>GME</a></li>");
+        $("#searchtabs li").css("width", 100/$("#searchtabs li").length+"%");
+        $("#pqlink").html("PQs");
+        $("#clistButton").html("GCVote");
+        document.getElementById("pqlink").innerHTML = "PQs";
+        $(div).append("<div id='gme_caches'>\
+          <div class='leaflet-control-gme'>\
+            <a title='Refresh cache labels' class='gme-event gme-button-refresh-labels gme-button gme-button-l' data-gme-action='refresh'></a><a title='Empty cache list and remove labels from map' class='gme-event gme-button gme-button-clear-labels' data-gme-action='clear'></a><a class='gme-event gme-button gme-button-wide gme-button-labels-show' data-gme-action='show'>Show labels</a><a class='gme-event gme-button gme-button-r gme-button-wide gme-button-labels-auto' data-gme-action='auto'>Auto update</a>\
+          </div>\
+          <table><tbody id='gme_cachelist'><tr><td colspan='3'>Hit the refresh button above to populate the list.</td></tr></tbody></table></div>");
+        $("#gme_caches").css("display","none").on("click", ".gme-event", labelHandler);
+        $("#gme-labels-show").on("change", control.labels.toggleShow);
+        $("#gme-labels-auto").on("change", control.labels.toggleAuto);
+      }
+    },
 		loadSeek: function () {
 			function goGR(e) {
 				if (e.type === "click" || (e.type === "keypress" && e.which === 13)) {
@@ -1016,10 +1200,9 @@ var gmeResources = {
 				L.GME_genericLayer = function(url, options) {
 					if (typeof url === "string" && typeof options.tileUrl === "string" && typeof options.alt==="string") {
 						return (/\{q\}/).test(url)?(new L.GME_QuadkeyLayer(url, options)):((/\{s4\}|\{x100\}/).test(url)?(new L.GME_complexLayer(url,options)):((/\{x\}/).test(url)?(new L.TileLayer(url, options)):(new L.TileLayer.WMS(url, options))));
-					} else {
-						console.error("GME: Bad map source: " + JSON.stringify(options));
-						return undefined;
 					}
+          console.error("GME: Bad map source: " + JSON.stringify(options));
+          return undefined;
 				};
 			}
 			function setBrightness(e) {
@@ -1511,188 +1694,6 @@ function initDrop() {
 var GME_script_dist = gmeResources.config.env.geolocation ? (initDist.toString() + 'initDist();') : 'console.warn("GME: Geolocation not available");';
 var GME_script_drag = gmeResources.config.env.dragdrop ? (initDrag.toString() + 'initDrag();') : 'console.warn("GME: Drag and Drop not available");';
 var GME_script_drop = gmeResources.config.env.dragdrop ? (initDrop.toString() + 'initDrop();') : 'console.warn("GME: Drag and drop functions not suported in this browser.");';
-
-var GME_script_labels = ['function GME_load_labels(control, div) {\
-		function labelHandler() {\
-			var action = this.getAttribute("data-gme-action"), cache = this.getAttribute("data-gme-cache");\
-			switch (action) {\
-				case "panTo":\
-					if (control.labels.labels[cache]) {\
-						control._map.panTo(control.labels.labels[cache][2]);\
-					}\
-					break;\
-				case "refresh":\
-					control.labels.refresh();\
-					break;\
-				case "clear":\
-					control.labels.removeLabels();\
-					break;\
-				case "auto":\
-					control.labels.toggleAuto();\
-					break;\
-				case "show":\
-					control.labels.toggleShow();\
-					break;\
-			}\
-			return false;\
-		}\
-		L.GME_identifyLayer = L.Class.extend({\
-			initialize: function (latlng, options) {\
-				L.Util.setOptions(this, options);\
-				this._latlng = latlng;\
-			},\
-			onAdd: function (map) {\
-				this._map = map;\
-				this._el = L.DomUtil.create("div", "gme-identify-layer leaflet-zoom-hide");\
-				this._el.innerHTML = this.options.label;\
-				this._el.title = this.options.desc;\
-				this._el.style.position = "absolute";\
-				map.getPanes().overlayPane.appendChild(this._el);\
-				map.on("viewreset", this._reset, this);\
-				this._reset();\
-			},\
-			onRemove: function (map) {\
-				map.getPanes().overlayPane.removeChild(this._el);\
-				map.off("viewreset", this._reset, this);\
-			},\
-			options: {\
-				label: "Cache",\
-				desc: "Long cache name"\
-			},\
-			setPosition: function (ll) {\
-				this._latlng = ll;\
-				this._reset();\
-			},\
-			_reset: function () {\
-				if (this._map) {\
-					var pos = this._map.latLngToLayerPoint(this._latlng);\
-					L.DomUtil.setPosition(this._el, pos);\
-				}\
-			}\
-		});\
-		control.labels = {\
-			showLabels: false,\
-			autoUpdate: false,\
-			labels: {},\
-			labelLayer: new L.LayerGroup(),\
-			clearLabels:function () {\
-				control._map.removeLayer(control.labels.labelLayer);\
-			},\
-			displayLabels:function () {\
-				control._map.addLayer(control.labels.labelLayer);\
-			},\
-			refresh:function () {\
-				if (!(window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.UTFGrid)) {\
-					return;\
-				}\
-				var i, coords, tiles = $(".leaflet-tile-pane .leaflet-layer img[src*=\'geocaching.com/map.png\']");\
-				for (i = tiles.length-1; i>=0; i--) {\
-					coords = tiles[i].src.match(/x=(\\d+)&y=(\\d+)&z=(\\d+)/);\
-					if (coords && !([coords[3],coords[1],coords[2]].join("_") in MapSettings.MapLayers.UTFGrid._cache)) {\
-						MapSettings.MapLayers.UTFGrid._loadTile(coords[3],coords[1],coords[2]);\
-					}\
-				}\
-				setTimeout(control.labels.refreshLabels, 500);\
-			},\
-			refreshLabels:function () {\
-				var c, p, q, r, tile, tilepos, tileref, gridref, zoom = control._map.getZoom();\
-				if (!(window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.UTFGrid)) {\
-					return;\
-				}\
-				for (p in MapSettings.MapLayers.UTFGrid._cache) {\
-					tileref = p.split("_");\
-					if (tileref.length === 3) {\
-						tile = $(["img[src*=\'x=", tileref[1], "&y=", tileref[2], "&z=", tileref[0], "\']"].join(""))[0];\
-						if (tile) {\
-							tilepos = L.DomUtil.getPosition(tile);\
-							if (MapSettings.MapLayers.UTFGrid._cache[p]) {\
-								for (q in MapSettings.MapLayers.UTFGrid._cache[p].data) {\
-									for (r in MapSettings.MapLayers.UTFGrid._cache[p].data[q]) {\
-										c = MapSettings.MapLayers.UTFGrid._cache[p].data[q][r];\
-										if (!control.labels.labels[c.i]) {\
-											gridref = q.match(/\\((\\d+), (\\d+)\\)/);\
-											if (gridref) {\
-												control.labels.labels[c.i] = [ c.i, c.n, control._map.layerPointToLatLng(tilepos.add(new L.Point(4*gridref[1], 4*gridref[2]))), zoom];\
-												control.labels.labels[c.i][4] = new L.GME_identifyLayer(control.labels.labels[c.i][2], {', gmeResources.config.parameters.labels==='names'?'label:c.n, desc:c.i':'label:c.i, desc:c.n','});\
-											}\
-										} else {\
-											if (zoom > control.labels.labels[c.i][3]) {\
-												gridref = q.match(/\\((\\d+), (\\d+)\\)/);\
-												if (gridref) {\
-													control.labels.labels[c.i][2] = control._map.layerPointToLatLng(tilepos.add(new L.Point(4*gridref[1], 4*gridref[2])));\
-													control.labels.labels[c.i][3] = zoom;\
-													control.labels.labels[c.i][4].setPosition(control.labels.labels[c.i][2]);\
-												}\
-											}\
-										}\
-										control.labels.labelLayer.addLayer(control.labels.labels[c.i][4]);\
-									}\
-								}\
-							}\
-						}\
-					}\
-				}\
-				control.labels.updateCachePanel();\
-				if (control.labels.showLabels) {\
-					control.labels.clearLabels();\
-					control.labels.displayLabels();\
-				}\
-			},\
-			removeLabels:function () {\
-				$("#gme_cachelist").html("");\
-				control.labels.labelLayer.clearLayers();\
-				control.labels.labels = {};\
-			},\
-			toggleAuto:function () {\
-				if (control.labels.autoUpdate) {\
-					control.labels.autoUpdate = false;\
-					control._map.off("moveend",control.labels.refresh);\
-					$(".gme-button-labels-auto").removeClass("gme-button-active");\
-				} else {\
-					control.labels.autoUpdate = true;\
-					$(".gme-button-labels-auto").addClass("gme-button-active");\
-					control._map.on("moveend",control.labels.refresh);\
-					control.labels.refresh();\
-				}\
-			},\
-			toggleShow:function () {\
-				if (control.labels.showLabels) {\
-					control.labels.showLabels = false;\
-					$(".gme-button-labels-show").removeClass("gme-button-active");\
-					control.labels.clearLabels();\
-				} else {\
-					control.labels.showLabels = true;\
-					$(".gme-button-labels-show").addClass("gme-button-active");\
-					control.labels.refresh();\
-				}\
-			},\
-			updateCachePanel:function () {\
-				var i, j, sortorder =[], html = "";\
-				for (i in control.labels.labels) {\
-					sortorder.push(i);\
-				}\
-				sortorder.sort();\
-				j = sortorder.length;\
-				for (i =0; i<j; i++) {\
-					html += ["<tr><td><a href=\'http://coord.info/",sortorder[i],"\' target=\'_blank\'>",control.labels.labels[sortorder[i]][1],"</a></td><td class=\'gme-cache-code\'>&nbsp;",sortorder[i],"</td><td><a class=\'gme-event\' title=\'Pan map to cache location\' data-gme-action=\'panTo\' data-gme-cache=\'",sortorder[i],"\'><img src=\'../images/silk/map.png\' width=\'16\' height=\'16\' alt=\'Pan\' /></a></td></tr>"].join("");\
-				}\
-				$("#gme_cachelist").html(html);\
-			}\
-		};\
-		$("#searchtabs ul").append("<li id=\'gme_caches_button\'><a href=\'#gme_caches\' title=\'GME Cache Label List\' id=\'gme_caches_link\'>GME</a></li>");\
-		$("#searchtabs li").css("width", 100/$("#searchtabs li").length+"%");\
-		$("#pqlink").html("PQs");\
-		$("#clistButton").html("GCVote");\
-		document.getElementById("pqlink").innerHTML = "PQs";\
-		$(div).append("<div id=\'gme_caches\'>\
-			<div class=\'leaflet-control-gme\'>\
-				<a title=\'Refresh cache labels\' class=\'gme-event gme-button-refresh-labels gme-button gme-button-l\' data-gme-action=\'refresh\'></a><a title=\'Empty cache list and remove labels from map\' class=\'gme-event gme-button gme-button-clear-labels\' data-gme-action=\'clear\'></a><a class=\'gme-event gme-button gme-button-wide gme-button-labels-show\' data-gme-action=\'show\'>Show labels</a><a class=\'gme-event gme-button gme-button-r gme-button-wide gme-button-labels-auto\' data-gme-action=\'auto\'>Auto update</a>\
-			</div>\
-			<table><tbody id=\'gme_cachelist\'><tr><td colspan=\'3\'>Hit the refresh button above to populate the list.</td></tr></tbody></table></div>");\
-		$("#gme_caches").css("display","none").on("click", ".gme-event", labelHandler);\
-		$("#gme-labels-show").on("change", control.labels.toggleShow);\
-		$("#gme-labels-auto").on("change", control.labels.toggleAuto);\
-	}'].join('');
 
 function OSGridToLatLng(E,N) {
 	var a = 6377563.396,
@@ -2480,7 +2481,7 @@ switch(gmeResources.config.env.page) {
 				function GeocachingMapEnhancements() {\
 					var gmeConfig = ', JSON.stringify(gmeResources.config), ";",
 						unwrapFunction(gmeResources.script.logshim), unwrapFunction(gmeResources.script.common),
-						gmeResources.config.env.storage?unwrapFunction(gmeResources.script.config):'', unwrapFunction(gmeResources.script.map), GME_script_widget, GME_script_labels, gmeResources.config.env.dragdrop?GME_script_drop:'', gmeResources.config.parameters.osgbSearch?GME_script_osgb:'',
+						gmeResources.config.env.storage?unwrapFunction(gmeResources.script.config):'', unwrapFunction(gmeResources.script.map), GME_script_widget, unwrapFunction(gmeResources.script.labels), gmeResources.config.env.dragdrop?GME_script_drop:'', gmeResources.config.parameters.osgbSearch?GME_script_osgb:'',
 					'function load() {\
 						var jsonURI;\
 						GME_load_map(MapSettings.Map);',
