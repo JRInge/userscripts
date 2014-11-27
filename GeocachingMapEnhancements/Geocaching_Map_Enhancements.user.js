@@ -1947,9 +1947,30 @@ var GME_script_widget = ['L.GME_Widget=L.Control.extend({\
 		},\
 		dropMarker:function(ll) {\
 			if (!validCoords(ll)) { return; }\
-			var circle, group, m, r, radius = that.parameters.measure==="metric"?window.prompt("Radius (km)?", 0.161):window.prompt("Radius (miles)?", 0.1);\
+			var circle,\
+				defaultRadius = 0.161,\
+				group,\
+				label = "Marker",\
+				m = 1000,\
+				r, radius, raw,\
+				unit = "km";\
+			if (that.parameters.measure !== "metric") {\
+				unit = "miles";\
+				defaultRadius = 0.1;\
+				m = 1609.344;\
+			}\
+			radius = defaultRadius;\
+			raw = window.prompt("Radius in " + unit + " [, label]", defaultRadius).match(/([\\d]*\\.?[\\d]*)\\s*,?\\s*(.*)/);\
+			if (raw) {\
+				if (raw.length === 3) {\
+					radius = raw[1] * 1;\
+					label = raw[2] || label;\
+				} else {\
+					label = raw;\
+				}\
+			}\
 			if (radius) {\
-				radius *= that.parameters.measure==="metric"?1000:1609.344;\
+				radius *= m;\
 				if (isNaN(radius)) { radius = 161; }\
 			} else {\
 				radius = 161;\
@@ -1957,8 +1978,8 @@ var GME_script_widget = ['L.GME_Widget=L.Control.extend({\
 			circle = new L.Circle(ll, radius, {weight:2});\
 			group = new L.LayerGroup([circle, new L.CircleMarker(ll, {weight:2, radius:3})]);\
 			this._markers.addLayer(group);\
-			r = that.parameters.measure==="metric"?(radius/1000).toFixed(3)+" km":(radius/1609.344).toFixed(3)+" miles";\
-			circle.bindPopup(["<p><strong>Marker</strong><br/>Radius: ", r, "<br/>Centre: decimal ",ll.toUrl(),"<br/><strong>",DMM(ll),"</strong><br/><span style=\'float:right;\'><a class=\'gme-event\' data-gme-action=\'removeMarker\' data-gme-ref=\'",group._leaflet_id,"\'>Clear</a>, <a class=\'gme-event\' data-gme-action=\'clearMarkers\'>Clear All</a></span></p>"].join(""));\
+			r = (radius / m).toFixed(3) + " " + unit;\
+			circle.bindPopup("<p><strong>" + label + "</strong><br/>Radius: " + r + "<br/>Centre: decimal " + ll.toUrl() + "<br/><strong>" + DMM(ll) + "</strong><br/><span style=\'float:right;\'><a class=\'gme-event\' data-gme-action=\'removeMarker\' data-gme-ref=\'" + group._leaflet_id + "\'>Clear</a>, <a class=\'gme-event\' data-gme-action=\'clearMarkers\'>Clear All</a></span></p>");\
 		},\
 		panToHome:function () {\
 			if (gmeConfig.env.home) {\
