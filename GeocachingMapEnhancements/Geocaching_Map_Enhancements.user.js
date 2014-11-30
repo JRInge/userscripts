@@ -10,6 +10,7 @@
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2011-14, James Inge (http://geo.inge.org.uk/)
 // @attribution GeoNames (http://www.geonames.org/)
+// @attribution Postcodes.io (http://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
 // @grant       GM_xmlhttpRequest
 // @grant       GM_log
@@ -567,11 +568,45 @@ var gmeResources = {
 				window[call] = makeCallback(call,zoom);
 				JSONP(["http://www.panoramio.com/map/get_panoramas.php?set=public&from=0&to=20&minx=", bounds.getSouthWest().lng,"&miny=",bounds.getSouthWest().lat,"&maxx=",bounds.getNorthEast().lng,"&maxy=",bounds.getNorthEast().lat,"&size=square&callback=",call].join(""), call);
 			};
+			this.getPostcode = function(coords) {
+				var that = this, callprefix="GME_postcode_callback",call;
+				function makeCallback(callname) { callbackCount++; return function (json) {
+					var m;
+					if (json !== undefined && json.status === 200) {
+						if (json.result && json.result.length > 0) {
+							m = "<p>" + json.result[0].postcode + (json.result[0].parish ? (", " + json.result[0].parish) :	 "") + (json.result[0].admin_ward ? (", " + json.result[0].admin_ward) :	"") + "</p>";
+						} else {
+							m = "<p>No postcode found for this location.</p>";
+						}
+					} else {
+						m = "<p>Error fetching data from postcodes.io</p>";
+					}
+					$.fancybox(m);
+					$("#"+callname).remove();
+					if (window[callname] !== undefined) { delete window[callname]; }
+				};}
+				if (validCoords(coords)) {
+					call = callprefix + callbackCount;
+					window[call] = makeCallback(call);
+					JSONP("https://api.postcodes.io/postcodes/lon/" + coords.lng + "/lat/" + coords.lat + "?limit=1&callback=" + call, call);
+				} else {
+					console.error("GME: Bad coordinates to getPostcode");
+				}
+			};
 			this.isGeographAvailable = function(coords) {
 				return	bounds_GB.contains(coords) || bounds_IE.contains(coords) || bounds_CI.contains(coords) || bounds_DE.contains(coords);
 			};
-			this.isMAGICAvailable = function(coords) {
-				return bounds_GB.contains(coords) || bounds_NI.contains(coords);
+			this.isInUK = function(coords) {
+				if (bounds_GB.contains(coords)) {
+					if (bounds_IE.contains(coords)) {
+						if (bounds_NI.contains(coords)) {
+							return true;
+						}
+						return false;
+					}
+					return true;
+				}
+				return false;
 			};
 			if (gmeConfig.env.geolocation) {
 				this.seekHere = function() {
@@ -1006,7 +1041,7 @@ var gmeResources = {
 		},
 		map: function () {
 			var bounds_GB = new L.LatLngBounds(new L.LatLng(49,-9.5),new L.LatLng(62,2.3)),
-				bounds_IE = new L.LatLngBounds(new L.LatLng(51.2,-12.2),new L.LatLng(55.73,-4.8)),
+				bounds_IE = new L.LatLngBounds(new L.LatLng(51.2,-12.2),new L.LatLng(55.73,-5.366)),
 				bounds_NI = new L.LatLngBounds(new L.LatLng(54,-8.25),new L.LatLng(55.73,-5.25)),
 				bounds_CI = new L.LatLngBounds(new L.LatLng(49.1,-2.8),new L.LatLng(49.8,-1.8)),
 				bounds_DE = new L.LatLngBounds(new L.LatLng(47.24941,5.95459),new L.LatLng(55.14121,14.89746)),
@@ -1874,6 +1909,7 @@ var GME_script_widget = ['L.GME_Widget=L.Control.extend({\
 				if (action === "getGeograph" && coords) { that.getGeograph(coords); }\
 				if (action === "getHeight" && coords) { that.getHeight(coords); }\
 				if (action === "getPanoramio") { that.getPanoramio(e.data.getBounds(), e.data.getZoom()); }\
+				if (action === "getPostcode" && coords) { that.getPostcode(coords); }\
 				if (action === "panTo" && coords) { e.data.panTo(coords); }\
 				if (action === "removeMarker" && data) { control.removeMarker(data); }\
 				if (action === "removeDistMarker" && data) { control.removeDistMarker(data); }\
@@ -2001,9 +2037,10 @@ var GME_script_widget = ['L.GME_Widget=L.Control.extend({\
 			this._markers.clearLayer(this._markers._layers[mark]);\
 		},\
 		showInfo:function (e) {\
-			var control=this, b = control._map.getBounds(), dir="", dist, ll=e.latlng.toUrl(), z=control._map.getZoom(), geograph="", height="", hide="", magic="",nav="", popupContent, popup = new L.Popup(), streetview, sv;\
-			if (that.isMAGICAvailable(e.latlng)) {\
-				magic=[", <a target=\'magic\' title=\'Show MAGIC map of environmentally sensitive areas\' href=\'http://magic.defra.gov.uk/MagicMap.aspx?srs=WGS84&startscale=",(Math.cos(control._map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 684090188 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng)) / control._map.getSize().x, "&layers=LandBasedSchemes,12,24:HabitatsAndSpecies,38:Designations,6,10,13,16,34,37,40,72,94&box=", b.toBBoxString().replace(/,/g,":"), "\'>MAGIC</a>"].join("");\
+			var control=this, b = control._map.getBounds(), dir="", dist, ll=e.latlng.toUrl(), z=control._map.getZoom(), geograph="", height="", hide="", magic="",nav="", postcode="", popupContent, popup = new L.Popup(), streetview, sv;\
+			if (that.isInUK(e.latlng)) {\
+				magic = ", <a target=\'magic\' title=\'Show MAGIC map of environmentally sensitive areas\' href=\'http://magic.defra.gov.uk/MagicMap.aspx?srs=WGS84&startscale=" + (Math.cos(control._map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 684090188 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng)) / control._map.getSize().x +	"&layers=LandBasedSchemes,12,24:HabitatsAndSpecies,38:Designations,6,10,13,16,34,37,40,72,94&box=" + b.toBBoxString().replace(/,/g,":") + "\'>MAGIC</a>";\
+				postcode = ", <a href=\'#\' title\'Fetch location data from postcodes.io\' class=\'gme-event\' data-gme-action=\'getPostcode\' data-gme-coords=\'" + ll + "\'>Postcode</a>";\
 			}\
 			if (that.isGeographAvailable(e.latlng)) {\
 				geograph=[", <a href=\'#\' title=\'Show Geograph images near this point\' class=\'gme-event\' data-gme-action=\'getGeograph\' data-gme-coords=\'",ll,"\'>Geograph</a>"].join("");\
@@ -2031,7 +2068,7 @@ var GME_script_widget = ['L.GME_Widget=L.Control.extend({\
 				",<br/><a title=\'Show Panoramio images from the map area\' href=\'#\' class=\'gme-event\' data-gme-action=\'getPanoramio\'>Panoramio</a>",\
 				geograph,dir,streetview,nav,\
 				",<br/><a title=\'Go to Wikimapia\' ",that.parameters.useNewTab?"target=\'wiki\' ":"","href=\'http://wikimapia.org/#lat=",e.latlng.lat,"&lon=",e.latlng.lng,"&z=",z,"\'>Wikimapia</a>",\
-				magic,\
+				magic, postcode,\
 				",<br/><a title=\'Drop a marker circle onto the map\' href=\'#\' class=\'gme-event\' data-gme-action=\'dropMarker\' data-gme-coords=\'",ll,"\'>Marker</a>",\
 				height,"</p>"].join("");\
 			popup.setLatLng(e.latlng);\
