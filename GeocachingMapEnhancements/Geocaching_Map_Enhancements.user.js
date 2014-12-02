@@ -568,35 +568,10 @@ var gmeResources = {
 				window[call] = makeCallback(call,zoom);
 				JSONP(["http://www.panoramio.com/map/get_panoramas.php?set=public&from=0&to=20&minx=", bounds.getSouthWest().lng,"&miny=",bounds.getSouthWest().lat,"&maxx=",bounds.getNorthEast().lng,"&maxy=",bounds.getNorthEast().lat,"&size=square&callback=",call].join(""), call);
 			};
-			this.getPostcode = function(coords) {
-				var that = this, callprefix="GME_postcode_callback",call;
-				function makeCallback(callname) { callbackCount++; return function (json) {
-					var m;
-					if (json !== undefined && json.status === 200) {
-						if (json.result && json.result.length > 0) {
-							m = "<p>" + json.result[0].postcode + (json.result[0].parish ? (", " + json.result[0].parish) :	 "") + (json.result[0].admin_ward ? (", " + json.result[0].admin_ward) :	"") + "</p>";
-						} else {
-							m = "<p>No postcode found for this location.</p>";
-						}
-					} else {
-						m = "<p>Error fetching data from postcodes.io</p>";
-					}
-					$.fancybox(m);
-					$("#"+callname).remove();
-					if (window[callname] !== undefined) { delete window[callname]; }
-				};}
-				if (validCoords(coords)) {
-					call = callprefix + callbackCount;
-					window[call] = makeCallback(call);
-					JSONP("https://api.postcodes.io/postcodes/lon/" + coords.lng + "/lat/" + coords.lat + "?limit=1&callback=" + call, call);
-				} else {
-					console.error("GME: Bad coordinates to getPostcode");
-				}
-			};
 			this.isGeographAvailable = function(coords) {
 				return	bounds_GB.contains(coords) || bounds_IE.contains(coords) || bounds_CI.contains(coords) || bounds_DE.contains(coords);
 			};
-			this.isInUK = function(coords) {
+			this.isMAGICAvailable = function(coords) {
 				if (bounds_GB.contains(coords)) {
 					if (bounds_IE.contains(coords)) {
 						if (bounds_NI.contains(coords)) {
@@ -1909,7 +1884,7 @@ var GME_script_widget = ['L.GME_Widget=L.Control.extend({\
 				if (action === "getGeograph" && coords) { that.getGeograph(coords); }\
 				if (action === "getHeight" && coords) { that.getHeight(coords); }\
 				if (action === "getPanoramio") { that.getPanoramio(e.data.getBounds(), e.data.getZoom()); }\
-				if (action === "getPostcode" && coords) { that.getPostcode(coords); }\
+				if (action === "getPostcode" && coords) { control.getPostcode(coords); }\
 				if (action === "panTo" && coords) { e.data.panTo(coords); }\
 				if (action === "removeMarker" && data) { control.removeMarker(data); }\
 				if (action === "removeDistMarker" && data) { control.removeDistMarker(data); }\
@@ -2017,6 +1992,35 @@ var GME_script_widget = ['L.GME_Widget=L.Control.extend({\
 			r = (radius / m).toFixed(3) + " " + unit;\
 			circle.bindPopup("<p><strong>" + label + "</strong><br/>Radius: " + r + "<br/>Centre: decimal " + ll.toUrl() + "<br/><strong>" + DMM(ll) + "</strong><br/><span style=\'float:right;\'><a class=\'gme-event\' data-gme-action=\'removeMarker\' data-gme-ref=\'" + group._leaflet_id + "\'>Clear</a>, <a class=\'gme-event\' data-gme-action=\'clearMarkers\'>Clear All</a></span></p>");\
 		},\
+		getPostcode:function(coords) {\
+			var that = this, callprefix="GME_postcode_callback",call;\
+			function makeCallback(callname) { callbackCount++; return function (json) {\
+				var m;\
+				if (json !== undefined && json.status === 200) {\
+					if (json.result && json.result.length > 0) {\
+						m = "<p>" + json.result[0].postcode + (json.result[0].parish ? (", " + json.result[0].parish) :	 "") + (json.result[0].admin_ward ? (", " + json.result[0].admin_ward) :	"") + "</p>";\
+					} else {\
+						m = "<p>No postcode found for this location.<br />Is it within 500m of an occupied building?</p>";\
+					}\
+				} else {\
+					m = "<p>Error fetching data from postcodes.io</p>";\
+				}\
+				if (json.result && !isNaN(json.result[0].latitude) && !isNaN(json.result[0].longitude)) {\
+					L.popup().setLatLng({lat: json.result[0].latitude, lng: json.result[0].longitude}).setContent(m).openOn(that._map);\
+				} else {\
+					$.fancybox(m);\
+				}\
+				$("#"+callname).remove();\
+				if (window[callname] !== undefined) { delete window[callname]; }\
+			};}\
+			if (validCoords(coords)) {\
+				call = callprefix + callbackCount;\
+				window[call] = makeCallback(call);\
+				JSONP("https://api.postcodes.io/postcodes/lon/" + coords.lng + "/lat/" + coords.lat + "?radius=500&limit=1&callback=" + call, call);\
+			} else {\
+				console.error("GME: Bad coordinates to getPostcode");\
+			}\
+		},\
 		panToHome:function () {\
 			if (gmeConfig.env.home) {\
 				this._map.panTo(gmeConfig.env.home);\
@@ -2038,7 +2042,7 @@ var GME_script_widget = ['L.GME_Widget=L.Control.extend({\
 		},\
 		showInfo:function (e) {\
 			var control=this, b = control._map.getBounds(), dir="", dist, ll=e.latlng.toUrl(), z=control._map.getZoom(), geograph="", height="", hide="", magic="",nav="", postcode="", popupContent, popup = new L.Popup(), streetview, sv;\
-			if (that.isInUK(e.latlng)) {\
+			if (that.isMAGICAvailable(e.latlng)) {\
 				magic = ", <a target=\'magic\' title=\'Show MAGIC map of environmentally sensitive areas\' href=\'http://magic.defra.gov.uk/MagicMap.aspx?srs=WGS84&startscale=" + (Math.cos(control._map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 684090188 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng)) / control._map.getSize().x +	"&layers=LandBasedSchemes,12,24:HabitatsAndSpecies,38:Designations,6,10,13,16,34,37,40,72,94&box=" + b.toBBoxString().replace(/,/g,":") + "\'>MAGIC</a>";\
 				postcode = ", <a href=\'#\' title\'Fetch location data from postcodes.io\' class=\'gme-event\' data-gme-action=\'getPostcode\' data-gme-coords=\'" + ll + "\'>Postcode</a>";\
 			}\
