@@ -1205,7 +1205,7 @@ var gmeResources = {
 					e.preventDefault();
 					e.stopImmediatePropagation();
 					if (q) {
-						url = ["https://www.google.co.uk/search?q=allintitle%3A", encodeURIComponent(q), "+site%3Awww.geocaching.com%2Fgeocache%2F"].join("");
+						url = "https://www.google.co.uk/search?q=allintitle%3A" + encodeURIComponent(q) + "+site%3Awww.geocaching.com%2Fgeocache%2F+OR+site%3Awww.geocaching.com%2Fseek%2Fcache_details.aspx";
 						if (that.parameters.useNewTab) {
 							window.open(url, "searchPage");
 						} else {
