@@ -2267,7 +2267,7 @@ function insertScript(src, id) {
 		s.id = id;
 	}
 	document.documentElement.firstChild.appendChild(s);
-//	document.documentElement.firstChild.removeChild(s);
+	document.documentElement.firstChild.removeChild(s);
 }
 
 function unwrapFunction(fn) {
