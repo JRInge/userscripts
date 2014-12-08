@@ -401,7 +401,6 @@ var gmeResources = {
 					if (typeof window[callback] === "function") {
 						try {
 							window[callback](JSON.parse(s.text));
-							document.documentElement.firstChild.removeChild(document.getElementById("gme_jsonp_node"));
 						} catch (e) {
 							console.error("Error processing JSON callback " + callback + ": " + e);
 						}
@@ -419,7 +418,6 @@ var gmeResources = {
 						if (id) { s.id=id; }
 						s.src=url;
 						document.documentElement.firstChild.appendChild(s);
-						document.documentElement.firstChild.removeChild(s);
 					}
 				};
 			}
@@ -2269,7 +2267,7 @@ function insertScript(src, id) {
 		s.id = id;
 	}
 	document.documentElement.firstChild.appendChild(s);
-	document.documentElement.firstChild.removeChild(s);
+//	document.documentElement.firstChild.removeChild(s);
 }
 
 function unwrapFunction(fn) {
