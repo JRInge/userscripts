@@ -265,6 +265,21 @@ var gmeResources = {
 					console.log("GME: Waiting for map API to load: " + load_count + "...");
 				}
 			}
+
+			function b64encode(str) {
+				if (typeof window.btoa === "function") {
+				    return btoa(encodeURIComponent(str));
+				} else {
+					return encodeURIComponent(str);
+				}
+			};
+			function b64decode(str) {
+				if (typeof window.atob === "function") {
+				    return decodeURIComponent(window.atob(str));
+				} else {
+					return decodeURIComponent(str);
+				}
+			};
 			function DMM(ll) {
 				var latDeg = ll.lat < 0 ? Math.ceil(ll.lat) : Math.floor(ll.lat),
 					lngDeg = ll.lng < 0 ? Math.ceil(ll.lng) : Math.floor(ll.lng);
@@ -1334,7 +1349,7 @@ var gmeResources = {
 						return this;
 					},
 					getData:function() {
-						return window.btoa ? ("data:application/xml-gpx;base64," + window.btoa(this.getGPX())) : ("data:application/xml-gpx;base64," + encodeURIComponent(this.getGPX()));
+						return (typeof window.btoa === "function") ? "data:application/xml-gpx;base64," : "data:application/xml-gpx," + b64encode(this.getGPX());
 					},
 					getGPX:function() {
 						var author = ["\t<author>", $(".CommonUsername").attr("title") || "Geocaching.com user", "</author>\r\n"].join(""), date = !!Date.prototype.toISOString?["	<time>",new Date().toISOString(),"</time>\r\n"].join(""):"", i, l, gpx = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<gpx creator=\"Geocaching Map Enhancements v", that.getVersion(), "\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\r\n\t<name>GME Export</name>\r\n\t<desc>Route file exported by Geocaching Map Enhancements</desc>\r\n", author, date].join("");
@@ -2466,7 +2481,7 @@ switch(gmeResources.env.page) {
 						}',
 						gmeResources.env.dragdrop?'GME_Map.addControl(new L.GME_dropHandler());':'',
 						'if(cache_coords.primary[0].oldLatLng || cache_coords.primary.length + cache_coords.additional.length > 1) {\
-							uri += encodeURIComponent(btoa(JSON.stringify(cache_coords)));\
+							uri += b64encode(JSON.stringify(cache_coords));\
 							mapLink.href = mapLink.href.replace("http:", "https:") + uri;\
 							$(\'#ctl00_ContentBody_MapLinks_MapLinks a[href*="geocaching\\\\.com"]\').attr("href", function(i, val) {return val + uri;});\
 						}\
@@ -2540,10 +2555,10 @@ switch(gmeResources.env.page) {
 		var pop = location.search.match(/pop=([A-Za-z0-9+\/=]+)[\?&]?/);
 		if (pop && pop.length === 2) {
 			try {
-				localStorage.setItem("GME_cache", atob(pop[1]));
-				location.search = decodeURIComponent(location.search).replace(/&pop=[A-Za-z0-9+\/=]+[\?&]?/, "");
+				localStorage.setItem("GME_cache", pop[1]);
+				location.search = location.search.replace(/&pop=[A-Za-z0-9+\/=]+[\?&]?/, "");
 			} catch (e) {
-				console.error("GME couldn't decode click-through data: " + pop[1]);
+				console.error(e + "GME couldn't decode click-through data: " + pop[1]);
 			}
 			return;
 		}
@@ -2604,7 +2619,7 @@ switch(gmeResources.env.page) {
 							'if(localStorage.GME_cache) {\
 								try{\
 	console.log("GME popping " + localStorage.GME_cache);\
-									GME_displayPoints(JSON.parse(localStorage.GME_cache),GME_control._map,"clickthru");\
+									GME_displayPoints(JSON.parse(b64decode(localStorage.GME_cache)),GME_control._map,"clickthru");\
 									delete localStorage.GME_cache;\
 								} catch (e) {\
 console.error("GME Can\'t pop cache: " + e);\
