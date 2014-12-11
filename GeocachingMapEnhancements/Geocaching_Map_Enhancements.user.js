@@ -445,6 +445,7 @@ var gmeResources = {
 			this.getGeograph = function(coords) {
 				var callprefix="GME_geograph_callback", call, host = "";
 				function searchLink(coords) {
+					// URIs for website search pages.
 					if (coords === undefined) { return false; }
 					var host="";
 					if (bounds_GB.contains(coords) || bounds_IE.contains(coords)) {
@@ -488,10 +489,11 @@ var gmeResources = {
 						} else {
 							document.location = searchLink(coords);
 						}
+						return;
 					}
 					call = callprefix + callbackCount;
 					window[call] = makeCallback(call);
-					JSONP([host,"syndicator.php?key=geo.inge.org.uk&location=", coords.lat,",",coords.lng,"&format=JSON&callback=",call].join(""), call);
+					JSONP(host + "syndicator.php?key=geo.inge.org.uk&location=" + coords.toUrl() + "&format=JSON&callback=" + call, call);
 				} else {
 					console.error("GME: Bad coordinates to getGeograph");
 				}
