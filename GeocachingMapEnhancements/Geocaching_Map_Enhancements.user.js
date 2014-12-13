@@ -1382,7 +1382,7 @@ var gmeResources = {
 					tick:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAXCAYAAAAYyi9XAAAALHRFWHRDcmVhdGlvbiBUaW1lAFRodSAxNyBNYXkgMjAxMiAyMjoxMjo1MiAtMDAwMP%2F5zBkAAAAHdElNRQfcBREVNTVnAq5wAAAACXBIWXMAAAsSAAALEgHS3X78AAAABGdBTUEAALGPC%2FxhBQAAAnRJREFUeNq9lMlrFEEUh19VdU3P1j0koujFmYzE4B8gCaIXTx6SgODFBUTw4lkv4kHxKuLFs4JHEZQkF0GM%2B4KIATHE4DATBMmiSetktq7NVxM7DB4n03nQdHdtv%2FreRmAbrFAo%2BM4e55477Oad7RAkaTKmq%2FqYrMgE3Q464pJL7kGXAQMRu6ClAwEHUodSjlpUzVhdGtElR5IU6QC%2FF2IltHSEkP3%2BOZ833zQFSZKnsRFGdJnxjOPsciD8GoZA4X5shG06Rga9k14inAtxANbkgvwci%2BAm3WiG830c6k%2Fqkqboq0qlUo3FpZ10%2Bo%2BG1kxLgoRJO9dzwn90F%2F2zvsMHuY0d6HXdkEvyWSyClo56tJA9kXUxbtB43tCEk3nTMMt2vmuXIkkaXz4%2BSxgb00nnnfZSbDcDFIHmBywHTqZwjexaEA9m2Ixv6po%2BjkRvi35xAmP1kqTI4TbdeDZp14mSAPldShR%2BHO3tShBvq4peccY0zXm2k42xPDuCBwuMFfPObNBZw2SxrxVs3HNbErSGh9xl%2FWxEr%2BlT%2Fdf6d%2FA8B13Xmu%2Fl7bwwytj4CZqmL0qVUjXa13XSIGWoVtVlY8xscCOwbQsSQwmKbm3Pqx%2FKEiq82GTnvi1lKYoumqq5IMqiGtwOlBFmcy6cbXeXmvqlXvdM0Fr5W%2FkdGLi6%2FmBd1x7VNgZR13YXkiCf8G%2Bxp4LWMFnu0CSdCG4FYbvQA%2BwuH1sS4zgZlUxkrBeCQRCInJt7DxxGxbzIsT7GalO1lvltrgSrwXLnWtILwcgGhgaOYpE%2FpH3Uw5L5olbUMBLWe%2B7SyEzLTOOJ19VP1cLmPf2%2FmLW%2FylgqETpxl%2BsAAAAASUVORK5CYII%3D'
 				};
 			function GME_displayPoints(plist, map, context) {
-				var bounds, i, p, layers = L.featureGroup(), ll, marker, numPts = 0, op, PinIcon = L.Icon.extend({iconSize: new L.Point(20, 23),iconAnchor: new L.Point(10,23)});
+				var bounds = new L.LatLngBounds(), i, p, layers = L.featureGroup(), ll, op, PinIcon = L.Icon.extend({iconSize: new L.Point(20, 23),iconAnchor: new L.Point(10,23)});
 				function checkType(t) {
 					var j;
 					for (j = wptTypes.length-1; j>=0; j--) {
@@ -1397,11 +1397,11 @@ var gmeResources = {
 					ll = L.latLng(p.lat, p.lng);
 					if (context === "listing" || context === "dragdrop" || p.isUserDefined){
 						layers.addLayer(L.marker(ll, {icon: new PinIcon({iconUrl:"/images/wpttypes/pins/" + checkType(p.type) + ".png",iconAnchor: L.point(10,23)}),clickable: false, zIndexOffset:98, title: p.name + (p.isUserDefined?" (Corrected coordinates)":"")}));
-						numPts ++;
 						if (p.isUserDefined) {
 							layers.addLayer(L.marker(ll, {icon: new PinIcon({iconSize: new L.Point(28,23), iconAnchor: L.point(10,23), iconUrl:icons.tick}),clickable: false, zIndexOffset:99, title: p.name + " (Corrected coordinates)"}));
-							numPts ++;
 						}
+					} else {
+						bounds.extend(ll);
 					}
 					if (p.isUserDefined) {
 						op = L.latLng(p.oldLatLng[0], p.oldLatLng[1]);
@@ -1418,24 +1418,30 @@ var gmeResources = {
 						icon: new PinIcon({iconUrl:"/images/wpttypes/pins/" + checkType(p.type) + ".png", iconAnchor: new L.Point(10,23)}),
 						title: p.name, clickable:false
 					}));
-					numPts ++;
 				}
 				if (plist.routes) {
 					for (i=plist.routes.length-1; i>=0; i--) {
 						if (plist.routes[i].points && plist.routes[i].points.length > 0) {
 							layers.addLayer(L.polyline(plist.routes[i].points));
-							numPts+=plist.routes[i].points.length;
 						}
 					}
 				}
-				if (numPts === 0) {
-					return false;
-				}
-				bounds = layers.getBounds();
-				if ((context === "listing" || context === "clickthru") && (numPts > 1)) {
-					map.fitBounds(bounds);
-				} else {
-					map.panTo(bounds.getCenter());
+				bounds.extend(layers.getBounds());
+				if (bounds.isValid()) {
+					switch (context) {
+					case "listing":
+						map.fitBounds(bounds, {padding:[10, 10], maxZoom: 15});
+						break;
+					case "clickthru":
+						if (map.getBoundsZoom(bounds) > 15) {
+							map.panTo(bounds.getCenter()).setZoom(15);
+						} else {
+							map.fitBounds(bounds);
+						}
+						break;
+					default:
+						map.panTo(bounds.getCenter());
+					}
 				}
 				map.addLayer(layers);
 				return bounds;
