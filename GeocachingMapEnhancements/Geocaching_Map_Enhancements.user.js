@@ -1248,6 +1248,13 @@ var gmeResources = {
 		},
 		loadMap: function() {
 			function load() {
+				function goSearch(e) {
+					if (e.type === "click" || (e.which || e.keyCode) === 13) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						return GME_control.search($.trim($("#SearchBox_Text").val() || ""));
+					}
+				}
 				var jsonURI;
 				GME_load_map(MapSettings.Map);
 				if (gmeConfig.env.dragdrop) {
@@ -1256,11 +1263,8 @@ var gmeResources = {
 				window.GME_control = GME_load_widget(MapSettings.Map);
 				GME_load_labels(GME_control,"#scroller");
 				if (gmeConfig.parameters.osgbSearch) {
-					$("#SearchBox_OS").click(function (e) {
-						e.preventDefault();
-						e.stopImmediatePropagation();
-						return GME_control.search($.trim($("#SearchBox_Text").val() || ""));
-					});
+					$("#SearchBox_OS").on("click keypress", goSearch);
+					$(".SearchBox").on("keydown", goSearch);
 					$("#search p")[0].innerHTML = "Search by <span style='cursor:help;' title='Enhanced by Geonames'>Address</span>, Coordinates, GC-code,<br/><span style='cursor:help;' title='Jump to a specific zoom level by typing zoom then a number. Zoom 1 shows the whole world, maxiumum zoom is normally 18-22.'>zoom</span> or <span style='cursor:help;' title='To search using a British National Grid reference, just type it in the search box and hit the button! You can use 2, 4, 6, 8 or 10-digit grid refs with the 2-letter prefix but no spaces in the number (e.g. SU12344225) or absolute grid refs with a comma but no prefix (e.g. 439668,1175316).'>Grid Ref</span>";
 				}
 				if (window.amplify && typeof amplify.store === "function" && amplify.store("ShowPanel")) {
@@ -1282,7 +1286,7 @@ var gmeResources = {
 		loadSeek: function () {
 			function load() {
 				function goGR(e) {
-					if (e.type === "click" || (e.type === "keypress" && e.which === 13)) {
+					if (e.type === "click" || (e.type === "keypress" && (e.which || e.keyCode) === 13)) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
 						that.seekGR($.trim($("#grRef").val()));
@@ -1291,7 +1295,7 @@ var gmeResources = {
 				}
 				function goCoords(e) {
 					var c, coords;
-					if (e.type === "click" || (e.type === "keypress" && e.which === 13)) {
+					if (e.type === "click" || (e.type === "keypress" && (e.which || e.keyCode) === 13)) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
 						c=document.getElementById("gme_coords").value;
@@ -1922,7 +1926,7 @@ var gmeResources = {
 					e.href = "data:application/xml-gpx," + encodeURIComponent(this._dist_line.getGPX());
 					return false;
 				},
-				dropMarker:function(ll) {
+				dropMarker:function(ll, rad) {
 					if (!validCoords(ll)) { return; }
 					var circle,
 						defaultRadius = 0.161,
@@ -1937,13 +1941,17 @@ var gmeResources = {
 						m = 1609.344;
 					}
 					radius = defaultRadius;
-					raw = window.prompt("Radius in " + unit + " [, label]", defaultRadius).match(/([\d]*\.?[\d]*)\s*,?\s*(.*)/);
-					if (raw) {
-						if (raw.length === 3) {
-							radius = raw[1] * 1;
-							label = raw[2] || label;
-						} else {
-							label = raw;
+					if (!isNaN(rad)) {
+						radius = rad * 1;
+					} else {
+						raw = window.prompt("Radius in " + unit + " [, label]", defaultRadius).match(/([\d]*\.?[\d]*)\s*,?\s*(.*)/);
+						if (raw) {
+							if (raw.length === 3) {
+								radius = raw[1] * 1;
+								label = raw[2] || label;
+							} else {
+								label = raw;
+							}
 						}
 					}
 					if (radius) {
@@ -2144,13 +2152,16 @@ var gmeResources = {
 							this._map.setZoom(m[1]);
 							return false;
 						}
-						m = searchVal.match(/^\s*(?:p|plot)\s+(.*)/);
-						if (m && m.length === 2) {
-							coords = parseCoords(m[1]);
+						m = searchVal.match(/^\s*(?:p|plot)(?:\s+r\s?(\d*\.?\d*))?\s+(.*)/);
+						if (m && m.length === 3) {
+							coords = parseCoords(m[2]);
 							if (coords) {
-								marker = L.marker(coords, {icon: L.divIcon()}).addTo(this._map).bindPopup(DMM(coords));
+								if (!isNaN(m[1])) {
+									this.dropMarker(L.latLng(coords.lat, coords.lng), m[1]);
+								} else {
+									L.marker(coords, {icon: L.divIcon()}).addTo(this._map).bindPopup(DMM(coords));
+								}
 								this._map.panTo(coords);
-								alert(["Plot: ", coords.lat, ", ", coords.lng].join(""));
 								return false;
 							}
 						}
