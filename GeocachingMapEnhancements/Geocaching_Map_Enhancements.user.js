@@ -124,6 +124,7 @@ var gmeResources = {
 	env: {
 		dragdrop: (document.createElement('span').draggable !== undefined),
 		geolocation: !!navigator.geolocation,
+		init: [],
 		loggedin: (!!document.getElementById("ctl00_divSignedIn") || (document.getElementById("uxLoginStatus_uxLoginURL") !== null && document.getElementById("uxLoginStatus_uxLoginURL").innerHTML !== "Log in")),
 		page: "default",
 		storage: false,
@@ -226,6 +227,7 @@ var gmeResources = {
 				switch (gmeConfig.env.page) {
 				case "seek":
 					if (typeof $ === "function") {
+						gmeInit(gmeConfig.env.init);
 						load();
 						return;
 					}
@@ -234,14 +236,14 @@ var gmeResources = {
 					maxTries = Infinity;
 					wait = 3000;
 					if (window.map !== null && window.map !== undefined && typeof L === "object" && typeof $ === "function") {
-						extendLeaflet();
+						gmeInit(gmeConfig.env.init);
 						window.setTimeout(load,500);
 						return;
 					}
 					break;
 				case "type":
 					if (window.map !== null && window.map !== undefined && typeof L === "object" && typeof $ === "function") {
-						extendLeaflet();
+						gmeInit(gmeConfig.env.init);
 						load();
 						reload();
 						$(".cache-type-selector button").click(reload);
@@ -250,7 +252,7 @@ var gmeResources = {
 					break;
 				default:
 					if (typeof L === "object" && typeof $ === "function") {
-						extendLeaflet();
+						gmeInit(gmeConfig.env.init);
 						window.setTimeout(load,500);
 						return;
 					}
@@ -263,7 +265,62 @@ var gmeResources = {
 					console.log("GME: Waiting for map API to load: " + load_count + "...");
 				}
 			}
-
+			function gmeInit(scriptArray) {
+				// Init routines that need either JQuery or Leaflet API, so must be run from load() rather than on script insertion.
+				var initScripts = {
+					"config": function () {
+						if (gmeConfig.env.storage) {
+							setConfig();
+							$("#GME_set").bind("click", storeSettings);
+							$("#GME_default").bind("click", setDefault);
+							$("#GME_custom_add").bind("click", addCustom);
+							$("#GME_custom_export").bind("click", exportCustom);
+							$("#ctl00_liNavProfile .SubMenu").append("<li><a id=\'gme-config-link\' href=\'#GME_config\' title=\'Configure Geocaching Map Enhancements extension\'>Geocaching Map Enhancements</a></li>");
+						}
+					},
+					"drop": function () {
+						$.fn.filterNode = function(name) {
+							return this.find("*").filter(function () {
+								return this.nodeName === name;
+							});
+						};
+						L.GME_dropHandler = L.Control.extend(dropHandlerObj);
+					},
+					"map": function () {
+						bounds_GB = new L.LatLngBounds(new L.LatLng(49,-9.5),new L.LatLng(62,2.3));
+						bounds_IE = new L.LatLngBounds(new L.LatLng(51.2,-12.2),new L.LatLng(55.73,-5.366));
+						bounds_NI = new L.LatLngBounds(new L.LatLng(54,-8.25),new L.LatLng(55.73,-5.25));
+						bounds_CI = new L.LatLngBounds(new L.LatLng(49.1,-2.8),new L.LatLng(49.8,-1.8));
+						bounds_DE = new L.LatLngBounds(new L.LatLng(47.24941,5.95459),new L.LatLng(55.14121,14.89746));
+						L.GME_DistLine = L.Polyline.extend(polylineObj); 
+						L.GME_QuadkeyLayer = L.TileLayer.extend(quadkeyLayerObj);
+						L.GME_complexLayer = L.TileLayer.extend(complexLayerObj);
+						L.GME_genericLayer = genericLayerFn;
+					},
+					"widget": function () {
+						L.GME_Widget=L.Control.extend(widgetControlObj);
+						if (window.Groundspeak && Groundspeak.Map && Groundspeak.Map.Control && Groundspeak.Map.Control.FindMyLocation) {
+							L.GME_FollowMyLocationControl=Groundspeak.Map.Control.FindMyLocation.extend(locationControlObj);
+						}
+						L.GME_ZoomWarning=L.Control.extend(zoomWarningObj);
+						if (L.LatLng.prototype.toUrl === undefined) {
+							L.LatLng.prototype.toUrl = function() { return this.lat.toFixed(6) + "," + this.lng.toFixed(6); };
+						}
+						if ($.fancybox === undefined) {
+							console.info("GME: Fetching Fancybox");
+							$("head").append("<link rel='stylesheet' type='text/css' href='https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css'><script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js'></script>");
+						}
+					}
+				},
+				j;
+				
+				for (j = 0; j < scriptArray.length; j++) {
+					if (initScripts.hasOwnProperty(scriptArray[j]) && typeof initScripts[scriptArray[j]] === "function") {
+						initScripts[scriptArray[j]]();
+					}
+				}
+				console.log("GME init: " + scriptArray.join());
+			}
 			function b64encode(str) {
 				if (typeof window.btoa === "function") {
 					return btoa(encodeURIComponent(str));
@@ -369,19 +426,20 @@ var gmeResources = {
 				return false;
 			}
 			function getHomeCoords() {
-				if (window.MapSettings !== undefined && MapSettings.User !== undefined && validCoords(MapSettings.User.Home)) {
+				var c, h = document.getElementById("ctl00_ContentBody_lnkPrintDirectionsSimple");
+				if (window.MapSettings && MapSettings.User && validCoords(MapSettings.User.Home)) {
 					return new L.LatLng(MapSettings.User.Home.lat, MapSettings.User.Home.lng);
 				}
 				if (validCoords(window.homeLat, window.homeLon)) {
 					return new L.LatLng(window.homeLat, window.homeLon);
 				}
-				var c, h = $("#ctl00_ContentBody_lnkPrintDirectionsSimple").attr("href");
-				if (h !== undefined) {
-					c = h.match(/(?:saddr=)(-?\d{1,2}\.\d*),(-?\d{1,3}\.\d*)/);
+				if (h && h.href) {
+					c = h.href.match(/(?:saddr=)(-?\d{1,2}\.\d*),(-?\d{1,3}\.\d*)/);
 					if (c !== null && c.length === 3 && validCoords(c[1], c[2])) {
 						return new L.LatLng(c[1], c[2]);
 					}
 				}
+				return false;
 			}
 			function validURL(url) {
 				return (/^(http|https|ftp)\:\/\/([a-zA-Z0-9\.\-]+(\:[a-zA-Z0-9\.&amp;%\$\-]+)*@)*((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|localhost|([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9\-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\?'\\\+&amp;%\$#\=~_\-]+))*$/).test(url);
@@ -726,12 +784,14 @@ var gmeResources = {
 				localStorage.setItem("GME_parameters", JSON.stringify(that.parameters));
 				refresh();
 			}
-			setConfig();
-			$("#GME_set").bind("click", storeSettings);
-			$("#GME_default").bind("click", setDefault);
-			$("#GME_custom_add").bind("click", addCustom);
-			$("#GME_custom_export").bind("click", exportCustom);
-			$("#ctl00_liNavProfile .SubMenu").append("<li><a id='gme-config-link' href='#GME_config' title='Configure Geocaching Map Enhancements extension'>Geocaching Map Enhancements</a></li>");
+		},
+		cssTransitionsFix: function () {
+		//	<bugfix>
+			// Work around bug that breaks JQuery Mobile dialog boxes in Opera 12.
+			if (window.$ && $.support) {
+				$.support.cssTransitions = false;
+			}
+		//	</bugfix>
 		},
 		dist: function () {
 			$("#lblDistFromHome").parent().append("<br/><span id='gme-dist'><a href='#' id='gme-dist-link'>Check distance from here</a></span>");
@@ -814,12 +874,7 @@ var gmeResources = {
 			};
 		},
 		drop: function () {
-			$.fn.filterNode = function(name) {
-				return this.find("*").filter(function () {
-					return this.nodeName === name;
-				});
-			};
-			L.GME_dropHandler = L.Control.extend({
+			var dropHandlerObj = {
 				onAdd:function (map) {
 					var container = $(map.getContainer());
 					this._map = map;
@@ -997,7 +1052,12 @@ var gmeResources = {
 						}
 					}
 				}
-			});
+			};
+		},
+		loadDefault: function () {
+			if (typeof window.$ === "function") {
+				gmeInit(gmeConfig.env.init);
+			}
 		},
 		labels: function () {
 			function GME_load_labels(control, div) {
@@ -1375,83 +1435,17 @@ var gmeResources = {
 			setEnv();
 		},
 		map: function () {
-			var bounds_GB = new L.LatLngBounds(new L.LatLng(49,-9.5),new L.LatLng(62,2.3)),
-				bounds_IE = new L.LatLngBounds(new L.LatLng(51.2,-12.2),new L.LatLng(55.73,-5.366)),
-				bounds_NI = new L.LatLngBounds(new L.LatLng(54,-8.25),new L.LatLng(55.73,-5.25)),
-				bounds_CI = new L.LatLngBounds(new L.LatLng(49.1,-2.8),new L.LatLng(49.8,-1.8)),
-				bounds_DE = new L.LatLngBounds(new L.LatLng(47.24941,5.95459),new L.LatLng(55.14121,14.89746)),
-				wptTypes = [[/Geocache/i,"2"],[/Traditional Cache/i,"2"],[/Multi-cache/i,"3"],[/Virtual Cache/i,"4"],[/Letterbox Hybrid/i,"5"],[/Event Cache/i,"6"],[/Unknown cache/i,"8"],[/Webcam Cache/i,"11"],[/Cache In Trash Out Event/i,"13"],[/Wherigo Cache/i,"1858"],[/Locationless \\(Reverse\\) Cache/i,"12"],[/Mega-Event Cache/i,"453"],[/GPS Adventures Exhibit/i,"1304"],[/Groundspeak Block Party/i,"4738"],[/Groundspeak HQ/i,"3773"],[/Groundspeak Lost and Found Celebration/i,"3774"],[/Lost and Found Event Cache/i,"3653"],[/Project APE Cache/i,"9"],[/Earthcache/i,"137"],[/Question to Answer/i,"218"],[/Parking Area/i,"217"],[/Stages of a Multicache/i,"219"],[/Final Location/i,"220"],[/Trailhead/i,"221"],[/Reference Point/i,"452"]],
+			var bounds_CI,
+				bounds_DE,
+				bounds_GB,
+				bounds_IE,
+				bounds_NI,
 				icons = {
 					marker: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAZCAYAAADuWXTMAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAOQSURBVDiNhdRPSCNXHAfw7xs1mc5MjP9itE5ISjVGQrGxKgu6FIzx1CCskKunsj1YKN68tRdPBQ89hdKLl8JmLRR6sGzAPXRB0VVML2Y3kpDBJkHNv3EmTZjx14tZdM3aHzx4vPf78OP9Hu8xIsJNMABfxuPx7xKJxMT5%2BXn3xcWF0NfXpzscjtL4%2BPjrYDD4I4BXTQAiAhF1xWKxg%2BHhYRoYGCCfz0d%2Bv58CgQD5%2FX7y%2BXw0ODhIY2NjFIvFdonITkRgRMQ2NjZO19fXPxkdHUVPTw8AQFVVqKoKm80Gm80GACgWi0gmk1hbW0uvrq5%2BynZ2dlaWlpZ%2BmpychNVqRalUwv7%2B%2FhUR%2FQPgbwCfMcY%2Bnpqakrq7u1Gv13FwcICtra1v2fLy8sHe3t4XIyMjKBQKdHh4eG4YxhMienc2xthMe3v7bxMTEw6n08lSqRSmp6dfc7lcThZFEYZh4Pj4%2BMowjMe34U1fXhmG8fhmH4IgIJfLyVw%2Bn%2B8SBAGKopBhGDEieoMWQURvDMOIKYpCgiCgUCjYuUKhYBEEAaqq1k3TfNEKNsM0zReqqtZvsJUTBKHRaDSgqqoJ4O1DGMBbVVXNRqMBnucbnNvtzpbLZYii2AZA%2Fh8si6LYVqlU4Ha7FW5oaGi3VqtBkiQrx3GPHpIcxz2SJMlaq9Ugy%2FIu19nZua3rOmRZZhaLZYUx1tcKMsb6LBbLiizLTNd1SJL0J5fJZLaq1eo1Ywxer1fkef4lY2zoPTjE8%2FxLr9crchyHSqVynUwmnzMiwsLCwmE%2Bnw94PB4oikInJye1tra2PzRN%2B0sUxVnTNL%2Fy%2BXwfuVwulslk0N%2FffxyPxz9vBwCXy%2FV9IpH43ePxwOVyMYfDIVxeXkY0TYuIooje3l7wPA8AuLi4QCAQ%2BAEAWPNJut3ufz0ej9Vut3%2BwYdVqFaenp3VFUXgA4Jobs7Ozz3K53IP3lMvlMDMz8%2Fxd95sTSZK%2BKZfLpqZpLaGu6ygWi6bFYnl6D0ejUX1%2Bfv7XbDbbEmezWczNzT3b3NzU7mEAsNlsTyuVinl1dXUHapqGUqlkWq3Wr2%2Bv38HRaFQPh8M%2Fp1KpOziVSiEcDv9yuypwq9u3IxAIlBljdlmWcXZ2huvr68rR0VHX%2B3ncPQkgFAotptNpVKtVpNNphEKhxVZ5zd%2Fz3ohEItsdHR0UiUS2P5TTsjIAOJ3OxWAwmHQ6na2rAvgPIb3JdHxMgbEAAAAASUVORK5CYII%3D',
 					tick:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAXCAYAAAAYyi9XAAAALHRFWHRDcmVhdGlvbiBUaW1lAFRodSAxNyBNYXkgMjAxMiAyMjoxMjo1MiAtMDAwMP%2F5zBkAAAAHdElNRQfcBREVNTVnAq5wAAAACXBIWXMAAAsSAAALEgHS3X78AAAABGdBTUEAALGPC%2FxhBQAAAnRJREFUeNq9lMlrFEEUh19VdU3P1j0koujFmYzE4B8gCaIXTx6SgODFBUTw4lkv4kHxKuLFs4JHEZQkF0GM%2B4KIATHE4DATBMmiSetktq7NVxM7DB4n03nQdHdtv%2FreRmAbrFAo%2BM4e55477Oad7RAkaTKmq%2FqYrMgE3Q464pJL7kGXAQMRu6ClAwEHUodSjlpUzVhdGtElR5IU6QC%2FF2IltHSEkP3%2BOZ833zQFSZKnsRFGdJnxjOPsciD8GoZA4X5shG06Rga9k14inAtxANbkgvwci%2BAm3WiG830c6k%2Fqkqboq0qlUo3FpZ10%2Bo%2BG1kxLgoRJO9dzwn90F%2F2zvsMHuY0d6HXdkEvyWSyClo56tJA9kXUxbtB43tCEk3nTMMt2vmuXIkkaXz4%2BSxgb00nnnfZSbDcDFIHmBywHTqZwjexaEA9m2Ixv6po%2BjkRvi35xAmP1kqTI4TbdeDZp14mSAPldShR%2BHO3tShBvq4peccY0zXm2k42xPDuCBwuMFfPObNBZw2SxrxVs3HNbErSGh9xl%2FWxEr%2BlT%2Fdf6d%2FA8B13Xmu%2Fl7bwwytj4CZqmL0qVUjXa13XSIGWoVtVlY8xscCOwbQsSQwmKbm3Pqx%2FKEiq82GTnvi1lKYoumqq5IMqiGtwOlBFmcy6cbXeXmvqlXvdM0Fr5W%2FkdGLi6%2FmBd1x7VNgZR13YXkiCf8G%2Bxp4LWMFnu0CSdCG4FYbvQA%2BwuH1sS4zgZlUxkrBeCQRCInJt7DxxGxbzIsT7GalO1lvltrgSrwXLnWtILwcgGhgaOYpE%2FpH3Uw5L5olbUMBLWe%2B7SyEzLTOOJ19VP1cLmPf2%2FmLW%2FylgqETpxl%2BsAAAAASUVORK5CYII%3D'
-				};
-			function GME_displayPoints(plist, map, context) {
-				var bounds = new L.LatLngBounds(), i, p, layers = L.featureGroup(), ll, op, PinIcon = L.Icon.extend({iconSize: new L.Point(20, 23),iconAnchor: new L.Point(10,23)});
-				function checkType(t) {
-					var j;
-					for (j = wptTypes.length-1; j>=0; j--) {
-						if (t==wptTypes[j][1]) {
-							return wptTypes[j][1];
-						}
-					}
-					return 452;
-				}
-				for (i=plist.primary.length-1; i>= 0; i--) {
-					p = plist.primary[i];
-					ll = L.latLng(p.lat, p.lng);
-					if (context === "listing" || context === "dragdrop" || p.isUserDefined){
-						layers.addLayer(L.marker(ll, {icon: new PinIcon({iconUrl:"/images/wpttypes/pins/" + checkType(p.type) + ".png",iconAnchor: L.point(10,23)}),clickable: false, zIndexOffset:98, title: p.name + (p.isUserDefined?" (Corrected coordinates)":"")}));
-						if (p.isUserDefined) {
-							layers.addLayer(L.marker(ll, {icon: new PinIcon({iconSize: new L.Point(28,23), iconAnchor: L.point(10,23), iconUrl:icons.tick}),clickable: false, zIndexOffset:99, title: p.name + " (Corrected coordinates)"}));
-						}
-					} else {
-						bounds.extend(ll);
-					}
-					if (p.isUserDefined) {
-						op = L.latLng(p.oldLatLng[0], p.oldLatLng[1]);
-						layers.addLayer(L.polyline([op, ll], { clickable:false, weight:3 }));
-						if (context === "listing") {
-							layers.addLayer(L.circleMarker(op, {clickable:false, weight:3, radius:6}));
-						}
-					}
-				}
-				for (i=plist.additional.length-1; i>= 0; i--) {
-					p = plist.additional[i];
-					ll = L.latLng(p.lat, p.lng);
-					layers.addLayer(L.marker(ll, {
-						icon: new PinIcon({iconUrl:"/images/wpttypes/pins/" + checkType(p.type) + ".png", iconAnchor: new L.Point(10,23)}),
-						title: p.name, clickable:false
-					}));
-				}
-				if (plist.routes) {
-					for (i=plist.routes.length-1; i>=0; i--) {
-						if (plist.routes[i].points && plist.routes[i].points.length > 0) {
-							layers.addLayer(L.polyline(plist.routes[i].points));
-						}
-					}
-				}
-				bounds.extend(layers.getBounds());
-				if (bounds.isValid()) {
-					switch (context) {
-					case "listing":
-						map.fitBounds(bounds, {padding:[10, 10], maxZoom: 15});
-						break;
-					case "clickthru":
-						if (map.getBoundsZoom(bounds) > 15) {
-							map.panTo(bounds.getCenter()).setZoom(15);
-						} else {
-							map.fitBounds(bounds);
-						}
-						break;
-					default:
-						map.panTo(bounds.getCenter());
-					}
-				}
-				map.addLayer(layers);
-				return bounds;
-			}
-			function extendLeaflet() {
-				L.GME_DistLine = L.Polyline.extend({
+				},
+				wptTypes = [[/Geocache/i,"2"],[/Traditional Cache/i,"2"],[/Multi-cache/i,"3"],[/Virtual Cache/i,"4"],[/Letterbox Hybrid/i,"5"],[/Event Cache/i,"6"],[/Unknown cache/i,"8"],[/Webcam Cache/i,"11"],[/Cache In Trash Out Event/i,"13"],[/Wherigo Cache/i,"1858"],[/Locationless \\(Reverse\\) Cache/i,"12"],[/Mega-Event Cache/i,"453"],[/GPS Adventures Exhibit/i,"1304"],[/Groundspeak Block Party/i,"4738"],[/Groundspeak HQ/i,"3773"],[/Groundspeak Lost and Found Celebration/i,"3774"],[/Lost and Found Event Cache/i,"3653"],[/Project APE Cache/i,"9"],[/Earthcache/i,"137"],[/Question to Answer/i,"218"],[/Parking Area/i,"217"],[/Stages of a Multicache/i,"219"],[/Final Location/i,"220"],[/Trailhead/i,"221"],[/Reference Point/i,"452"]],
+				polylineObj = {
 					initialize: function (pts, ops) {
 						L.Polyline.prototype.initialize.call(this, pts, ops);
 						this._length = 0;
@@ -1469,7 +1463,7 @@ var gmeResources = {
 						return this;
 					},
 					getData:function() {
-						return (typeof window.btoa === "function") ? "data:application/xml-gpx;base64," : "data:application/xml-gpx," + b64encode(this.getGPX());
+						return ((typeof window.btoa === "function") ? "data:application/xml-gpx;base64," : "data:application/xml-gpx,") + b64encode(this.getGPX());
 					},
 					getGPX:function() {
 						var author = ["\t<author>", $(".CommonUsername").attr("title") || "Geocaching.com user", "</author>\r\n"].join(""), date = !!Date.prototype.toISOString?["	<time>",new Date().toISOString(),"</time>\r\n"].join(""):"", i, l, gpx = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<gpx creator=\"Geocaching Map Enhancements v", that.getVersion(), "\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\r\n\t<name>GME Export</name>\r\n\t<desc>Route file exported by Geocaching Map Enhancements</desc>\r\n", author, date].join("");
@@ -1541,8 +1535,8 @@ var gmeResources = {
 						}
 						this._updateLength();
 					}
-				});
-				L.GME_QuadkeyLayer = L.TileLayer.extend({
+				},
+				quadkeyLayerObj = {
 					tile2quad: function(x, y, z) {
 						var i, digit, mask, quad = "";
 						for (i = z; i > 0; i--) {
@@ -1561,8 +1555,8 @@ var gmeResources = {
 							z: this._getZoomForUrl()
 						}, this.options));
 					}
-				});
-				L.GME_complexLayer = L.TileLayer.extend({
+				},
+				complexLayerObj = {
 					getTileUrl: function(tilePoint) {
 						return L.Util.template(this._url, L.extend({
 							s4: tilePoint.x%4 + 4*(tilePoint.y%4),
@@ -1572,14 +1566,79 @@ var gmeResources = {
 							y: tilePoint.y
 						}, this.options));
 					}
-				});
-				L.GME_genericLayer = function(url, options) {
-					if (typeof url === "string" && typeof options.tileUrl === "string" && typeof options.alt==="string") {
-						return (/\{q\}/).test(url)?(new L.GME_QuadkeyLayer(url, options)):((/\{s4\}|\{x100\}/).test(url)?(new L.GME_complexLayer(url,options)):((/\{x\}/).test(url)?(new L.TileLayer(url, options)):(new L.TileLayer.WMS(url, options))));
-					}
-					console.error("GME: Bad map source: " + JSON.stringify(options));
-					return undefined;
 				};
+				
+			function GME_displayPoints(plist, map, context) {
+				var bounds = new L.LatLngBounds(), i, p, layers = L.featureGroup(), ll, op, PinIcon = L.Icon.extend({iconSize: new L.Point(20, 23),iconAnchor: new L.Point(10,23)});
+				function checkType(t) {
+					var j;
+					for (j = wptTypes.length-1; j>=0; j--) {
+						if (t==wptTypes[j][1]) {
+							return wptTypes[j][1];
+						}
+					}
+					return 452;
+				}
+				for (i=plist.primary.length-1; i>= 0; i--) {
+					p = plist.primary[i];
+					ll = L.latLng(p.lat, p.lng);
+					if (context === "listing" || context === "dragdrop" || p.isUserDefined){
+						layers.addLayer(L.marker(ll, {icon: new PinIcon({iconUrl:"/images/wpttypes/pins/" + checkType(p.type) + ".png",iconAnchor: L.point(10,23)}),clickable: false, zIndexOffset:98, title: p.name + (p.isUserDefined?" (Corrected coordinates)":"")}));
+						if (p.isUserDefined) {
+							layers.addLayer(L.marker(ll, {icon: new PinIcon({iconSize: new L.Point(28,23), iconAnchor: L.point(10,23), iconUrl:icons.tick}),clickable: false, zIndexOffset:99, title: p.name + " (Corrected coordinates)"}));
+						}
+					} else {
+						bounds.extend(ll);
+					}
+					if (p.isUserDefined) {
+						op = L.latLng(p.oldLatLng[0], p.oldLatLng[1]);
+						layers.addLayer(L.polyline([op, ll], { clickable:false, weight:3 }));
+						if (context === "listing") {
+							layers.addLayer(L.circleMarker(op, {clickable:false, weight:3, radius:6}));
+						}
+					}
+				}
+				for (i=plist.additional.length-1; i>= 0; i--) {
+					p = plist.additional[i];
+					ll = L.latLng(p.lat, p.lng);
+					layers.addLayer(L.marker(ll, {
+						icon: new PinIcon({iconUrl:"/images/wpttypes/pins/" + checkType(p.type) + ".png", iconAnchor: new L.Point(10,23)}),
+						title: p.name, clickable:false
+					}));
+				}
+				if (plist.routes) {
+					for (i=plist.routes.length-1; i>=0; i--) {
+						if (plist.routes[i].points && plist.routes[i].points.length > 0) {
+							layers.addLayer(L.polyline(plist.routes[i].points));
+						}
+					}
+				}
+				bounds.extend(layers.getBounds());
+				if (bounds.isValid()) {
+					switch (context) {
+					case "listing":
+						map.fitBounds(bounds, {padding:[10, 10], maxZoom: 15});
+						break;
+					case "clickthru":
+						if (map.getBoundsZoom(bounds) > 15) {
+							map.panTo(bounds.getCenter()).setZoom(15);
+						} else {
+							map.fitBounds(bounds);
+						}
+						break;
+					default:
+						map.panTo(bounds.getCenter());
+					}
+				}
+				map.addLayer(layers);
+				return bounds;
+			}
+			function genericLayerFn(url, options) {
+				if (typeof url === "string" && typeof options.tileUrl === "string" && typeof options.alt==="string") {
+					return (/\{q\}/).test(url)?(new L.GME_QuadkeyLayer(url, options)):((/\{s4\}|\{x100\}/).test(url)?(new L.GME_complexLayer(url,options)):((/\{x\}/).test(url)?(new L.TileLayer(url, options)):(new L.TileLayer.WMS(url, options))));
+				}
+				console.error("GME: Bad map source: " + JSON.stringify(options));
+				return undefined;
 			}
 			function setBrightness(e) {
 				var brightness=this.brightness||that.parameters.brightness;
@@ -1812,7 +1871,46 @@ var gmeResources = {
 			};
 		},
 		widget: function () {
-			L.GME_Widget=L.Control.extend({
+			var locationControlObj = {
+				onAdd:function(map){
+					var el, tracking=false, container=L.DomUtil.create("div", "leaflet-control-toolbar groundspeak-control-findmylocation gme-left");
+					function located(l){
+						this.panTo(l.latlng);
+					}
+					function click(e){
+						L.DomEvent.stopPropagation(e);
+						if (tracking) {
+							map.stopLocate();
+							map.off("locationfound",located);
+							tracking = false;
+							$(".groundspeak-control-findmylocation-lnk").removeClass("gme-button-active");
+							$("#GME_loc").attr("title","Follow My Location");
+						} else {
+							map.on("locationfound",located);
+							map.locate({enableHighAccuracy:true,watch:true,timeout:60000});
+							tracking = true;
+							$(".groundspeak-control-findmylocation-lnk").addClass("gme-button-active");
+							$("#GME_loc").attr("title","Stop following");
+						}
+					}
+					function click_once(e) {
+						L.DomEvent.stopPropagation(e);
+						this.locate({setView:true, maxZoom:this.getZoom(), minZoom:this.getZoom(), enableHighAccuracy:true, timeout:60000});
+					}
+					el = document.createElement("a");
+					el.id="GME_loc";
+					el.title=that.parameters.follow?"Follow My Location":"Find My Location";
+					el.className="groundspeak-control-findmylocation-lnk";
+					if (that.parameters.follow) {
+						L.DomEvent.addListener(el,"click",click,map);
+					} else {
+						L.DomEvent.addListener(el,"click",click_once,map);
+					}
+					container.appendChild(el);
+					return container;
+				}
+			},
+			widgetControlObj = {
 				options:{position:"bottomleft"},
 				onAdd:function(contextmap){
 					var elem, container=L.DomUtil.create("div","leaflet-control-gme"), control=this, html="";
@@ -2227,49 +2325,8 @@ var gmeResources = {
 					return update(map);
 				},
 				_clickMode: "none"
-			});
-			if (window.Groundspeak && Groundspeak.Map && Groundspeak.Map.Control && Groundspeak.Map.Control.FindMyLocation) {
-				L.GME_FollowMyLocationControl=Groundspeak.Map.Control.FindMyLocation.extend({
-					onAdd:function(map){
-						var el, tracking=false, container=L.DomUtil.create("div", "leaflet-control-toolbar groundspeak-control-findmylocation gme-left");
-						function located(l){
-							this.panTo(l.latlng);
-						}
-						function click(e){
-							L.DomEvent.stopPropagation(e);
-							if (tracking) {
-								map.stopLocate();
-								map.off("locationfound",located);
-								tracking = false;
-								$(".groundspeak-control-findmylocation-lnk").removeClass("gme-button-active");
-								$("#GME_loc").attr("title","Follow My Location");
-							} else {
-								map.on("locationfound",located);
-								map.locate({enableHighAccuracy:true,watch:true,timeout:60000});
-								tracking = true;
-								$(".groundspeak-control-findmylocation-lnk").addClass("gme-button-active");
-								$("#GME_loc").attr("title","Stop following");
-							}
-						}
-						function click_once(e) {
-							L.DomEvent.stopPropagation(e);
-							this.locate({setView:true, maxZoom:this.getZoom(), minZoom:this.getZoom(), enableHighAccuracy:true, timeout:60000});
-						}
-						el = document.createElement("a");
-						el.id="GME_loc";
-						el.title=that.parameters.follow?"Follow My Location":"Find My Location";
-						el.className="groundspeak-control-findmylocation-lnk";
-						if (that.parameters.follow) {
-							L.DomEvent.addListener(el,"click",click,map);
-						} else {
-							L.DomEvent.addListener(el,"click",click_once,map);
-						}
-						container.appendChild(el);
-						return container;
-					}
-				});
-			}
-			L.GME_ZoomWarning=L.Control.extend({
+			},
+			zoomWarningObj = {
 				options:{position:"topleft"},
 				onAdd:function(map){
 					var c = L.DomUtil.create("div","leaflet-control-zoomwarning gme-left");
@@ -2294,14 +2351,8 @@ var gmeResources = {
 					map.on("zoomend", checkZoom);
 					return c;
 				}
-			});
-			if (L.LatLng.prototype.toUrl === undefined) {
-				L.LatLng.prototype.toUrl = function() { return this.lat.toFixed(6) + "," + this.lng.toFixed(6); };
-			}
-			if ($.fancybox === undefined) {
-				console.info("GME: Fetching Fancybox");
-				$("head").append("<link rel='stylesheet' type='text/css' href='https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css'><script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js'></script>");
-			}
+			};
+			
 			function GME_load_widget(map) {
 				var control = new L.GME_Widget().addTo(map);
 				$(control._container).addClass("gme-left").css("top", "20px");
@@ -2368,13 +2419,11 @@ pageTests = [
 i, target, target2, targets;
 
 function buildScript() {
-	var j, script = "", widget = false;
+	var j, script = "";
 	for (j = 1; j < arguments.length; j++) {
-		if (arguments[j] === "widget") {
-			widget = true;
-		}
 		if (typeof arguments[j] === "string" && gmeResources.script.hasOwnProperty(arguments[j])) {
 			script += unwrapFunction(gmeResources.script[arguments[j]]);
+			gmeResources.env.init.push(arguments[j]);
 		}
 	}
 	insertScript(
@@ -2582,7 +2631,7 @@ switch(gmeResources.env.page) {
 			return;
 		}
 		if (gmeResources.env.dragdrop) { insertCSS(gmeResources.css.drag); }
-		buildScript("GME_page_listing", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "dist", "drag", "drop", "loadListing");
+		buildScript("GME_page_listing", "common", gmeResources.env.storage ? "config" : "", "map", "dist", "drag", "drop", "loadListing");
 		break;
 	case "seek":
 		// On the Hide & Seek page
@@ -2632,11 +2681,6 @@ switch(gmeResources.env.page) {
 			return;
 		}
 
-//	<bugfix>
-		// Work around bug that breaks JQuery Mobile dialog boxes in Opera 12.
-		insertScript('$.support.cssTransitions = false;', "jquerymobile_transitions_bugfix");
-//	</bugfix>
-
 		if (gmeResources.env.xhr) {
 			document.addEventListener("GME_GCsearch_event", function (e) {
 				var node = document.getElementById("gme_jsonp_node"),
@@ -2664,7 +2708,7 @@ switch(gmeResources.env.page) {
 			}
 		}
 
-		buildScript("GME_page_map", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "labels", "drop", gmeResources.parameters.osgbSearch ? "osgb" : "", "loadMap");
+		buildScript("GME_page_map", "common", gmeResources.env.storage ? "config" : "", "cssTransitionsFix", "map", "widget", "labels", "drop", gmeResources.parameters.osgbSearch ? "osgb" : "", "loadMap");
 		break;
 	case "type":
 		buildScript("GME_page_type", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "drop", "loadType");
@@ -2675,7 +2719,7 @@ switch(gmeResources.env.page) {
 	default:
 		// Somewhere random on the main website
 		if (gmeResources.env.storage) {
-			buildScript("Generic config", "common", "config");
+			buildScript("Generic config", "common", "config", "loadDefault");
 		}
 	}
 }());
