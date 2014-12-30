@@ -1,6 +1,6 @@
 ﻿// ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.1.2
+// @version     0.7.2
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -29,7 +29,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.1.2",
+		version: "0.7.2",
+		versionMsg: "This version updates Hillshading and some other map sources, but these changes won't take effect until GME's configuration is reset to Defaults. If you are using custom map sources, export them first and make sure you have a backup of the JSON codes.",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
@@ -828,7 +829,7 @@ var gmeResources = {
 		drag: function () {
 			that.dragStart = function (event) {
 				function GME_formatLOC(wpts) {
-					return wpts ? ['<?xml version="1.0" encoding="UTF-8"?>\n<loc version="1.0" src="Geocaching Map Enhancements">' + wpts.join('\n') + '</loc>'].join('\n'):null;
+					return wpts ? ['<?xml version="1.0" encoding="UTF-8"?>\n<loc version="1.0" src="Geocaching Map Enhancements v' + that.getVersion() + '">' + wpts.join('\n') + '</loc>'].join('\n'):null;
 				}
 				function GME_formatLOC_wpt(id, desc, coords, type, link) {
 					if (id && desc && coords) {
@@ -2553,7 +2554,7 @@ if(gmeResources.env.storage) {
 							if (storedParams[a]===undefined){storedParams[a]=gmeResources.parameters[a];}
 						}
 					}
-					alert("Geocaching Map Enhancements has been updated to v" + gmeResources.parameters.version +". You may want to check your GME configuration.");
+					alert("Geocaching Map Enhancements has been updated to v" + gmeResources.parameters.version + ". " + gmeResources.parameters.versionMsg);
 					storedParams.version = gmeResources.parameters.version;
 					localStorage.setItem("GME_parameters",JSON.stringify(storedParams));
 				}
