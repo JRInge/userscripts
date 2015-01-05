@@ -29,8 +29,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.2",
-		versionMsg: "This version updates Hillshading and some other map sources, but these changes won't take effect until GME's configuration is reset to Defaults. If you are using custom map sources, export them first and make sure you have a backup of the JSON codes.",
+		version: "0.7.2.1",
+		versionMsg: "This is a development version. Please report any bugs.",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
