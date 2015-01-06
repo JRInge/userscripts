@@ -1467,13 +1467,19 @@ var gmeResources = {
 						return ((typeof window.btoa === "function") ? "data:application/xml-gpx;base64," : "data:application/xml-gpx,") + b64encode(this.getGPX());
 					},
 					getGPX:function() {
-						var author = ["\t<author>", $(".CommonUsername").attr("title") || "Geocaching.com user", "</author>\r\n"].join(""), date = !!Date.prototype.toISOString?["	<time>",new Date().toISOString(),"</time>\r\n"].join(""):"", i, l, gpx = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<gpx creator=\"Geocaching Map Enhancements v", that.getVersion(), "\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\r\n\t<name>GME Export</name>\r\n\t<desc>Route file exported by Geocaching Map Enhancements</desc>\r\n", author, date].join("");
+						var name = $(".CommonUsername").attr("title"),
+							author = name ?
+								(name + '</name>\r\n\t\t\t<link href="http://www.geocaching.com/profile/?u=' + name + '"><text>' + name + '\'s profile</text></link>\r\n') :
+								"Geocaching.com user</name>\r\n",
+							date = !!Date.prototype.toISOString ? ["\t\t<time>", new Date().toISOString(), "</time>\r\n"].join("") : "",
+							i, l,
+							gpx = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<gpx creator=\"Geocaching Map Enhancements v", that.getVersion(), "\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\r\n\t<metadata>\r\n\t\t<name>GME Export</name>\r\n\t\t<desc>Route file exported from Geocaching.com using Geocaching Map Enhancements.</desc>\r\n\t\t<author>\r\n\t\t\t<name>", author, "\t\t</author>\r\n", date, "\t</metadata>\r\n"].join("");
 						for (i = 0, l = this._latlngs.length; i < l; i++) {
-							gpx += [ "\t<wpt lat=\"", this._latlngs[i].lat, "\" lon=\"", this._latlngs[i].lng, "\">\r\n\t\t<name>P",i,"</name>\r\n\t\t<type>Waypoint</type>\r\n\t</wpt>\r\n"].join("");
+							gpx += [ "\t<wpt lat=\"", this._latlngs[i].lat, "\" lon=\"", this._latlngs[i].lng, "\">\r\n\t\t<name>P", i, "</name>\r\n\t\t<type>Waypoint</type>\r\n\t</wpt>\r\n"].join("");
 						}
 						gpx += "\t<rte>\r\n\t\t<name>GME exported route</name>\r\n\t\t<src>Manual entry</src>\r\n\t\t<number>1</number>\r\n";
 						for (i = 0, l = this._latlngs.length; i < l; i++) {
-							gpx += [ "\t\t<rtept lat=\"", this._latlngs[i].lat, "\" lon=\"", this._latlngs[i].lng, "\">\r\n\t\t\t<name>P",i,"</name>\r\n\t\t\t<type>Waypoint</type>\r\n\t\t</rtept>\r\n"].join("");
+							gpx += [ "\t\t<rtept lat=\"", this._latlngs[i].lat, "\" lon=\"", this._latlngs[i].lng, "\">\r\n\t\t\t<name>P", i, "</name>\r\n\t\t\t<type>Waypoint</type>\r\n\t\t</rtept>\r\n"].join("");
 						}
 						gpx += "\t</rte>\r\n</gpx>";
 						return gpx;
