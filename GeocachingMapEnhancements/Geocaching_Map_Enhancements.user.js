@@ -1,4 +1,4 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name        Geocaching Map Enhancements
 // @version     0.7.2.1
 // @author      JRI
