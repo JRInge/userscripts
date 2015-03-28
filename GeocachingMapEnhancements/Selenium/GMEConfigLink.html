@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://www.geocaching.com/" />
+<title>Config Link</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Config Link</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>http://www.geocaching.com/my/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTitle</td>
+	<td>Geocaching &gt; Your Profile</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=button.li-user-toggle</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=ul.user-expanded li a#gme-config-link</td>
+	<td>Geocaching Map Enhancements</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=gme-config-link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=div &gt; header</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Cancel</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

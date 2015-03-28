@@ -1,4 +1,4 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name        Geocaching Map Enhancements
 // @version     0.7.2.1
 // @author      JRI
@@ -276,7 +276,7 @@ var gmeResources = {
 							$("#GME_default").bind("click", setDefault);
 							$("#GME_custom_add").bind("click", addCustom);
 							$("#GME_custom_export").bind("click", exportCustom);
-							$("#ctl00_liNavProfile .SubMenu").append("<li><a id=\'gme-config-link\' href=\'#GME_config\' title=\'Configure Geocaching Map Enhancements extension\'>Geocaching Map Enhancements</a></li>");
+							$("li.li-user ul").append("<li class='li-settings'><a class='icon-settings' id='gme-config-link' href='#GME_config' title='Configure Geocaching Map Enhancements extension'>Geocaching Map Enhancements</a></li>");
 						}
 					},
 					"drop": function () {
