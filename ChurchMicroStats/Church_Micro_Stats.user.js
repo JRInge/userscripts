@@ -41,7 +41,7 @@
     jsonp = document.createElement("script"),
     profileName = document.getElementById("ctl00_ContentBody_ProfilePanel1_lblMemberName"),
     statsUri = "http://www.15ddv.me.uk/geo/cm/awards/cm_data.php?name=",
-    userField = document.getElementsByClassName("SignedInProfileLink"),
+    userField = document.getElementsByClassName("li-user-info"),
     userName = "",
     userNames = [];
 
@@ -231,8 +231,8 @@
     }
     break;
   default:
-    if (userField.length > 0) {
-      userNames.push(userField[0].innerHTML.trim());
+    if (userField.length > 0 && userField[0].children && userField[0].children.length > 0) {
+      userNames.push(userField[0].children[0].innerHTML.trim());
     }
     userNames.push(getHiderName());
     break;
