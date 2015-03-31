@@ -4,7 +4,7 @@
 // @description Adds your church micro stats badge onto your profile and the cache listing page for Church Micro caches.
 // @oujs:author JRI
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @copyright   2014, James Inge (http://geo.inge.org.uk/)
+// @copyright   2014-15, James Inge (http://geo.inge.org.uk/)
 // @attribution Church Micro stats provided by BaSHful (http://www.15ddv.me.uk/geo/cm/cm.html)
 // @attribution Image by Lorna Mulligan
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon48.png
@@ -23,7 +23,7 @@
 // @include     http://www.geocaching.com/seek/cache_details.aspx*
 // @include     https://www.geocaching.com/seek/cache_details.aspx*
 // @grant       GM_xmlhttpRequest
-// @version     0.0.8
+// @version     0.0.9
 // @updateURL   http://geo.inge.org.uk/userscripts/Church_Micro_Stats.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Church_Micro_Stats.user.js
 // ==/UserScript==
@@ -198,7 +198,7 @@
   // Don't run on frames or iframes
   if (window.top !== window.self) { return false; }
 
-  console.info("Church Micro Stats v0.0.8");
+  console.info("Church Micro Stats v0.0.9");
 
   if (/\/my\/myfriends\.aspx/.test(location.pathname)) {
     // Your Friends
