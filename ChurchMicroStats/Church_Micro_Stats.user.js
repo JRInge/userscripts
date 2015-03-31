@@ -11,10 +11,10 @@
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon64.png
 // @include     http://www.geocaching.com/my/
 // @include     https://www.geocaching.com/my/
-// @include     http://www.geocaching.com/my/default.aspx
-// @include     https://www.geocaching.com/my/default.aspx
-// @include     http://www.geocaching.com/my/myfriends.aspx
-// @include     https://www.geocaching.com/my/myfriends.aspx
+// @include     http://www.geocaching.com/my/default.aspx*
+// @include     https://www.geocaching.com/my/default.aspx*
+// @include     http://www.geocaching.com/my/myfriends.aspx*
+// @include     https://www.geocaching.com/my/myfriends.aspx*
 // @include     http://www.geocaching.com/geocache/*
 // @include     https://www.geocaching.com/geocache/*
 // @include     http://www.geocaching.com/profile/*
