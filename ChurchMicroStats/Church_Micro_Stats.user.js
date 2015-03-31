@@ -135,7 +135,7 @@
       // Abort if award badge already on profile page
       images = document.getElementsByTagName("IMG");
       for (loop = 0; loop < images.length; loop++) {
-        if (images[loop].src === "http://www.15ddv.me.uk/geo/cm/awards/cm_award.php?name=" + userName) {
+        if (/15ddv.me.uk\/geo\/cm\/awards\/cm_award.php/.test(images[loop].src)) {
           console.info("Church micro badge not inserted: already on profile of " + userName);
           return;
         }
