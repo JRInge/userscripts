@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://www.geocaching.com/" />
+<title>ProfileBadge</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">ProfileBadge</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>http://www.geocaching.com/geocache/GC3FP69_church-micro-2603-dursley</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=div.cms-container</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=div.cms-container .cms-user</td>
+	<td>regexp:^TwoRisky$</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=div.cms-container .cms-finds</td>
+	<td>regexp:Finds: [1-9][0-9]*</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=div.cms-container .cms-award</td>
+	<td>regexp:(Reader|Deacon|Curate|Vicar|Archdeacon|Bishop|Archbishop|Primate|Saint)</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=div.cms-container .cms-level</td>
+	<td>regexp:[1-9]</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=div.cms-container a + a .cms-user</td>
+	<td>regexp:^jri$</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=div.cms-container a + a .cms-finds</td>
+	<td>regexp:Finds: [1-9][0-9]*</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=div.cms-container a + a .cms-award</td>
+	<td>regexp:(Reader|Deacon|Curate|Vicar|Archdeacon|Bishop|Archbishop|Primate|Saint)</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=div.cms-container a + a .cms-level</td>
+	<td>regexp:[1-9]</td>
+</tr>
+</tbody></table>
+</body>
+</html>
