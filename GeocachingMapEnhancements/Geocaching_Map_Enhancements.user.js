@@ -1,6 +1,6 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.2.1
+// @version     0.7.3
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -29,8 +29,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.2.1",
-		versionMsg: "This is a development version. Please report any bugs.",
+		version: "0.7.3",
+		versionMsg: "This is a bugfix version which disables the broken OS map source and fixes various minor bugs. Please report any new bugs!",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
@@ -49,7 +49,6 @@ var gmeResources = {
 			{alt:"Bing Aerial View", tileUrl:"https://ecn.t{s}.tiles.virtualearth.net/tiles/a{q}?g=737&n=z", subdomains: "0123", minZoom: 1, maxZoom: 20, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "bingaerial" },
 			{alt:"Google Maps",tileUrl:"https://mt.google.com/vt?&x={x}&y={y}&z={z}",name:"googlemaps",attribution:"<a href=\'https://maps.google.com/\'>Google</a> Maps",subdomains:"1234",tileSize:256,maxZoom:22},
 			{alt:"Google Satellite",tileUrl:"https://mt.google.com/vt?lyrs=s&x={x}&y={y}&z={z}",name:"googlemapssat",attribution:"<a href=\'https://maps.google.com/\'>Google</a> Maps Satellite",subdomains:"1234",tileSize:256,maxZoom:22},
-			{alt:"Ordnance Survey", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS", subdomains: "0123", minZoom: 10, maxZoom: 17, attribution: "Ordnance Survey imagery from <a href=\'https://www.bing.com/maps/\'>Bing Maps</a>", name: "bingos" },
 			{alt:"London Street Maps", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&productSet=mmCB", subdomains: "0123", minZoom: 14, maxZoom: 17, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "binglondon", ignore: true},
 			{alt:"Freemap Slovakia Hiking", tileUrl: "http://t{s}.freemap.sk/T/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true},
 			{alt:"Freemap Slovakia Bicycle", tileUrl: "http://t{s}.freemap.sk/C/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true},
@@ -2601,6 +2600,13 @@ if(gmeResources.env.storage) {
 			}
 			delete gmeResources.parameters.excludeMaps;
 		}
+		/* Remove broken map source */
+		for (a = gmeResources.parameters.maps.length - 1;  a >= 0; a--) {
+			if (gmeResources.parameters.maps[a].tileUrl === "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS") {
+				gmeResources.parameters.maps.splice(a,1);
+			}
+		}
+
 		localStorage.setItem("GME_parameters",JSON.stringify(gmeResources.parameters));
 	} catch (e){
 		console.error("GME: Bad Exception: " + e);
