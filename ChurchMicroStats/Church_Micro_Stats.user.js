@@ -4,17 +4,17 @@
 // @description Adds your church micro stats badge onto your profile and the cache listing page for Church Micro caches.
 // @oujs:author JRI
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @copyright   2014, James Inge (http://geo.inge.org.uk/)
+// @copyright   2014-15, James Inge (http://geo.inge.org.uk/)
 // @attribution Church Micro stats provided by BaSHful (http://www.15ddv.me.uk/geo/cm/cm.html)
 // @attribution Image by Lorna Mulligan
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon64.png
 // @include     http://www.geocaching.com/my/
 // @include     https://www.geocaching.com/my/
-// @include     http://www.geocaching.com/my/default.aspx
-// @include     https://www.geocaching.com/my/default.aspx
-// @include     http://www.geocaching.com/my/myfriends.aspx
-// @include     https://www.geocaching.com/my/myfriends.aspx
+// @include     http://www.geocaching.com/my/default.aspx*
+// @include     https://www.geocaching.com/my/default.aspx*
+// @include     http://www.geocaching.com/my/myfriends.aspx*
+// @include     https://www.geocaching.com/my/myfriends.aspx*
 // @include     http://www.geocaching.com/geocache/*
 // @include     https://www.geocaching.com/geocache/*
 // @include     http://www.geocaching.com/profile/*
@@ -23,7 +23,7 @@
 // @include     http://www.geocaching.com/seek/cache_details.aspx*
 // @include     https://www.geocaching.com/seek/cache_details.aspx*
 // @grant       GM_xmlhttpRequest
-// @version     0.0.8
+// @version     0.0.9
 // @updateURL   http://geo.inge.org.uk/userscripts/Church_Micro_Stats.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Church_Micro_Stats.user.js
 // ==/UserScript==
@@ -41,7 +41,7 @@
     jsonp = document.createElement("script"),
     profileName = document.getElementById("ctl00_ContentBody_ProfilePanel1_lblMemberName"),
     statsUri = "http://www.15ddv.me.uk/geo/cm/awards/cm_data.php?name=",
-    userField = document.getElementsByClassName("SignedInProfileLink"),
+    userField = document.getElementsByClassName("li-user-info"),
     userName = "",
     userNames = [];
 
@@ -135,7 +135,7 @@
       // Abort if award badge already on profile page
       images = document.getElementsByTagName("IMG");
       for (loop = 0; loop < images.length; loop++) {
-        if (images[loop].src === "http://www.15ddv.me.uk/geo/cm/awards/cm_award.php?name=" + userName) {
+        if (/15ddv.me.uk\/geo\/cm\/awards\/cm_award.php/.test(images[loop].src)) {
           console.info("Church micro badge not inserted: already on profile of " + userName);
           return;
         }
@@ -198,7 +198,7 @@
   // Don't run on frames or iframes
   if (window.top !== window.self) { return false; }
 
-  console.info("Church Micro Stats v0.0.8");
+  console.info("Church Micro Stats v0.0.9");
 
   if (/\/my\/myfriends\.aspx/.test(location.pathname)) {
     // Your Friends
@@ -231,8 +231,8 @@
     }
     break;
   default:
-    if (userField.length > 0) {
-      userNames.push(userField[0].innerHTML.trim());
+    if (userField.length > 0 && userField[0].children && userField[0].children.length > 0) {
+      userNames.push(userField[0].children[0].innerHTML.trim());
     }
     userNames.push(getHiderName());
     break;
