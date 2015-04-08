@@ -1,6 +1,6 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.2
+// @version     0.7.3
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -29,8 +29,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.2",
-		versionMsg: "This version updates Hillshading and some other map sources, but these changes won't take effect until GME's configuration is reset to Defaults. If you are using custom map sources, export them first and make sure you have a backup of the JSON codes.",
+		version: "0.7.3",
+		versionMsg: "This is a bugfix version which disables the broken OS map source and fixes various minor bugs. Please report any new bugs!",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
@@ -49,7 +49,6 @@ var gmeResources = {
 			{alt:"Bing Aerial View", tileUrl:"https://ecn.t{s}.tiles.virtualearth.net/tiles/a{q}?g=737&n=z", subdomains: "0123", minZoom: 1, maxZoom: 20, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "bingaerial" },
 			{alt:"Google Maps",tileUrl:"https://mt.google.com/vt?&x={x}&y={y}&z={z}",name:"googlemaps",attribution:"<a href=\'https://maps.google.com/\'>Google</a> Maps",subdomains:"1234",tileSize:256,maxZoom:22},
 			{alt:"Google Satellite",tileUrl:"https://mt.google.com/vt?lyrs=s&x={x}&y={y}&z={z}",name:"googlemapssat",attribution:"<a href=\'https://maps.google.com/\'>Google</a> Maps Satellite",subdomains:"1234",tileSize:256,maxZoom:22},
-			{alt:"Ordnance Survey", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS", subdomains: "0123", minZoom: 10, maxZoom: 17, attribution: "Ordnance Survey imagery from <a href=\'https://www.bing.com/maps/\'>Bing Maps</a>", name: "bingos" },
 			{alt:"London Street Maps", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&productSet=mmCB", subdomains: "0123", minZoom: 14, maxZoom: 17, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "binglondon", ignore: true},
 			{alt:"Freemap Slovakia Hiking", tileUrl: "http://t{s}.freemap.sk/T/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true},
 			{alt:"Freemap Slovakia Bicycle", tileUrl: "http://t{s}.freemap.sk/C/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true},
@@ -276,7 +275,7 @@ var gmeResources = {
 							$("#GME_default").bind("click", setDefault);
 							$("#GME_custom_add").bind("click", addCustom);
 							$("#GME_custom_export").bind("click", exportCustom);
-							$("#ctl00_liNavProfile .SubMenu").append("<li><a id=\'gme-config-link\' href=\'#GME_config\' title=\'Configure Geocaching Map Enhancements extension\'>Geocaching Map Enhancements</a></li>");
+							$("li.li-user ul").append("<li class='li-settings'><a class='icon-settings' id='gme-config-link' href='#GME_config' title='Configure Geocaching Map Enhancements extension'>Geocaching Map Enhancements</a></li>");
 						}
 					},
 					"drop": function () {
@@ -1445,7 +1444,7 @@ var gmeResources = {
 					marker: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAZCAYAAADuWXTMAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAOQSURBVDiNhdRPSCNXHAfw7xs1mc5MjP9itE5ISjVGQrGxKgu6FIzx1CCskKunsj1YKN68tRdPBQ89hdKLl8JmLRR6sGzAPXRB0VVML2Y3kpDBJkHNv3EmTZjx14tZdM3aHzx4vPf78OP9Hu8xIsJNMABfxuPx7xKJxMT5%2BXn3xcWF0NfXpzscjtL4%2BPjrYDD4I4BXTQAiAhF1xWKxg%2BHhYRoYGCCfz0d%2Bv58CgQD5%2FX7y%2BXw0ODhIY2NjFIvFdonITkRgRMQ2NjZO19fXPxkdHUVPTw8AQFVVqKoKm80Gm80GACgWi0gmk1hbW0uvrq5%2BynZ2dlaWlpZ%2BmpychNVqRalUwv7%2B%2FhUR%2FQPgbwCfMcY%2Bnpqakrq7u1Gv13FwcICtra1v2fLy8sHe3t4XIyMjKBQKdHh4eG4YxhMienc2xthMe3v7bxMTEw6n08lSqRSmp6dfc7lcThZFEYZh4Pj4%2BMowjMe34U1fXhmG8fhmH4IgIJfLyVw%2Bn%2B8SBAGKopBhGDEieoMWQURvDMOIKYpCgiCgUCjYuUKhYBEEAaqq1k3TfNEKNsM0zReqqtZvsJUTBKHRaDSgqqoJ4O1DGMBbVVXNRqMBnucbnNvtzpbLZYii2AZA%2Fh8si6LYVqlU4Ha7FW5oaGi3VqtBkiQrx3GPHpIcxz2SJMlaq9Ugy%2FIu19nZua3rOmRZZhaLZYUx1tcKMsb6LBbLiizLTNd1SJL0J5fJZLaq1eo1Ywxer1fkef4lY2zoPTjE8%2FxLr9crchyHSqVynUwmnzMiwsLCwmE%2Bnw94PB4oikInJye1tra2PzRN%2B0sUxVnTNL%2Fy%2BXwfuVwulslk0N%2FffxyPxz9vBwCXy%2FV9IpH43ePxwOVyMYfDIVxeXkY0TYuIooje3l7wPA8AuLi4QCAQ%2BAEAWPNJut3ufz0ej9Vut3%2BwYdVqFaenp3VFUXgA4Jobs7Ozz3K53IP3lMvlMDMz8%2Fxd95sTSZK%2BKZfLpqZpLaGu6ygWi6bFYnl6D0ejUX1%2Bfv7XbDbbEmezWczNzT3b3NzU7mEAsNlsTyuVinl1dXUHapqGUqlkWq3Wr2%2Bv38HRaFQPh8M%2Fp1KpOziVSiEcDv9yuypwq9u3IxAIlBljdlmWcXZ2huvr68rR0VHX%2B3ncPQkgFAotptNpVKtVpNNphEKhxVZ5zd%2Fz3ohEItsdHR0UiUS2P5TTsjIAOJ3OxWAwmHQ6na2rAvgPIb3JdHxMgbEAAAAASUVORK5CYII%3D',
 					tick:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAXCAYAAAAYyi9XAAAALHRFWHRDcmVhdGlvbiBUaW1lAFRodSAxNyBNYXkgMjAxMiAyMjoxMjo1MiAtMDAwMP%2F5zBkAAAAHdElNRQfcBREVNTVnAq5wAAAACXBIWXMAAAsSAAALEgHS3X78AAAABGdBTUEAALGPC%2FxhBQAAAnRJREFUeNq9lMlrFEEUh19VdU3P1j0koujFmYzE4B8gCaIXTx6SgODFBUTw4lkv4kHxKuLFs4JHEZQkF0GM%2B4KIATHE4DATBMmiSetktq7NVxM7DB4n03nQdHdtv%2FreRmAbrFAo%2BM4e55477Oad7RAkaTKmq%2FqYrMgE3Q464pJL7kGXAQMRu6ClAwEHUodSjlpUzVhdGtElR5IU6QC%2FF2IltHSEkP3%2BOZ833zQFSZKnsRFGdJnxjOPsciD8GoZA4X5shG06Rga9k14inAtxANbkgvwci%2BAm3WiG830c6k%2Fqkqboq0qlUo3FpZ10%2Bo%2BG1kxLgoRJO9dzwn90F%2F2zvsMHuY0d6HXdkEvyWSyClo56tJA9kXUxbtB43tCEk3nTMMt2vmuXIkkaXz4%2BSxgb00nnnfZSbDcDFIHmBywHTqZwjexaEA9m2Ixv6po%2BjkRvi35xAmP1kqTI4TbdeDZp14mSAPldShR%2BHO3tShBvq4peccY0zXm2k42xPDuCBwuMFfPObNBZw2SxrxVs3HNbErSGh9xl%2FWxEr%2BlT%2Fdf6d%2FA8B13Xmu%2Fl7bwwytj4CZqmL0qVUjXa13XSIGWoVtVlY8xscCOwbQsSQwmKbm3Pqx%2FKEiq82GTnvi1lKYoumqq5IMqiGtwOlBFmcy6cbXeXmvqlXvdM0Fr5W%2FkdGLi6%2FmBd1x7VNgZR13YXkiCf8G%2Bxp4LWMFnu0CSdCG4FYbvQA%2BwuH1sS4zgZlUxkrBeCQRCInJt7DxxGxbzIsT7GalO1lvltrgSrwXLnWtILwcgGhgaOYpE%2FpH3Uw5L5olbUMBLWe%2B7SyEzLTOOJ19VP1cLmPf2%2FmLW%2FylgqETpxl%2BsAAAAASUVORK5CYII%3D'
 				},
-				wptTypes = [[/Geocache/i,"2"],[/Traditional Cache/i,"2"],[/Multi-cache/i,"3"],[/Virtual Cache/i,"4"],[/Letterbox Hybrid/i,"5"],[/Event Cache/i,"6"],[/Unknown cache/i,"8"],[/Webcam Cache/i,"11"],[/Cache In Trash Out Event/i,"13"],[/Wherigo Cache/i,"1858"],[/Locationless \\(Reverse\\) Cache/i,"12"],[/Mega-Event Cache/i,"453"],[/GPS Adventures Exhibit/i,"1304"],[/Groundspeak Block Party/i,"4738"],[/Groundspeak HQ/i,"3773"],[/Groundspeak Lost and Found Celebration/i,"3774"],[/Lost and Found Event Cache/i,"3653"],[/Project APE Cache/i,"9"],[/Earthcache/i,"137"],[/Question to Answer/i,"218"],[/Parking Area/i,"217"],[/Stages of a Multicache/i,"219"],[/Final Location/i,"220"],[/Trailhead/i,"221"],[/Reference Point/i,"452"]],
+				wptTypes = [[/Geocache/i,"2"],[/Traditional Cache/i,"2"],[/Multi-cache/i,"3"],[/Virtual Cache/i,"4"],[/Letterbox Hybrid/i,"5"],[/Event Cache/i,"6"],[/Unknown cache/i,"8"],[/Webcam Cache/i,"11"],[/Cache In Trash Out Event/i,"13"],[/Wherigo Cache/i,"1858"],[/Locationless \(Reverse\) Cache/i,"12"],[/Mega-Event Cache/i,"453"],[/GPS Adventures Exhibit/i,"1304"],[/Groundspeak Block Party/i,"4738"],[/Groundspeak HQ/i,"3773"],[/Groundspeak Lost and Found Celebration/i,"3774"],[/Lost and Found Event Cache/i,"3653"],[/Project APE Cache/i,"9"],[/Earthcache/i,"137"],[/Question to Answer/i,"218"],[/Parking Area/i,"217"],[/Stages of a Multicache/i,"219"],[/Final Location/i,"220"],[/Trailhead/i,"221"],[/Reference Point/i,"452"]],
 				polylineObj = {
 					initialize: function (pts, ops) {
 						L.Polyline.prototype.initialize.call(this, pts, ops);
@@ -1467,13 +1466,19 @@ var gmeResources = {
 						return ((typeof window.btoa === "function") ? "data:application/xml-gpx;base64," : "data:application/xml-gpx,") + b64encode(this.getGPX());
 					},
 					getGPX:function() {
-						var author = ["\t<author>", $(".CommonUsername").attr("title") || "Geocaching.com user", "</author>\r\n"].join(""), date = !!Date.prototype.toISOString?["	<time>",new Date().toISOString(),"</time>\r\n"].join(""):"", i, l, gpx = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<gpx creator=\"Geocaching Map Enhancements v", that.getVersion(), "\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\r\n\t<name>GME Export</name>\r\n\t<desc>Route file exported by Geocaching Map Enhancements</desc>\r\n", author, date].join("");
+						var name = $(".CommonUsername").attr("title"),
+							author = name ?
+								(name + '</name>\r\n\t\t\t<link href="http://www.geocaching.com/profile/?u=' + name + '"><text>' + name + '\'s profile</text></link>\r\n') :
+								"Geocaching.com user</name>\r\n",
+							date = !!Date.prototype.toISOString ? ["\t\t<time>", new Date().toISOString(), "</time>\r\n"].join("") : "",
+							i, l,
+							gpx = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<gpx creator=\"Geocaching Map Enhancements v", that.getVersion(), "\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\r\n\t<metadata>\r\n\t\t<name>GME Export</name>\r\n\t\t<desc>Route file exported from Geocaching.com using Geocaching Map Enhancements.</desc>\r\n\t\t<author>\r\n\t\t\t<name>", author, "\t\t</author>\r\n", date, "\t</metadata>\r\n"].join("");
 						for (i = 0, l = this._latlngs.length; i < l; i++) {
-							gpx += [ "\t<wpt lat=\"", this._latlngs[i].lat, "\" lon=\"", this._latlngs[i].lng, "\">\r\n\t\t<name>P",i,"</name>\r\n\t\t<type>Waypoint</type>\r\n\t</wpt>\r\n"].join("");
+							gpx += [ "\t<wpt lat=\"", this._latlngs[i].lat, "\" lon=\"", this._latlngs[i].lng, "\">\r\n\t\t<name>P", i, "</name>\r\n\t\t<type>Waypoint</type>\r\n\t</wpt>\r\n"].join("");
 						}
 						gpx += "\t<rte>\r\n\t\t<name>GME exported route</name>\r\n\t\t<src>Manual entry</src>\r\n\t\t<number>1</number>\r\n";
 						for (i = 0, l = this._latlngs.length; i < l; i++) {
-							gpx += [ "\t\t<rtept lat=\"", this._latlngs[i].lat, "\" lon=\"", this._latlngs[i].lng, "\">\r\n\t\t\t<name>P",i,"</name>\r\n\t\t\t<type>Waypoint</type>\r\n\t\t</rtept>\r\n"].join("");
+							gpx += [ "\t\t<rtept lat=\"", this._latlngs[i].lat, "\" lon=\"", this._latlngs[i].lng, "\">\r\n\t\t\t<name>P", i, "</name>\r\n\t\t\t<type>Waypoint</type>\r\n\t\t</rtept>\r\n"].join("");
 						}
 						gpx += "\t</rte>\r\n</gpx>";
 						return gpx;
@@ -2264,7 +2269,7 @@ var gmeResources = {
 								return false;
 							}
 						}
-						m = searchVal.match(/^\\s*(GC[0123456789ABCDEFGHJKMNOPQRSTVWXYZ]{1,7})\\s*$/i);
+						m = searchVal.match(/^\s*(GC[0123456789ABCDEFGHJKMNOPQRSTVWXYZ]{1,7})\s*$/i);
 						if (m && m.length === 2) {
 							if (gmeConfig.env.loggedin) {
 								this.panToGC(m[1]);
@@ -2595,6 +2600,13 @@ if(gmeResources.env.storage) {
 			}
 			delete gmeResources.parameters.excludeMaps;
 		}
+		/* Remove broken map source */
+		for (a = gmeResources.parameters.maps.length - 1;  a >= 0; a--) {
+			if (gmeResources.parameters.maps[a].tileUrl === "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS") {
+				gmeResources.parameters.maps.splice(a,1);
+			}
+		}
+
 		localStorage.setItem("GME_parameters",JSON.stringify(gmeResources.parameters));
 	} catch (e){
 		console.error("GME: Bad Exception: " + e);
