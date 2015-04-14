@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.3
+// @version     0.7.3.1
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -29,7 +29,7 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.3",
+		version: "0.7.3.1",
 		versionMsg: "This is a bugfix version which disables the broken OS map source and fixes various minor bugs. Please report any new bugs!",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
@@ -59,8 +59,8 @@ var gmeResources = {
 	css: {
 		main: '.leaflet-control-gme,.leaflet-control-zoomwarning {border-radius:7px; filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#3F000000",EndColorStr="#3F000000"); padding:5px;z-index:8;}\
 			.leaflet-control-gme {display: inline-block; padding: 0; background: rgba(0, 0, 0, 0.2); box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);}\
-			.gme-control-scale {bottom:5em !important;margin-left:13px !important; left: 30px;}\
-			.gme-left {left: 30px; margin-left:13px !important;}\
+			.gme-control-scale {bottom:5em !important;margin-left:13px !important; left: 385px;}\
+			.gme-left {left: 385px; margin-left:13px !important;}\
 			div.gme-identify-layer {margin-top:-1em;margin-left:1em;padding-left:0.1em;font-weight:bold;background:rgba(255,255,255,0.57);}\
 			#gme_caches table { margin-top: 0.5em; }\
 			.GME_search_list { border: 1px solid #679300; border-radius: 7px; padding: 0.5em; }\
@@ -1327,8 +1327,8 @@ var gmeResources = {
 					$(".SearchBox").on("keydown", goSearch);
 					$("#search p")[0].innerHTML = "Search by <span style='cursor:help;' title='Enhanced by Geonames'>Address</span>, Coordinates, GC-code,<br/><span style='cursor:help;' title='Jump to a specific zoom level by typing zoom then a number. Zoom 1 shows the whole world, maxiumum zoom is normally 18-22.'>zoom</span> or <span style='cursor:help;' title='To search using a British National Grid reference, just type it in the search box and hit the button! You can use 2, 4, 6, 8 or 10-digit grid refs with the 2-letter prefix but no spaces in the number (e.g. SU12344225) or absolute grid refs with a comma but no prefix (e.g. 439668,1175316).'>Grid Ref</span>";
 				}
-				if (window.amplify && typeof amplify.store === "function" && amplify.store("ShowPanel")) {
-					$(".leaflet-control-toolbar,.groundspeak-control-findmylocation,.leaflet-control-scale,.gme-left").css("left","385px");
+				if (window.amplify && typeof amplify.store === "function" && amplify.store("ShowPanel") === false) {
+					$(".leaflet-control-toolbar,.groundspeak-control-findmylocation,.leaflet-control-scale,.gme-left").css("left","30px");
 				}
 				if (gmeConfig.env.storage) {
 					if (localStorage.GME_cache) {
@@ -2345,8 +2345,8 @@ var gmeResources = {
 						}
 						if (this.getZoom() > 18) {
 							c.style.display = "block";
-							if (typeof amplify === "object" && typeof amplify.store==="function" && amplify.store("ShowPanel")) {
-								$(".leaflet-control-zoomwarning").css("left","385px");
+							if (typeof amplify === "object" && typeof amplify.store==="function" && amplify.store("ShowPanel") === false) {
+								$(".leaflet-control-zoomwarning").css("left","30px");
 							}
 						} else {
 							c.style.display = "none";
