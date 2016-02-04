@@ -1289,7 +1289,7 @@ var gmeResources = {
 							if (parking.type === 217 || parking.type === 221) {
 								label = parking.type===217?"Parking Area":"Trailhead";
 								parkUrl = ["https://www.google.com/maps/dir/",gmeConfig.env.home.toUrl(),"/", parking.lat, ",", parking.lng, "/"].join("");
-								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[7].innerHTML += '<a target="_blank" href="' + parkUrl + '"><img width="16" height="16" title="Directions to "' + label + '" alt="' + label + '" src="https://www.geocaching.com/images/wpttypes/sm/pkg.jpg" /></a>';
+								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[7].innerHTML += '<a target="_blank" href="' + parkUrl + '"><img width="16" height="16" title="Directions to ' + label + '" alt="' + label + '" src="https://www.geocaching.com/images/wpttypes/sm/pkg.jpg" /></a>';
 							}
 						}
 					}
