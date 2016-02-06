@@ -125,7 +125,7 @@ var gmeResources = {
 		dragdrop: (document.createElement('span').draggable !== undefined),
 		geolocation: !!navigator.geolocation,
 		init: [],
-		loggedin: (!!document.getElementById("ctl00_uxLoginStatus_divSignedIn") || (document.getElementById("uxLoginStatus_uxLoginURL") !== null && document.getElementById("uxLoginStatus_uxLoginURL").innerHTML !== "Log in")),
+		loggedin: (!!document.getElementById("ctl00_uxLoginStatus_divSignedIn") || !!document.getElementById("uxLoginStatus_divSignedIn")),
 		page: "default",
 		storage: false,
 		xhr: (typeof GM_xmlhttpRequest === 'function')
