@@ -8,7 +8,7 @@
 // @include     http://www.geocaching.com/*
 // @include     https://www.geocaching.com/*
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @copyright   2011-14, James Inge (http://geo.inge.org.uk/)
+// @copyright   2011-16, James Inge (http://geo.inge.org.uk/)
 // @attribution GeoNames (http://www.geonames.org/)
 // @attribution Postcodes.io (http://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
@@ -30,7 +30,7 @@ var gmeResources = {
 	parameters: {
 		// Defaults
 		version: "0.7.3.1",
-		versionMsg: "This is a bugfix version which disables the broken OS map source and fixes various minor bugs. Please report any new bugs!",
+		versionMsg: "This is a bugfix version which fixes GME on cache listing pages, and fixes search by GC-code on the main map. Enjoy!",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
@@ -194,7 +194,7 @@ var gmeResources = {
 				<div class="gme-tab-content">\
 					<div class="gme-fieldgroup">\
 						<h3>Geocaching Map Enhancements</h3><br />\
-						<p>v<span id="GME_version"></span> &copy; 2011-2014 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
+						<p>v<span id="GME_version"></span> &copy; 2011-2016 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
 						<p>Elevation and reverse geocoding data provided by <a target="_blank" href="http://www.geonames.org/">GeoNames</a> and used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
 						<p>Grid reference manipulation is adapted from code &copy; 2005-2014 Chris Veness (<a target="_blank" href="http://www.movable-type.co.uk/scripts/latlong-gridref.html">www.movable-type.co.uk/scripts/latlong-gridref.html</a>, used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
 						<p>Photos provided by Panoramio and Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. Geograph photos may be resused under a <a target="_blank" href="http://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
@@ -2641,6 +2641,7 @@ switch(gmeResources.env.page) {
 		// On a geocache listing
 		if (!gmeResources.env.loggedin) {
 			// Not logged in, so no maps or coordinates...
+			console.log("GME: Couldn't detect log-in.  Exiting...");
 			return;
 		}
 		if (gmeResources.env.dragdrop) { insertCSS(gmeResources.css.drag); }
