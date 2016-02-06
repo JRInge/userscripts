@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.3
+// @version     0.7.3.1
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -8,7 +8,7 @@
 // @include     http://www.geocaching.com/*
 // @include     https://www.geocaching.com/*
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @copyright   2011-14, James Inge (http://geo.inge.org.uk/)
+// @copyright   2011-16, James Inge (http://geo.inge.org.uk/)
 // @attribution GeoNames (http://www.geonames.org/)
 // @attribution Postcodes.io (http://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
@@ -29,8 +29,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.3",
-		versionMsg: "This is a bugfix version which disables the broken OS map source and fixes various minor bugs. Please report any new bugs!",
+		version: "0.7.3.1",
+		versionMsg: "This is a bugfix version which fixes GME on cache listing pages, and fixes search by GC-code on the main map. Enjoy!",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
@@ -59,8 +59,8 @@ var gmeResources = {
 	css: {
 		main: '.leaflet-control-gme,.leaflet-control-zoomwarning {border-radius:7px; filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#3F000000",EndColorStr="#3F000000"); padding:5px;z-index:8;}\
 			.leaflet-control-gme {display: inline-block; padding: 0; background: rgba(0, 0, 0, 0.2); box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);}\
-			.gme-control-scale {bottom:5em !important;margin-left:13px !important; left: 30px;}\
-			.gme-left {left: 30px; margin-left:13px !important;}\
+			.gme-control-scale {bottom:5em !important;margin-left:13px !important; left: 385px;}\
+			.gme-left {left: 385px; margin-left:13px !important;}\
 			div.gme-identify-layer {margin-top:-1em;margin-left:1em;padding-left:0.1em;font-weight:bold;background:rgba(255,255,255,0.57);}\
 			#gme_caches table { margin-top: 0.5em; }\
 			.GME_search_list { border: 1px solid #679300; border-radius: 7px; padding: 0.5em; }\
@@ -125,7 +125,7 @@ var gmeResources = {
 		dragdrop: (document.createElement('span').draggable !== undefined),
 		geolocation: !!navigator.geolocation,
 		init: [],
-		loggedin: (!!document.getElementById("ctl00_divSignedIn") || (document.getElementById("uxLoginStatus_uxLoginURL") !== null && document.getElementById("uxLoginStatus_uxLoginURL").innerHTML !== "Log in")),
+		loggedin: (!!document.getElementById("ctl00_uxLoginStatus_divSignedIn") || !!document.getElementById("uxLoginStatus_divSignedIn")),
 		page: "default",
 		storage: false,
 		xhr: (typeof GM_xmlhttpRequest === 'function')
@@ -194,7 +194,7 @@ var gmeResources = {
 				<div class="gme-tab-content">\
 					<div class="gme-fieldgroup">\
 						<h3>Geocaching Map Enhancements</h3><br />\
-						<p>v<span id="GME_version"></span> &copy; 2011-2014 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
+						<p>v<span id="GME_version"></span> &copy; 2011-2016 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
 						<p>Elevation and reverse geocoding data provided by <a target="_blank" href="http://www.geonames.org/">GeoNames</a> and used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
 						<p>Grid reference manipulation is adapted from code &copy; 2005-2014 Chris Veness (<a target="_blank" href="http://www.movable-type.co.uk/scripts/latlong-gridref.html">www.movable-type.co.uk/scripts/latlong-gridref.html</a>, used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
 						<p>Photos provided by Panoramio and Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. Geograph photos may be resused under a <a target="_blank" href="http://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
@@ -1289,7 +1289,7 @@ var gmeResources = {
 							if (parking.type === 217 || parking.type === 221) {
 								label = parking.type===217?"Parking Area":"Trailhead";
 								parkUrl = ["https://www.google.com/maps/dir/",gmeConfig.env.home.toUrl(),"/", parking.lat, ",", parking.lng, "/"].join("");
-								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[7].innerHTML += '<a target="_blank" href="' + parkUrl + '"><img width="16" height="16" title="Directions to "' + label + '" alt="' + label + '" src="https://www.geocaching.com/images/wpttypes/sm/pkg.jpg" /></a>';
+								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[7].innerHTML += '<a target="_blank" href="' + parkUrl + '"><img width="16" height="16" title="Directions to ' + label + '" alt="' + label + '" src="https://www.geocaching.com/images/wpttypes/sm/pkg.jpg" /></a>';
 							}
 						}
 					}
@@ -1327,8 +1327,8 @@ var gmeResources = {
 					$(".SearchBox").on("keydown", goSearch);
 					$("#search p")[0].innerHTML = "Search by <span style='cursor:help;' title='Enhanced by Geonames'>Address</span>, Coordinates, GC-code,<br/><span style='cursor:help;' title='Jump to a specific zoom level by typing zoom then a number. Zoom 1 shows the whole world, maxiumum zoom is normally 18-22.'>zoom</span> or <span style='cursor:help;' title='To search using a British National Grid reference, just type it in the search box and hit the button! You can use 2, 4, 6, 8 or 10-digit grid refs with the 2-letter prefix but no spaces in the number (e.g. SU12344225) or absolute grid refs with a comma but no prefix (e.g. 439668,1175316).'>Grid Ref</span>";
 				}
-				if (window.amplify && typeof amplify.store === "function" && amplify.store("ShowPanel")) {
-					$(".leaflet-control-toolbar,.groundspeak-control-findmylocation,.leaflet-control-scale,.gme-left").css("left","385px");
+				if (window.amplify && typeof amplify.store === "function" && amplify.store("ShowPanel") === false) {
+					$(".leaflet-control-toolbar,.groundspeak-control-findmylocation,.leaflet-control-scale,.gme-left").css("left","30px");
 				}
 				if (gmeConfig.env.storage) {
 					if (localStorage.GME_cache) {
@@ -1472,7 +1472,7 @@ var gmeResources = {
 								"Geocaching.com user</name>\r\n",
 							date = !!Date.prototype.toISOString ? ["\t\t<time>", new Date().toISOString(), "</time>\r\n"].join("") : "",
 							i, l,
-							gpx = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<gpx creator=\"Geocaching Map Enhancements v", that.getVersion(), "\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\r\n\t<metadata>\r\n\t\t<name>GME Export</name>\r\n\t\t<desc>Route file exported from Geocaching.com using Geocaching Map Enhancements.</desc>\r\n\t\t<author>\r\n\t\t\t<name>", author, "\t\t</author>\r\n", date, "\t</metadata>\r\n"].join("");
+							gpx = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<gpx creator=\"Geocaching Map Enhancements v", that.getVersion(), "\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\" xmlns=\"http://www.topografix.com/GPX/1/1\">\r\n\t<metadata>\r\n\t\t<name>GME Export</name>\r\n\t\t<desc>Route file exported from Geocaching.com using Geocaching Map Enhancements.</desc>\r\n\t\t<author>\r\n\t\t\t<name>", author, "\t\t</author>\r\n", date, "\t</metadata>\r\n"].join("");
 						for (i = 0, l = this._latlngs.length; i < l; i++) {
 							gpx += [ "\t<wpt lat=\"", this._latlngs[i].lat, "\" lon=\"", this._latlngs[i].lng, "\">\r\n\t\t<name>P", i, "</name>\r\n\t\t<type>Waypoint</type>\r\n\t</wpt>\r\n"].join("");
 						}
@@ -2345,8 +2345,8 @@ var gmeResources = {
 						}
 						if (this.getZoom() > 18) {
 							c.style.display = "block";
-							if (typeof amplify === "object" && typeof amplify.store==="function" && amplify.store("ShowPanel")) {
-								$(".leaflet-control-zoomwarning").css("left","385px");
+							if (typeof amplify === "object" && typeof amplify.store==="function" && amplify.store("ShowPanel") === false) {
+								$(".leaflet-control-zoomwarning").css("left","30px");
 							}
 						} else {
 							c.style.display = "none";
@@ -2641,6 +2641,7 @@ switch(gmeResources.env.page) {
 		// On a geocache listing
 		if (!gmeResources.env.loggedin) {
 			// Not logged in, so no maps or coordinates...
+			console.log("GME: Couldn't detect log-in.  Exiting...");
 			return;
 		}
 		if (gmeResources.env.dragdrop) { insertCSS(gmeResources.css.drag); }
