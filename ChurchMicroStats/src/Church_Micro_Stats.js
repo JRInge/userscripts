@@ -11,56 +11,57 @@
     userName = "",
     userNames = [];
 
-  function displayStats(stats, page) {
-    function getAward(num) {
-      var levels = [ "Novice", "Reader", "Deacon", "Curate", "Vicar", "Archdeacon", "Bishop", "Archbishop", "Primate", "Saint" ];
-      if (num >= 0 && num < levels.length) {
-        return levels[num];
-      }
-      return "Infidel";
+  function getAward(num) {
+    var levels = [ "Novice", "Reader", "Deacon", "Curate", "Vicar", "Archdeacon", "Bishop", "Archbishop", "Primate", "Saint" ];
+    if (num >= 0 && num < levels.length) {
+      return levels[num];
     }
-    function getHtml(uname, level, award, finds) {
-      switch (level) {
-      case -1:
-        return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't got any Church Micro finds in the database yet.</a>";
-      case 0:
-        return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't qualified for a Church Micros award yet (only " + finds + " finds in the database).</a>";
-      default:
-        return "<a class='cms-badge' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful: " + uname + " is a Level " + level + " " + award + " after finding " + finds + " Church Micro caches'><span class='cms-user'>" + uname +
-          "</span><br /><span class='cms-award'>" + award +
-          "</span><br /><span class='cms-finds'>Finds: " + finds +
-          "</span><br /><span class='cms-level'>" + level +
-          "</span></a>";
-      }
+    return "Infidel";
+  }
+  function getHtml(uname, level, award, finds) {
+    switch (level) {
+    case -1:
+      return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't got any Church Micro finds in the database yet.</a>";
+    case 0:
+      return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't qualified for a Church Micros award yet (only " + finds + " finds in the database).</a>";
+    default:
+      return "<a class='cms-badge' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful: " + uname + " is a Level " + level + " " + award + " after finding " + finds + " Church Micro caches'><span class='cms-user'>" + uname +
+        "</span><br /><span class='cms-award'>" + award +
+        "</span><br /><span class='cms-finds'>Finds: " + finds +
+        "</span><br /><span class='cms-level'>" + level +
+        "</span></a>";
     }
-    function getLevel(num) {
-      var n = parseInt(num, 10);
-      if (isNaN(n) || n < 1) { return -1; }
-      if (n < 10) { return 0; }
-      if (n < 25) { return 1; }
-      if (n < 50) { return 2; }
-      if (n < 100) { return 3; }
-      if (n < 250) { return 4; }
-      if (n < 500) { return 5; }
-      if (n < 1000) { return 6; }
-      if (n < 2500) { return 7; }
-      if (n < 5000) { return 8; }
-      return 9;
-    }
-    function insertFriends(statslist) {
-      var i, j, list, headers;
-      headers = document.getElementsByTagName("H4");
-      for (i = 0; i < headers.length; i++) {
-        for (j = 0; j < statslist.length; j++) {
-          if (headers[i].parentElement.className === "FriendText" && (headers[i].textContent.indexOf(statslist[j].name) !== -1)) {
-            list = headers[i].parentElement.getElementsByClassName("FriendList");
-            if (list.length > 0) {
-              list[0].innerHTML += "<dt><acronym title='Church Micro cache'>CM</acronym> finds:</dt><dd>" + statslist[j].finds + "</dd>";
-            }
+  }
+  function getLevel(num) {
+    var n = parseInt(num, 10);
+    if (isNaN(n) || n < 1) { return -1; }
+    if (n < 10) { return 0; }
+    if (n < 25) { return 1; }
+    if (n < 50) { return 2; }
+    if (n < 100) { return 3; }
+    if (n < 250) { return 4; }
+    if (n < 500) { return 5; }
+    if (n < 1000) { return 6; }
+    if (n < 2500) { return 7; }
+    if (n < 5000) { return 8; }
+    return 9;
+  }
+  function insertFriends(statslist) {
+    var i, j, list, headers;
+    headers = document.getElementsByTagName("H4");
+    for (i = 0; i < headers.length; i++) {
+      for (j = 0; j < statslist.length; j++) {
+        if (headers[i].parentElement.className === "FriendText" && (headers[i].textContent.indexOf(statslist[j].name) !== -1)) {
+          list = headers[i].parentElement.getElementsByClassName("FriendList");
+          if (list.length > 0) {
+            list[0].innerHTML += "<dt><acronym title='Church Micro cache'>CM</acronym> finds:</dt><dd>" + statslist[j].finds + "</dd>";
           }
         }
       }
     }
+  }
+
+  function displayStats(stats, page) {
     var award,
       cmsWidget = document.createElement("div"),
       finds,
