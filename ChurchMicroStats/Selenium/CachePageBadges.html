@@ -16,6 +16,23 @@
 	<td>http://www.geocaching.com/geocache/GC3FP69_church-micro-2603-dursley</td>
 	<td></td>
 </tr>
+<!--Check page structure-->
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=map_preview_canvas</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=ctl00_ContentBody_CacheName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=.li-user-info</td>
+	<td></td>
+</tr>
+<!--Check script functionality-->
 <tr>
 	<td>assertElementPresent</td>
 	<td>css=div.cms-container</td>
@@ -24,7 +41,7 @@
 <tr>
 	<td>verifyText</td>
 	<td>css=div.cms-container .cms-user</td>
-	<td>regexp:^TwoRisky$</td>
+	<td>regexp:^jri$</td>
 </tr>
 <tr>
 	<td>verifyText</td>
@@ -44,7 +61,7 @@
 <tr>
 	<td>verifyText</td>
 	<td>css=div.cms-container a + a .cms-user</td>
-	<td>regexp:^jri$</td>
+	<td>regexp:^TwoRisky$</td>
 </tr>
 <tr>
 	<td>verifyText</td>
