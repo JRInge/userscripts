@@ -85,6 +85,7 @@ var gmeResources = {
 			span.gme-distance-container.show { display: inline-block; }\
 			a.GME_info { background-position: -537px 4px;}\
 			a.GME_info.gme-button-active {background-position: -540px 1px;}\
+			#GME_loc, a.gme-button.leaflet-active {outline: none;}\
 			.leaflet-control-zoomwarning { top: 94px; }\
 			.leaflet-control-zoomwarning a { filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#BFC80000",EndColorStr="#BFC80000"); background-color:rgba(200,0,0,0.75); margin-left: -4px; background-position: -502px 2px;height:14px;width:14px; border-color: #b00; box-shadow: 0 0 8px rgba(0, 0, 0, 0.4); }\
 			.leaflet-control-zoomwarning a:hover { background-color:rgba(230,0,0,0.75); }\
