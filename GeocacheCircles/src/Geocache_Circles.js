@@ -10,9 +10,16 @@
             method: "GET",
             url: "https://www.geocaching.com/geocache/" + e.detail,
             onload: function (data) {
+                var coords;
                 var r = data.responseText;
+                
+                // Look in the page source for the JSON string that holds the cache coords and other metadata.
                 var k = r.indexOf("mapLatLng = {");
-                var coords = r.substring(k + 12, r.indexOf("}", k) + 1);
+                if (k === -1) {
+                    console.warn("Geocache Circles found cache page, but couldn't find coordinates. Maybe not logged in?");
+                    return;
+                }
+                coords = r.substring(k + 12, r.indexOf("}", k) + 1);
 
                 // Send JSON coordinate string from cache page to be processed in userscript context
                 document.dispatchEvent(new CustomEvent('gme_circle_response', {'detail': coords}));
