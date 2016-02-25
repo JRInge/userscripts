@@ -1,3 +1,4 @@
+    var loggedIn = document.getElementById('uxLoginStatus_divSignedIn');
     var template = document.getElementById('cacheDetailsTemplate');
     var script = document.createElement('script');
     var circleIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA6UlEQVQ4ja2TsY3DMAxFiUvvbOTaA0SVRhBEfooyBLjyON7FC3iVNNYVlwB3MQwH5/xW/A/8FEm0I+99E4K0IUjrvW/26jaKETeILZC0KqwqrELSCrElRtx2jaWUq0iaFFaBPKvawMwdM3eqNgB5VlgVSVMp5boBPMx3ibkfx/Hr9d05d5GYe4XdRdK0aVthVWLujyI+IPVPHIgtQJ6dc5cjgHPuAuQZYgsR/UwbklZVG47MT6naAEmr976hEKRVWGXm7l0AM3cKqyFIex5wOgLRySESfeAbiU4uEtEHVvl3nH8d06vePedvYUbM9ZMTrS4AAAAASUVORK5CYII=";
@@ -81,6 +82,11 @@
     if (typeof GM_xmlhttpRequest !== "function") {
         console.warn("Geocache Circles requires a browser or userscript manager with support for the GM_xmlhttpRequest function");
         return false;
+    }
+
+    if (loggedIn === null) {
+        // Warn if not logged in, as coords unavailable.  Don't quit, as user might log in later in a different window, or login detection might have failed.
+        console.warn("Geocache Circles may not be able to locate caches as you don't seem to be logged in.");
     }
 
     if (template) {
