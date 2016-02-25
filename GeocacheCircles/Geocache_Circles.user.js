@@ -7,7 +7,7 @@
 // @oujs:author JRI
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2016, James Inge (http://geo.inge.org.uk/)
-// @version     0.0.1
+// @version     0.0.2
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheCircles/circle48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheCircles/circle64.png
 // @grant       GM_xmlhttpRequest
@@ -19,6 +19,7 @@
 
 (function () {
     "use strict";
+    var loggedIn = document.getElementById('uxLoginStatus_divSignedIn');
     var template = document.getElementById('cacheDetailsTemplate');
     var script = document.createElement('script');
     var circleIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA6UlEQVQ4ja2TsY3DMAxFiUvvbOTaA0SVRhBEfooyBLjyON7FC3iVNNYVlwB3MQwH5/xW/A/8FEm0I+99E4K0IUjrvW/26jaKETeILZC0KqwqrELSCrElRtx2jaWUq0iaFFaBPKvawMwdM3eqNgB5VlgVSVMp5boBPMx3ibkfx/Hr9d05d5GYe4XdRdK0aVthVWLujyI+IPVPHIgtQJ6dc5cjgHPuAuQZYgsR/UwbklZVG47MT6naAEmr976hEKRVWGXm7l0AM3cKqyFIex5wOgLRySESfeAbiU4uEtEHVvl3nH8d06vePedvYUbM9ZMTrS4AAAAASUVORK5CYII=";
@@ -31,9 +32,16 @@
             method: "GET",
             url: "https://www.geocaching.com/geocache/" + e.detail,
             onload: function (data) {
+                var coords;
                 var r = data.responseText;
+                
+                // Look in the page source for the JSON string that holds the cache coords and other metadata.
                 var k = r.indexOf("mapLatLng = {");
-                var coords = r.substring(k + 12, r.indexOf("}", k) + 1);
+                if (k === -1) {
+                    console.warn("Geocache Circles found cache page, but couldn't find coordinates. Maybe not logged in?");
+                    return;
+                }
+                coords = r.substring(k + 12, r.indexOf("}", k) + 1);
 
                 // Send JSON coordinate string from cache page to be processed in userscript context
                 document.dispatchEvent(new CustomEvent('gme_circle_response', {'detail': coords}));
@@ -97,11 +105,16 @@
         return false;
     }
 
+    if (loggedIn === null) {
+        // Warn if not logged in, as coords unavailable.  Don't quit, as user might log in later in a different window, or login detection might have failed.
+        console.warn("Geocache Circles may not be able to locate caches as you don't seem to be logged in.");
+    }
+
     if (template) {
         console.info("Geocache Circles v0.0.1");
 
         // Attach to cache info popup template
-        template.textContent = template.textContent.replace(/<div\ class=\"links\ Clear\">/, '<div class="links Clear"> <a class="jri-circle-link" onclick="document.dispatchEvent(new CustomEvent(\'gme_circle_request\', {\'detail\':\'{{=gc}}\'}));"><img src="' + circleIcon + '" alt="O" style="vertical-align:middle;" width="16" height="16" /> Circle</a>&nbsp; ');
+        template.textContent = template.textContent.replace(/<div\ class=\"links\ Clear\">/, '<div class="links Clear"> <a class="jri-circle-link" style="text-decoration: underline;" onclick="document.dispatchEvent(new CustomEvent(\'gme_circle_request\', {\'detail\':\'{{=gc}}\'}));"><img src="' + circleIcon + '" alt="O" style="vertical-align:middle; margin-right: 0.25em;" width="16" height="16" />Circle</a>&nbsp; ');
 
         // Add event listener to content script context
         script.type = 'text/javascript';
