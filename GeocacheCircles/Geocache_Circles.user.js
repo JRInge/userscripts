@@ -8,8 +8,8 @@
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2016, James Inge (http://geo.inge.org.uk/)
 // @version     0.0.2
-// @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheCircles/circle48.png
-// @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheCircles/circle64.png
+// @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheCircles/images/circle48.png
+// @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheCircles/images/circle64.png
 // @grant       GM_xmlhttpRequest
 // @updateURL   http://geo.inge.org.uk/userscripts/Geocache_Circles.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Geocache_Circles.user.js
