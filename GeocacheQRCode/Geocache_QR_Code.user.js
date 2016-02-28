@@ -9,8 +9,8 @@
 // @include     https://www.geocaching.com/track/details.aspx*
 // @oujs:author JRI
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @copyright   2011-14, James Inge (http://geo.inge.org.uk/)
-// @version     1.2.2
+// @copyright   2011-16, James Inge (http://geo.inge.org.uk/)
+// @version     1.2.3
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheQRCode/QRicon48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheQRCode/QRicon64.png
 // @grant       none
@@ -43,9 +43,9 @@
         if (template) {
             template.textContent = template.textContent.replace(/<div\ class=\"links\ Clear\">/, '<div class="links Clear"> <a style="text-decoration: underline; padding-left: 1em; margin-right: 0.5em; background: -436px -1px url(https://www.geocaching.com/map/css/themes/images/icons-18-black.png);" onclick="$.fancybox(\'<img width=\\\\\\\'186px\\\\\\\' src=\\\\\\\'https://qrcode.kaywa.com/img.php?s=6&d=http://coord.info/{{=gc}}\\\\\\\'>\');">QR</a> ');
         } else {
-            console.error("Geocache QR Code v1.2.2 didn't understand page structure.");
+            console.error("Geocache QR Code v1.2.3 didn't understand page structure.");
             return;
         }
     }
-    console.info("Geocache QR Code v1.2.2");
+    console.info("Geocache QR Code v1.2.3");
 }());

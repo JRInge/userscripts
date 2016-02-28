@@ -9,8 +9,8 @@
 // @include     https://www.geocaching.com/track/details.aspx*
 // @oujs:author JRI
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @copyright   2011-14, James Inge (http://geo.inge.org.uk/)
-// @version     1.2.2
+// @copyright   2011-16, James Inge (http://geo.inge.org.uk/)
+// @version     1.2.3
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheQRCode/QRicon48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheQRCode/QRicon64.png
 // @grant       none
