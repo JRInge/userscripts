@@ -4,51 +4,71 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://www.geocaching.com/" />
-<title>Config Link</title>
+<title>MapPageQR</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">Config Link</td></tr>
+<tr><td rowspan="1" colspan="3">MapPageQR</td></tr>
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>http://www.geocaching.com/my/</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertElementPresent</td>
-	<td>id=ctl00_uxLoginStatus_divSignedIn</td>
-	<td></td>
-</tr>
-<tr>
-	<td>verifyTitle</td>
-	<td>Geocaching &gt; Your Profile</td>
+	<td>https://www.geocaching.com/map/default.aspx?ll=51.45334,-2.59681&amp;z=14</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>css=button.li-user-toggle</td>
+	<td>css=a.GME_info</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertText</td>
-	<td>css=ul.user-expanded li a#gme-config-link</td>
-	<td>Geocaching Map Enhancements</td>
+	<td>clickAt</td>
+	<td>id=map_canvas</td>
+	<td>540,350</td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>id=gme-config-link</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=div &gt; header</td>
+	<td>verifyElementPresent</td>
+	<td>css=a[href*='geo:']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>link=Cancel</td>
+	<td>link=Panoramio</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>link=*photos in this area*</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fancybox-close</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAt</td>
+	<td>id=map_canvas</td>
+	<td>540,350</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Geograph</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>link=*more photos nearby*</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>1000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fancybox-close</td>
 	<td></td>
 </tr>
 </tbody></table>
