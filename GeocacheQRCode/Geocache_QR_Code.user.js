@@ -38,7 +38,7 @@
     console.info("Geocache QR Code v1.2.2");
   } else {
     if (template) {
-      template.textContent = template.textContent.replace(/<div class=\"links Clear\">/, '<div class="links Clear"> <a style="padding-left: 1em; margin-right: 0.5em; background: -436px -1px url(https://www.geocaching.com/map/css/themes/images/icons-18-black.png);" onclick="$.fancybox(\'<img width=\\\\\\\'186px\\\\\\\' src=\\\\\\\'https://qrcode.kaywa.com/img.php?s=6&d=http://coord.info/{{=gc}}\\\\\\\'>\');">QR</a> ');
+      template.textContent = template.textContent.replace(/<div class=\"links Clear\">/, '<div class="links Clear"> <a style="text-decoration: underline; padding-left: 1em; margin-right: 0.5em; background: -436px -1px url(https://www.geocaching.com/map/css/themes/images/icons-18-black.png);" onclick="$.fancybox(\'<img width=\\\\\\\'186px\\\\\\\' src=\\\\\\\'https://qrcode.kaywa.com/img.php?s=6&d=http://coord.info/{{=gc}}\\\\\\\'>\');">QR</a> ');
     } else {
       console.error("Geocache QR Code v1.2.2 didn't understand page structure.");
     }
