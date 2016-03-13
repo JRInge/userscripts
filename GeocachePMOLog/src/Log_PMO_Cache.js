@@ -6,7 +6,7 @@
 
     function buildHTML(code) {
         // Takes the GCxxxxx code and constructs HTML text representing the "Log Visit" button
-        return ('<div class="CacheDetailNavigation NoPrint"><a id="pmo-log-link" href="/seek/log.aspx?WP=' +
+        return ('<div class="CacheDetailNavigation NoPrint"><a href="/seek/log.aspx?WP=' +
                 code +
                 '" id="ctl00_ContentBody_GeoNav_logButton" class="Button LogVisit">Log your visit</a></div>');
     }
