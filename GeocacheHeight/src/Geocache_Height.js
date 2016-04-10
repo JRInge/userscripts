@@ -22,6 +22,14 @@
         heightElement.innerHTML += Math.round(height) + "m";
         return heightElement;
     }
+    
+    function isPMOnly() {
+        var form = document.getElementById("aspnetForm");
+        if (form && /cache_pmo\.aspx/.test(form.action)) {
+            return true;
+        }
+        return false;
+    }
 
     function parseHeight(jsonString) {
         var json;
@@ -46,6 +54,11 @@
 
     //don't run on frames or iframes
     if (window.top !== window.self) {
+        return;
+    }
+
+    if (isPMOnly()) {
+        console.warn("Geocache Height run on Premium Member cache - coordinates not available");
         return;
     }
 
