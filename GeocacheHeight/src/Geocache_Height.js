@@ -37,12 +37,12 @@
         try {
             json = JSON.parse(jsonString);
         } catch(e) {
-            console.error(e + "Geocache Height didn't get valid JSON data from Geonames");
+            console.error(e + "Geocache Height didn't get valid JSON data from Google");
             return false;
         }
 
         if (typeof json.results[0].elevation !== "number") {
-            console.error("Geocache Height didn't get the data format it expected from Geonames");
+            console.error("Geocache Height didn't get the data format it expected from Google");
             return false;
         }
 
