@@ -54,6 +54,13 @@
         heightElement.innerHTML += Math.round(height) + "m";
         return heightElement;
     }
+    
+    function isPMOnly() {
+        var form = document.getElementById("aspnetForm");
+        if (form && /cache_pmo\.aspx/.test(form.action)) {
+        }
+        return false;
+    }
 
     function parseHeight(jsonString) {
         var json;
