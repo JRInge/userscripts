@@ -6,7 +6,7 @@
 //  v0.0.2  Updated for changes to geocaching.com layout.
 //  v0.0.3  Updated for more changes to geocaching.com layout.
 //  v1.0.4  Updated for changes to geocaching.com cache page URLS.
-//  v1.1.0  Updated for changes to geocaching.com. Re-written to use Geonames rather than Google and remove dependency on Greasemonkey API.
+//  v1.1.0  Update and re-write for changes to geocaching.com.
 //
 
 /*jslint browser, devel */
