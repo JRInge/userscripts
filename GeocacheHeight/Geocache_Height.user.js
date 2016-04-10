@@ -22,7 +22,7 @@
 //  v0.0.2  Updated for changes to geocaching.com layout.
 //  v0.0.3  Updated for more changes to geocaching.com layout.
 //  v1.0.4  Updated for changes to geocaching.com cache page URLS.
-//  v1.1.0  Updated for changes to geocaching.com. Re-written to use Geonames rather than Google and remove dependency on Greasemonkey API.
+//  v1.1.0  Update and re-write for changes to geocaching.com.
 //
 
 /*jslint browser, devel */
@@ -58,6 +58,7 @@
     function isPMOnly() {
         var form = document.getElementById("aspnetForm");
         if (form && /cache_pmo\.aspx/.test(form.action)) {
+            return true;
         }
         return false;
     }
@@ -82,21 +83,29 @@
 
     var coords = getCoords("ctl00_ContentBody_uxViewLargerMap");
     var target = document.getElementById("uxLatLon");
+    var scriptId = "Geocache Height v1.1.0 ";
 
     //don't run on frames or iframes
     if (window.top !== window.self) {
         return;
     }
 
+    if (isPMOnly()) {
+        console.warn(scriptId + "run on Premium Member cache - coordinates not available");
+        return;
+    }
+
     if (target === null) {
-        console.error("Geocache Height couldn't find where to display height on the cache page");
+        console.error(scriptId + "couldn't find where to display height on the cache page");
         return;
     }
 
     if (coords === null) {
-        console.error("Geocache Height couldn't work out coordinates for cache");
+        console.error(scriptId + "couldn't work out coordinates for cache");
         return;
     }
+
+    console.info(scriptId);
 
     GM_xmlhttpRequest({
         method: 'GET',
