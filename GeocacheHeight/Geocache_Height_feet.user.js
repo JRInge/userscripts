@@ -1,3 +1,43 @@
+// ==UserScript==
+// @name        Geocache Height (feet)
+// @namespace   http://inge.org.uk/userscripts
+// @description Works out the height of a geocache in feet above sea level and adds it alongside the coordinates on the geocache listing.
+// @include     https://www.geocaching.com/geocache/GC*
+// @author      JRI
+// @oujs:author JRI
+// @copyright   2010-16, James Inge (http://geo.inge.org.uk/)
+// @license     MIT License; http://www.opensource.org/licenses/mit-license.php
+// @version     1.1.0
+// @grant       GM_xmlhttpRequest
+// @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheHeight/images/height48.png
+// @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheHeight/images/height64.png
+// @updateURL   http://geo.inge.org.uk/userscripts/Geocache_Height_feet.meta.js
+// @downloadURL https://openuserjs.org/install/JRI/Geocache_Height_feet.user.js
+// ==/UserScript==
+
+//
+//  Works out the height of a geocache.
+//
+//  v0.0.1  First attempt!
+//  v0.0.2  Updated for changes to geocaching.com layout.
+//  v0.0.3  Updated for more changes to geocaching.com layout.
+//  v1.0.4  Updated for changes to geocaching.com cache page URLS.
+//  v1.1.0  Update and re-write for changes to geocaching.com.
+//
+
+/*jslint browser, devel */
+/*global mapLatLng, window, GM_xmlhttpRequest */
+
+(function () {
+    "use strict";
+    function formatHeight(height) {
+        var heightElement = document.createElement("span");
+        heightElement.id = "jriCacheHeight";
+        heightElement.innerHTML = (height >= 0) ? " +" : " ";
+        heightElement.innerHTML += Math.round(height * 3.28084) + "ft";
+        return heightElement;
+    }
+    
     function getCoords(uriId) {
         /* Looks for coordinates in a URI and returns them as a URI string fragment. Returns null on failure */
         var target = document.getElementById(uriId);
@@ -77,3 +117,4 @@
             }
         }
     });
+}());

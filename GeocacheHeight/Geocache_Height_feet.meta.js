@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name        Geocache Height
+// @name        Geocache Height (feet)
 // @namespace   http://inge.org.uk/userscripts
-// @description Works out the height of a geocache in metres above sea level and adds it alongside the coordinates on the geocache listing.
+// @description Works out the height of a geocache in feet above sea level and adds it alongside the coordinates on the geocache listing.
 // @include     https://www.geocaching.com/geocache/GC*
 // @author      JRI
 // @oujs:author JRI
@@ -11,6 +11,6 @@
 // @grant       GM_xmlhttpRequest
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheHeight/images/height48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheHeight/images/height64.png
-// @updateURL   http://geo.inge.org.uk/userscripts/Geocache_Height.meta.js
-// @downloadURL https://openuserjs.org/install/JRI/Geocache_Height.user.js
+// @updateURL   http://geo.inge.org.uk/userscripts/Geocache_Height_feet.meta.js
+// @downloadURL https://openuserjs.org/install/JRI/Geocache_Height_feet.user.js
 // ==/UserScript==
