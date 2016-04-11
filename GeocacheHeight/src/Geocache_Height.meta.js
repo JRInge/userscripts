@@ -1,4 +1,4 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name        Geocache Height
 // @namespace   http://inge.org.uk/userscripts
 // @description Works out the height of a geocache in metres above sea level and adds it alongside the coordinates on the geocache listing.
