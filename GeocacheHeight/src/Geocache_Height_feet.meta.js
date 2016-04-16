@@ -9,6 +9,7 @@
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @version     1.1.0
 // @grant       GM_xmlhttpRequest
+// @connect     maps.googleapis.com
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheHeight/images/height48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheHeight/images/height64.png
 // @updateURL   http://geo.inge.org.uk/userscripts/Geocache_Height_feet.meta.js
