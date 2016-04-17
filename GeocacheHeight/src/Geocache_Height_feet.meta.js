@@ -7,7 +7,7 @@
 // @oujs:author JRI
 // @copyright   2010-16, James Inge (http://geo.inge.org.uk/)
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @version     1.1.0
+// @version     1.1.1
 // @grant       GM_xmlhttpRequest
 // @connect     maps.googleapis.com
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheHeight/images/height48.png
