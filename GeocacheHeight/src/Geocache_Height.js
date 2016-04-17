@@ -3,7 +3,7 @@
         var target = document.getElementById(uriId);
         var pattern = /lat=([\-0-9\.]+)&lng=([\-0-9\.]+)/;
         var matched;
-        
+
         if (target === null || target.href === undefined) {
             return null;
         }
@@ -17,7 +17,7 @@
 
     function isPMOnly() {
         var form = document.getElementById("aspnetForm");
-        if (form && /cache_pmo\.aspx/.test(form.action)) {
+        if (form && (/cache_pmo\.aspx/).test(form.action)) {
             return true;
         }
         return false;
@@ -28,7 +28,7 @@
 
         try {
             json = JSON.parse(jsonString);
-        } catch(e) {
+        } catch (e) {
             console.error(e + "Geocache Height didn't get valid JSON data from Google");
             return false;
         }
@@ -70,7 +70,7 @@
     GM_xmlhttpRequest({
         method: 'GET',
         url: "https://maps.googleapis.com/maps/api/elevation/json?sensor=false&locations=" + coords,
-        onload: function(responseDetails) {
+        onload: function (responseDetails) {
             var height = parseHeight(responseDetails.responseText);
             if (height !== false) {
                 target.parentElement.appendChild(formatHeight(height));
