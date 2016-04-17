@@ -1,4 +1,4 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name        Geocache Height
 // @namespace   http://inge.org.uk/userscripts
 // @description Works out the height of a geocache in metres above sea level and adds it alongside the coordinates on the geocache listing.
@@ -7,8 +7,9 @@
 // @oujs:author JRI
 // @copyright   2010-16, James Inge (http://geo.inge.org.uk/)
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @version     1.1.0
+// @version     1.1.1
 // @grant       GM_xmlhttpRequest
+// @connect     maps.googleapis.com
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheHeight/images/height48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheHeight/images/height64.png
 // @updateURL   http://geo.inge.org.uk/userscripts/Geocache_Height.meta.js
@@ -23,6 +24,7 @@
 //  v0.0.3  Updated for more changes to geocaching.com layout.
 //  v1.0.4  Updated for changes to geocaching.com cache page URLS.
 //  v1.1.0  Update and re-write for changes to geocaching.com.
+//  v1.1.1  Add @connect metadata to request permission to connect to Google, avoiding security pop-ups in Tampermonkey.
 //
 
 /*jslint browser, devel */
@@ -30,6 +32,14 @@
 
 (function () {
     "use strict";
+    function formatHeight(height) {
+        var heightElement = document.createElement("span");
+        heightElement.id = "jriCacheHeight";
+        heightElement.innerHTML = (height >= 0) ? " +" : " ";
+        heightElement.innerHTML += Math.round(height) + "m";
+        return heightElement;
+    }
+    
     function getCoords(uriId) {
         /* Looks for coordinates in a URI and returns them as a URI string fragment. Returns null on failure */
         var target = document.getElementById(uriId);
@@ -47,14 +57,6 @@
         return null;
     }
 
-    function formatHeight(height) {
-        var heightElement = document.createElement("span");
-        heightElement.id = "jriCacheHeight";
-        heightElement.innerHTML = (height >= 0) ? " +" : " ";
-        heightElement.innerHTML += Math.round(height) + "m";
-        return heightElement;
-    }
-    
     function isPMOnly() {
         var form = document.getElementById("aspnetForm");
         if (form && /cache_pmo\.aspx/.test(form.action)) {
