@@ -13,7 +13,7 @@
             onload: function (data) {
                 var coords;
                 var r = data.responseText;
-                
+
                 // Look in the page source for the JSON string that holds the cache coords and other metadata.
                 var k = r.indexOf("mapLatLng = {");
                 if (k === -1) {
