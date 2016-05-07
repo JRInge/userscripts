@@ -7,15 +7,17 @@
 // @oujs:author JRI
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2016, James Inge (http://geo.inge.org.uk/)
-// @version     0.0.2
+// @version     0.0.3
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheCircles/images/circle48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheCircles/images/circle64.png
 // @grant       GM_xmlhttpRequest
+// @connect     https://www.geocaching.com/geocache/*
 // @updateURL   http://geo.inge.org.uk/userscripts/Geocache_Circles.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Geocache_Circles.user.js
 // ==/UserScript==
 
-/*global CustomEvent, GM_xmlhttpRequest, L,  MapSettings, window */
+/*jslint browser*/
+/*global CustomEvent, GM_xmlhttpRequest, L,  MapSettings, window, console */
 
 (function () {
     "use strict";
@@ -34,7 +36,7 @@
             onload: function (data) {
                 var coords;
                 var r = data.responseText;
-                
+
                 // Look in the page source for the JSON string that holds the cache coords and other metadata.
                 var k = r.indexOf("mapLatLng = {");
                 if (k === -1) {
@@ -111,10 +113,10 @@
     }
 
     if (template) {
-        console.info("Geocache Circles v0.0.1");
+        console.info("Geocache Circles v0.0.3");
 
         // Attach to cache info popup template
-        template.textContent = template.textContent.replace(/<div\ class=\"links\ Clear\">/, '<div class="links Clear"> <a class="jri-circle-link" style="text-decoration: underline;" onclick="document.dispatchEvent(new CustomEvent(\'gme_circle_request\', {\'detail\':\'{{=gc}}\'}));"><img src="' + circleIcon + '" alt="O" style="vertical-align:middle; margin-right: 0.25em;" width="16" height="16" />Circle</a>&nbsp; ');
+        template.textContent = template.textContent.replace(/<div\ class=\"links\ Clear\">/, '<div class="links Clear"> <a class="jri-circle-link" style="cursor: pointer; text-decoration: underline;" onclick="document.dispatchEvent(new CustomEvent(\'gme_circle_request\', {\'detail\':\'{{=gc}}\'}));"><img src="' + circleIcon + '" alt="O" style="vertical-align:middle; margin-right: 0.25em;" width="16" height="16" />Circle</a>&nbsp; ');
 
         // Add event listener to content script context
         script.type = 'text/javascript';
@@ -128,6 +130,6 @@
         document.addEventListener("gme_circle_request", handleCircleRequest, false);
     } else {
         // Couldn't find popup template
-        console.error("Geocache Circles v0.0.1 didn't understand page structure.");
+        console.error("Geocache Circles v0.0.3 didn't understand page structure.");
     }
 }());
