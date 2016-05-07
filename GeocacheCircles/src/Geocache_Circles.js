@@ -93,7 +93,7 @@
         console.info("Geocache Circles v0.0.1");
 
         // Attach to cache info popup template
-        template.textContent = template.textContent.replace(/<div\ class=\"links\ Clear\">/, '<div class="links Clear"> <a class="jri-circle-link" style="text-decoration: underline;" onclick="document.dispatchEvent(new CustomEvent(\'gme_circle_request\', {\'detail\':\'{{=gc}}\'}));"><img src="' + circleIcon + '" alt="O" style="vertical-align:middle; margin-right: 0.25em;" width="16" height="16" />Circle</a>&nbsp; ');
+        template.textContent = template.textContent.replace(/<div\ class=\"links\ Clear\">/, '<div class="links Clear"> <a class="jri-circle-link" style="cursor: pointer; text-decoration: underline;" onclick="document.dispatchEvent(new CustomEvent(\'gme_circle_request\', {\'detail\':\'{{=gc}}\'}));"><img src="' + circleIcon + '" alt="O" style="vertical-align:middle; margin-right: 0.25em;" width="16" height="16" />Circle</a>&nbsp; ');
 
         // Add event listener to content script context
         script.type = 'text/javascript';
