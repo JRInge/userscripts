@@ -13,6 +13,13 @@
 // @attribution Postcodes.io (http://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
 // @grant       GM_xmlhttpRequest
+// @connect     geograph.org.uk
+// @connect     channel-islands.geographs.org
+// @connect     geo-en.hlipp.de
+// @connect     api.geonames.org
+// @connect     www.panoramio.com
+// @connect     api.postcodes.io
+// @connect     www.geocaching.com
 // @grant       GM_log
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocachingMapEnhancements/GeocachingMap48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocachingMapEnhancements/GeocachingMap64.png
@@ -2683,7 +2690,7 @@ switch(gmeResources.env.page) {
 /*		if (document.querySelector("script[src*='//maps.googleapis.com/']")){
 			console.warn("Geocaching Map Enhancements requires Leaflet Maps to be enabled.");
 			return;
-		}
+	f	}
 */
 		// Check for click-thru cache data in URI
 		var pop = location.search.match(/pop=([A-Za-z0-9+\/=]+)[\?&]?/);
