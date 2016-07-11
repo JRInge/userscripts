@@ -2679,11 +2679,12 @@ switch(gmeResources.env.page) {
 		break;
 	case "maps":
 		// On a Geocaching Maps page
-		if (document.querySelector("script[src*='//maps.googleapis.com/']")){
+		// TODO: Detect if the Google Maps API is being used instead of Leaflet, and quit gracefully
+/*		if (document.querySelector("script[src*='//maps.googleapis.com/']")){
 			console.warn("Geocaching Map Enhancements requires Leaflet Maps to be enabled.");
 			return;
 		}
-		
+*/
 		// Check for click-thru cache data in URI
 		var pop = location.search.match(/pop=([A-Za-z0-9+\/=]+)[\?&]?/);
 		if (pop && pop.length === 2) {
