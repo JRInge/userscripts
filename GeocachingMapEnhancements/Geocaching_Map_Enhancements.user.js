@@ -45,11 +45,9 @@ var gmeResources = {
 		measure: "metric",	// Or "imperial" - used for the scale indicators
 		osgbSearch: true,		// Enhance search box with OSGB grid references, zooming, etc. (may interfere with postal code searches)
 		useNewTab: true,		// True opens geocache lists in a new window, rather than replacing the map.
-		defaultMap: "MapQuest",
+		defaultMap: "OpenStreetMap",
 		maps: [
 	//	{alt:"Readable Name", tileUrl: "URL template including {s} (subdomain) and either {q} (quadkey) or {x},{y},{z} (Google/TMS tile coordinates + zoom)", subdomains: "0123", minZoom: 0, maxZoom: 24, attribution: "Copyright message (HTML allowed)", name: "shortname", overlay:false }
-			{alt:"MapQuest",tileUrl:"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",name:"mpqosm",subdomains:"1234"},
-			{alt:"MapQuest Aerial",tileUrl:"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg",name:"mpqa",subdomains:"1234"},
 			{alt:"OpenStreetMap",tileUrl:"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",name:"osm",subdomains:"abc"},
 			{alt:"OpenCycleMap",tileUrl:"https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png",name:"ocm"},
 			{alt:"Bing Maps", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&mkt=en-gb&lbl=l1&stl=h&shading=hill&n=z", subdomains: "0123", minZoom: 1, maxZoom: 20, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "bingmap",ignore:true},
@@ -2556,6 +2554,12 @@ try {
 
 if(gmeResources.env.storage) {
 	var a, b, customJSON, GME_custom, paramsJSON, storedParams;
+	var blacklist = [
+        "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
+        "https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
+        "https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
+    ]
+
 	try {
 		paramsJSON = localStorage.getItem("GME_parameters");
 		if (paramsJSON) {
@@ -2608,11 +2612,14 @@ if(gmeResources.env.storage) {
 			}
 			delete gmeResources.parameters.excludeMaps;
 		}
-		/* Remove broken map source */
+
+		/* Remove broken map sources */
 		for (a = gmeResources.parameters.maps.length - 1;  a >= 0; a--) {
-			if (gmeResources.parameters.maps[a].tileUrl === "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS") {
-				gmeResources.parameters.maps.splice(a,1);
-			}
+            for(b = 0; b < blacklist.length; b++) {
+                if (gmeResources.parameters.maps[a].tileUrl === blacklist[b]) {
+                    gmeResources.parameters.maps.splice(a,1);
+                }
+            }
 		}
 
 		localStorage.setItem("GME_parameters",JSON.stringify(gmeResources.parameters));
