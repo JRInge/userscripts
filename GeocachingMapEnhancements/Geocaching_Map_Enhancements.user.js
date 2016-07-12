@@ -36,8 +36,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.3.1",
-		versionMsg: "This is a bugfix version which fixes GME on cache listing pages, and fixes search by GC-code on the main map. Enjoy!",
+		version: "0.7.3.2",
+		versionMsg: "This is a bugfix version to work around changes caused by the withdrawal of MapQuest maps. Enjoy!",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
