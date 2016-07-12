@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.3.1
+// @version     0.7.3.2
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -13,6 +13,13 @@
 // @attribution Postcodes.io (http://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
 // @grant       GM_xmlhttpRequest
+// @connect     geograph.org.uk
+// @connect     channel-islands.geographs.org
+// @connect     geo-en.hlipp.de
+// @connect     api.geonames.org
+// @connect     www.panoramio.com
+// @connect     api.postcodes.io
+// @connect     www.geocaching.com
 // @grant       GM_log
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocachingMapEnhancements/GeocachingMap48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocachingMapEnhancements/GeocachingMap64.png

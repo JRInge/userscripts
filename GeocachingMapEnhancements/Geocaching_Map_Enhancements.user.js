@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.3.1
+// @version     0.7.3.2
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -13,6 +13,13 @@
 // @attribution Postcodes.io (http://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
 // @grant       GM_xmlhttpRequest
+// @connect     geograph.org.uk
+// @connect     channel-islands.geographs.org
+// @connect     geo-en.hlipp.de
+// @connect     api.geonames.org
+// @connect     www.panoramio.com
+// @connect     api.postcodes.io
+// @connect     www.geocaching.com
 // @grant       GM_log
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocachingMapEnhancements/GeocachingMap48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocachingMapEnhancements/GeocachingMap64.png
@@ -29,8 +36,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.3.1",
-		versionMsg: "This is a bugfix version which fixes GME on cache listing pages, and fixes search by GC-code on the main map. Enjoy!",
+		version: "0.7.3.2",
+		versionMsg: "This is a bugfix version to work around changes caused by the withdrawal of MapQuest maps. Enjoy!",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
@@ -38,11 +45,9 @@ var gmeResources = {
 		measure: "metric",	// Or "imperial" - used for the scale indicators
 		osgbSearch: true,		// Enhance search box with OSGB grid references, zooming, etc. (may interfere with postal code searches)
 		useNewTab: true,		// True opens geocache lists in a new window, rather than replacing the map.
-		defaultMap: "MapQuest",
+		defaultMap: "OpenStreetMap",
 		maps: [
 	//	{alt:"Readable Name", tileUrl: "URL template including {s} (subdomain) and either {q} (quadkey) or {x},{y},{z} (Google/TMS tile coordinates + zoom)", subdomains: "0123", minZoom: 0, maxZoom: 24, attribution: "Copyright message (HTML allowed)", name: "shortname", overlay:false }
-			{alt:"MapQuest",tileUrl:"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",name:"mpqosm",subdomains:"1234"},
-			{alt:"MapQuest Aerial",tileUrl:"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg",name:"mpqa",subdomains:"1234"},
 			{alt:"OpenStreetMap",tileUrl:"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",name:"osm",subdomains:"abc"},
 			{alt:"OpenCycleMap",tileUrl:"https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png",name:"ocm"},
 			{alt:"Bing Maps", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&mkt=en-gb&lbl=l1&stl=h&shading=hill&n=z", subdomains: "0123", minZoom: 1, maxZoom: 20, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "bingmap",ignore:true},
@@ -85,6 +90,7 @@ var gmeResources = {
 			span.gme-distance-container.show { display: inline-block; }\
 			a.GME_info { background-position: -537px 4px;}\
 			a.GME_info.gme-button-active {background-position: -540px 1px;}\
+			#GME_loc, a.gme-button.leaflet-active {outline: none;}\
 			.leaflet-control-zoomwarning { top: 94px; }\
 			.leaflet-control-zoomwarning a { filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#BFC80000",EndColorStr="#BFC80000"); background-color:rgba(200,0,0,0.75); margin-left: -4px; background-position: -502px 2px;height:14px;width:14px; border-color: #b00; box-shadow: 0 0 8px rgba(0, 0, 0, 0.4); }\
 			.leaflet-control-zoomwarning a:hover { background-color:rgba(230,0,0,0.75); }\
@@ -140,7 +146,7 @@ var gmeResources = {
 						<ul id="GME_mapfields"></ul>\
 						<label>Default map source: &nbsp;<select name="GME_map_default" id="GME_map_default"></select></label>\
 					</div>\
-					<p><strong>Where did my custom maps go?</strong> Geocaching.com now serves is main map page via a secure https connection and other pages via normal http. Unfortunately, GME\'s configuration can\'t be shared between http and https, so you may see a different selections on cache pages and the main map. To get them back, access this configuration screen from the gear icon on the main map or the Profile menu on most other pages, then use the &quot;Export custom maps&quot; and &quot;Add mapsource&quot; functions on the <a onclick=\'document.getElementById("gme-tab-manage").checked=true;\'>Manage Maps</a> tab to cut and paste your custom map configuration from one set of pages to the other.</p>\
+					<p><strong>Where did my custom maps go?</strong> Geocaching.com now serves its main map and cache pages via a secure https connection, but a few other areas of the site (including trackables maps) are still sent via normal http. Unfortunately, GME\'s configuration can\'t be shared between http and https, so you may see a different selections on trackable pages and the main map. To get them back, access this configuration screen from the gear icon on the main map or the pulldown menu next to your username on most other pages, then use the &quot;Export custom maps&quot; and &quot;Add mapsource&quot; functions on the <a onclick=\'document.getElementById("gme-tab-manage").checked=true;\'>Manage Maps</a> tab to cut and paste your custom map configuration from one set of pages to the other.</p>\
 				</div>\
 			</section>\
 			<section class="gme-tab">\
@@ -2548,6 +2554,12 @@ try {
 
 if(gmeResources.env.storage) {
 	var a, b, customJSON, GME_custom, paramsJSON, storedParams;
+	var blacklist = [
+        "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
+        "https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
+        "https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
+    ]
+
 	try {
 		paramsJSON = localStorage.getItem("GME_parameters");
 		if (paramsJSON) {
@@ -2600,11 +2612,14 @@ if(gmeResources.env.storage) {
 			}
 			delete gmeResources.parameters.excludeMaps;
 		}
-		/* Remove broken map source */
+
+		/* Remove broken map sources */
 		for (a = gmeResources.parameters.maps.length - 1;  a >= 0; a--) {
-			if (gmeResources.parameters.maps[a].tileUrl === "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS") {
-				gmeResources.parameters.maps.splice(a,1);
-			}
+            for(b = 0; b < blacklist.length; b++) {
+                if (gmeResources.parameters.maps[a].tileUrl === blacklist[b]) {
+                    gmeResources.parameters.maps.splice(a,1);
+                }
+            }
 		}
 
 		localStorage.setItem("GME_parameters",JSON.stringify(gmeResources.parameters));
@@ -2678,11 +2693,12 @@ switch(gmeResources.env.page) {
 		break;
 	case "maps":
 		// On a Geocaching Maps page
-		if (document.querySelector("script[src*='//maps.googleapis.com/']")){
+		// TODO: Detect if the Google Maps API is being used instead of Leaflet, and quit gracefully
+/*		if (document.querySelector("script[src*='//maps.googleapis.com/']")){
 			console.warn("Geocaching Map Enhancements requires Leaflet Maps to be enabled.");
 			return;
-		}
-		
+	f	}
+*/
 		// Check for click-thru cache data in URI
 		var pop = location.search.match(/pop=([A-Za-z0-9+\/=]+)[\?&]?/);
 		if (pop && pop.length === 2) {
