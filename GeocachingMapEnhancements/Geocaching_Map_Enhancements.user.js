@@ -2313,28 +2313,25 @@ var gmeResources = {
 					return false;
 				},
 				updateScale:function (e, timer) {
-					var map;
-					function update(m) {
-						var b = m.getBounds(),
-							w = formatDistance(Math.cos(m.getCenter().lat * L.LatLng.DEG_TO_RAD) * 111319.49079327358 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng));
-						$(m._container).find(".gme-scale").html(w);
-						return w;
+					var map = this._map || e;
+
+					if (!map.getBounds) {
+						console.warn("updateScale didn't have working map");
+						return;
 					}
-					if (this._map && this._map.getBounds) {
-						map = this._map;
-					} else {
-						if (e && e.getBounds) {
-							map = e;
-						} else {
-							return;
-						}
+					
+					function updateMap() {
+						var bound = map.getBounds();
+						var width = formatDistance(Math.cos(map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 111319.49079327358 * Math.abs(bound.getSouthWest().lng - bound.getSouthEast().lng));
+						$(map._container).find(".gme-scale").html(width);
 					}
+
 					if (timer !== undefined) {
 						window.clearTimeout(timer.timer);
-						timer.timer = window.setTimeout(function() { update(map); return false; }, 200);
-						return false;
+						timer.timer = window.setTimeout(function() { map.whenReady(updateMap); return false; }, 200);
+					} else {
+						map.whenReady(updateMap);
 					}
-					return update(map);
 				},
 				_clickMode: "none"
 			},
