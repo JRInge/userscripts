@@ -2552,10 +2552,10 @@ try {
 if(gmeResources.env.storage) {
 	var a, b, customJSON, GME_custom, paramsJSON, storedParams;
 	var blacklist = [
-        "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
-        "https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
-        "https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
-    ]
+		"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
+		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
+		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
+	]
 
 	try {
 		paramsJSON = localStorage.getItem("GME_parameters");
@@ -2612,11 +2612,11 @@ if(gmeResources.env.storage) {
 
 		/* Remove broken map sources */
 		for (a = gmeResources.parameters.maps.length - 1;  a >= 0; a--) {
-            for(b = 0; b < blacklist.length; b++) {
-                if (gmeResources.parameters.maps[a].tileUrl === blacklist[b]) {
-                    gmeResources.parameters.maps.splice(a,1);
-                }
-            }
+			for(b = 0; b < blacklist.length; b++) {
+				if (gmeResources.parameters.maps[a].tileUrl === blacklist[b]) {
+					gmeResources.parameters.maps.splice(a,1);
+				}
+			}
 		}
 
 		localStorage.setItem("GME_parameters",JSON.stringify(gmeResources.parameters));
