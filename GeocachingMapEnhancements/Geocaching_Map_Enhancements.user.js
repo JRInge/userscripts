@@ -256,6 +256,14 @@ var gmeResources = {
 						return;
 					}
 					break;
+				case "maps":
+                    // Wait for the map to load and the default map selector to be added.
+					if (typeof L === "object" && typeof $ === "function" && window.MapSettings && window.MapSettings.Map && window.MapSettings.Map._loaded && $(".leaflet-control-layers").length > 0) {
+						gmeInit(gmeConfig.env.init);
+						window.setTimeout(load,500);
+						return;
+					}
+					break;
 				default:
 					if (typeof L === "object" && typeof $ === "function") {
 						gmeInit(gmeConfig.env.init);
