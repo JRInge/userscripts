@@ -2011,7 +2011,7 @@ var gmeResources = {
 					}
 					container.innerHTML = html;
 					$(container.lastChild).addClass("gme-button-r");
-					container.innerHTML += "<span class=\'gme-button gme-button-l gme-button-r gme-scale-container\' title=\'Approximate width of the full map view\' style=\'cursor:help;\'>Width: <span class=\'gme-scale\'>" + this.updateScale(this._map) + "</span></span><span class=\'gme-distance-container gme-button gme-button-r\' title=\'Measured distance\'>Route: <span class=\'gme-distance\'>"+ formatDistance(0) +"</span></span>";
+					container.innerHTML += "<span class=\'gme-button gme-button-l gme-button-r gme-scale-container\' title=\'Approximate width of the full map view\' style=\'cursor:help;\'>Width: <span class=\'gme-scale\'>-</span></span><span class=\'gme-distance-container gme-button gme-button-r\' title=\'Measured distance\'>Route: <span class=\'gme-distance\'>"+ formatDistance(0) +"</span></span>";
 					contextmap.addControl(new L.GME_ZoomWarning()).on("layeradd", onPopup).on("layerremove", offPopup).on("viewreset", this.updateScale, this);
 					$(container).on("click", ".gme-button", this, widgetHandler);
 					$(window).on("resize", this, (function (context) { var t = {timer: null}; return function () { context.updateScale(context._map, t);}; } (this)));
@@ -2333,7 +2333,7 @@ var gmeResources = {
 					function updateMap() {
 						var bound = map.getBounds();
 						var width = formatDistance(Math.cos(map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 111319.49079327358 * Math.abs(bound.getSouthWest().lng - bound.getSouthEast().lng));
-						$(map._container).find(".gme-scale").html(width);
+						$(this._container).find(".gme-scale").html(width);
 					}
 
 					if (timer !== undefined) {
@@ -2399,6 +2399,8 @@ var gmeResources = {
 					}
 					return false;
 				});
+				// Trigger reset to update scale and width controls.
+				map.fireEvent("viewreset");
 				return control;
 			}
 		},
