@@ -1726,11 +1726,13 @@ var gmeResources = {
 					map.on("layeradd", setBrightness);
 				}
 
+                /* If we're adding our own map selector control, we need to manually remove any pre-existing map layers.  Otherwise, they persist in the background underneath
+                 * the layers provided by GME.  We check for the _url or _google attribute to distinguish map layers from other Leaflet layers like controls or popups */
 				if (control) {
 					if (gmeConfig.env.page === "maps" || gmeConfig.env.page === "track" || gmeConfig.env.page === "hide" || gmeConfig.env.page === "hide") {
 						$($(".leaflet-control-layers")[0]).remove();
 						for (layer in map._layers) {
-							if (map._layers.hasOwnProperty(layer) && map._layers[layer]._url) {
+							if (map._layers.hasOwnProperty(layer) && (map._layers[layer]._url || map._layers[layer]._google)) {
 								map.removeLayer(map._layers[layer]);
 							}
 						}
