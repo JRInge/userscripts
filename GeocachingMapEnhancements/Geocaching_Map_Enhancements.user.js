@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.3.2
+// @version     0.7.3.3
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -36,8 +36,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.3.2",
-		versionMsg: "This is a bugfix version to work around changes caused by the withdrawal of MapQuest maps. Enjoy!",
+		version: "0.7.3.3",
+		versionMsg: "This is a bugfix version to make GME robust to problems caused by server overloading, and other recent website updates. Enjoy!",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
