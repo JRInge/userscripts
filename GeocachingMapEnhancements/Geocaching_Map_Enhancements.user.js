@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.3.2
+// @version     0.7.3.3
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -36,8 +36,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.3.2",
-		versionMsg: "This is a bugfix version to work around changes caused by the withdrawal of MapQuest maps. Enjoy!",
+		version: "0.7.3.3",
+		versionMsg: "This is a bugfix version to make GME robust to problems caused by server overloading, and other recent website updates. Enjoy!",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
@@ -253,6 +253,14 @@ var gmeResources = {
 						load();
 						reload();
 						$(".cache-type-selector button").click(reload);
+						return;
+					}
+					break;
+				case "maps":
+                    // Wait for the map to load and the default map selector to be added.
+					if (typeof L === "object" && typeof $ === "function" && window.MapSettings && window.MapSettings.Map && window.MapSettings.Map._loaded && $(".leaflet-control-layers").length > 0) {
+						gmeInit(gmeConfig.env.init);
+						window.setTimeout(load,500);
 						return;
 					}
 					break;
@@ -1726,11 +1734,13 @@ var gmeResources = {
 					map.on("layeradd", setBrightness);
 				}
 
+                /* If we're adding our own map selector control, we need to manually remove any pre-existing map layers.  Otherwise, they persist in the background underneath
+                 * the layers provided by GME.  We check for the _url or _google attribute to distinguish map layers from other Leaflet layers like controls or popups */
 				if (control) {
 					if (gmeConfig.env.page === "maps" || gmeConfig.env.page === "track" || gmeConfig.env.page === "hide" || gmeConfig.env.page === "hide") {
 						$($(".leaflet-control-layers")[0]).remove();
 						for (layer in map._layers) {
-							if (map._layers.hasOwnProperty(layer) && map._layers[layer]._url) {
+							if (map._layers.hasOwnProperty(layer) && (map._layers[layer]._url || map._layers[layer]._google)) {
 								map.removeLayer(map._layers[layer]);
 							}
 						}
@@ -2001,7 +2011,7 @@ var gmeResources = {
 					}
 					container.innerHTML = html;
 					$(container.lastChild).addClass("gme-button-r");
-					container.innerHTML += "<span class=\'gme-button gme-button-l gme-button-r gme-scale-container\' title=\'Approximate width of the full map view\' style=\'cursor:help;\'>Width: <span class=\'gme-scale\'>" + this.updateScale(this._map) + "</span></span><span class=\'gme-distance-container gme-button gme-button-r\' title=\'Measured distance\'>Route: <span class=\'gme-distance\'>"+ formatDistance(0) +"</span></span>";
+					container.innerHTML += "<span class=\'gme-button gme-button-l gme-button-r gme-scale-container\' title=\'Approximate width of the full map view\' style=\'cursor:help;\'>Width: <span class=\'gme-scale\'>-</span></span><span class=\'gme-distance-container gme-button gme-button-r\' title=\'Measured distance\'>Route: <span class=\'gme-distance\'>"+ formatDistance(0) +"</span></span>";
 					contextmap.addControl(new L.GME_ZoomWarning()).on("layeradd", onPopup).on("layerremove", offPopup).on("viewreset", this.updateScale, this);
 					$(container).on("click", ".gme-button", this, widgetHandler);
 					$(window).on("resize", this, (function (context) { var t = {timer: null}; return function () { context.updateScale(context._map, t);}; } (this)));
@@ -2313,28 +2323,25 @@ var gmeResources = {
 					return false;
 				},
 				updateScale:function (e, timer) {
-					var map;
-					function update(m) {
-						var b = m.getBounds(),
-							w = formatDistance(Math.cos(m.getCenter().lat * L.LatLng.DEG_TO_RAD) * 111319.49079327358 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng));
-						$(m._container).find(".gme-scale").html(w);
-						return w;
+					var map = this._map || e;
+
+					if (!map.getBounds) {
+						console.warn("updateScale didn't have working map");
+						return;
 					}
-					if (this._map && this._map.getBounds) {
-						map = this._map;
-					} else {
-						if (e && e.getBounds) {
-							map = e;
-						} else {
-							return;
-						}
+					
+					function updateMap() {
+						var bound = map.getBounds();
+						var width = formatDistance(Math.cos(map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 111319.49079327358 * Math.abs(bound.getSouthWest().lng - bound.getSouthEast().lng));
+						$(this._container).find(".gme-scale").html(width);
 					}
+
 					if (timer !== undefined) {
 						window.clearTimeout(timer.timer);
-						timer.timer = window.setTimeout(function() { update(map); return false; }, 200);
-						return false;
+						timer.timer = window.setTimeout(function() { map.whenReady(updateMap); return false; }, 200);
+					} else {
+						map.whenReady(updateMap);
 					}
-					return update(map);
 				},
 				_clickMode: "none"
 			},
@@ -2392,6 +2399,8 @@ var gmeResources = {
 					}
 					return false;
 				});
+				// Trigger reset to update scale and width controls.
+				map.fireEvent("viewreset");
 				return control;
 			}
 		},
@@ -2555,10 +2564,10 @@ try {
 if(gmeResources.env.storage) {
 	var a, b, customJSON, GME_custom, paramsJSON, storedParams;
 	var blacklist = [
-        "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
-        "https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
-        "https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
-    ]
+		"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
+		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
+		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
+	]
 
 	try {
 		paramsJSON = localStorage.getItem("GME_parameters");
@@ -2615,11 +2624,11 @@ if(gmeResources.env.storage) {
 
 		/* Remove broken map sources */
 		for (a = gmeResources.parameters.maps.length - 1;  a >= 0; a--) {
-            for(b = 0; b < blacklist.length; b++) {
-                if (gmeResources.parameters.maps[a].tileUrl === blacklist[b]) {
-                    gmeResources.parameters.maps.splice(a,1);
-                }
-            }
+			for(b = 0; b < blacklist.length; b++) {
+				if (gmeResources.parameters.maps[a].tileUrl === blacklist[b]) {
+					gmeResources.parameters.maps.splice(a,1);
+				}
+			}
 		}
 
 		localStorage.setItem("GME_parameters",JSON.stringify(gmeResources.parameters));
