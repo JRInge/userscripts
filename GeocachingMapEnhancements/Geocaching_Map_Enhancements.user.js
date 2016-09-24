@@ -257,7 +257,7 @@ var gmeResources = {
 					}
 					break;
 				case "maps":
-                    // Wait for the map to load and the default map selector to be added.
+					// Wait for the map to load and the default map selector to be added.
 					if (typeof L === "object" && typeof $ === "function" && window.MapSettings && window.MapSettings.Map && window.MapSettings.Map._loaded && $(".leaflet-control-layers").length > 0) {
 						gmeInit(gmeConfig.env.init);
 						window.setTimeout(load,500);
@@ -1734,8 +1734,8 @@ var gmeResources = {
 					map.on("layeradd", setBrightness);
 				}
 
-                /* If we're adding our own map selector control, we need to manually remove any pre-existing map layers.  Otherwise, they persist in the background underneath
-                 * the layers provided by GME.  We check for the _url or _google attribute to distinguish map layers from other Leaflet layers like controls or popups */
+				/* If we're adding our own map selector control, we need to manually remove any pre-existing map layers.  Otherwise, they persist in the background underneath
+				 * the layers provided by GME.	We check for the _url or _google attribute to distinguish map layers from other Leaflet layers like controls or popups */
 				if (control) {
 					if (gmeConfig.env.page === "maps" || gmeConfig.env.page === "track" || gmeConfig.env.page === "hide" || gmeConfig.env.page === "hide") {
 						$($(".leaflet-control-layers")[0]).remove();
