@@ -17,7 +17,6 @@
 // @connect     channel-islands.geographs.org
 // @connect     geo-en.hlipp.de
 // @connect     api.geonames.org
-// @connect     www.panoramio.com
 // @connect     api.postcodes.io
 // @connect     www.geocaching.com
 // @grant       GM_log
@@ -203,7 +202,7 @@ var gmeResources = {
 						<p>v<span id="GME_version"></span> &copy; 2011-2016 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
 						<p>Elevation and reverse geocoding data provided by <a target="_blank" href="http://www.geonames.org/">GeoNames</a> and used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
 						<p>Grid reference manipulation is adapted from code &copy; 2005-2014 Chris Veness (<a target="_blank" href="http://www.movable-type.co.uk/scripts/latlong-gridref.html">www.movable-type.co.uk/scripts/latlong-gridref.html</a>, used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
-						<p>Photos provided by Panoramio and Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. Geograph photos may be resused under a <a target="_blank" href="http://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
+						<p>Photos provided by Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. They may be re-used under a <a target="_blank" href="http://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
 					</div>\
 				</div>\
 			</section>\
@@ -593,30 +592,6 @@ var gmeResources = {
 				} else {
 					console.error("GME: Bad coordinates to getHeight");
 				}
-			};
-			this.getPanoramio = function(bounds, zoom) {
-				var callprefix="GME_panoramio_callback", call;
-				zoom = zoom || 15;
-				function makeCallback(callname,z) { callbackCount++; return function (json) {
-					$("#GME_panoramio_callback").remove();
-					var i, html, p, searchlink = ["<a ",gmeConfig.parameters.useNewTab?"target='panoramio' ":"","href='http://www.panoramio.com/map/#lt=",bounds.getCenter().lat,"&ln=",bounds.getCenter().lng,"&z=",17-z,"&k=0'>"].join(""), logo = "<img src='http://www.panoramio.com/img/logo-tos.png' height='14' width='67' style='vertical-align: text-top;' />";
-					if (json.photos && json.count) {
-						html = ["<p><a href='http://www.panoramio.com' target='Panoramio'>",logo,"</a> - Selected Panoramio photos from the map area.</p><p>"].join("");
-						for (i=json.photos.length-1;i>=0;i--) {
-							p = json.photos[i];
-							html += ["<a ",that.parameters.useNewTab?"target='panoramio' ":"","href='",encodeURI(p.photo_url),"' style='margin-right:0.5em;' title='",htmlEntities(p.photo_title + " by " + p.owner_name), "'><img src='",encodeURI(p.photo_file_url),"' height='",p.height,"' width='", p.width, "' alt='",htmlEntities(p.photo_title + " by " + p.owner_name), "' /></a>"].join("");
-						}
-						html += ["</p><p style='font-size:90%;'><a href='http://www.panoramio.com' target='Panoramio'>",logo,"</a> Photos provided by Panoramio are under the copyright of their owners.</p><p>",searchlink,json.count>20?json.count+" photos in":"Search for photos near"," this area on Panoramio.com</a>"].join("");
-						$.fancybox(html);
-					} else {
-						$.fancybox(["No photos found in map area. ",searchlink,"Search on ", logo, "</a>"].join(""));
-					}
-					$("#"+callname).remove();
-					if (window[callname] !== undefined) { delete window[callname]; }
-				};}
-				call = callprefix + callbackCount;
-				window[call] = makeCallback(call,zoom);
-				JSONP(["http://www.panoramio.com/map/get_panoramas.php?set=public&from=0&to=20&minx=", bounds.getSouthWest().lng,"&miny=",bounds.getSouthWest().lat,"&maxx=",bounds.getNorthEast().lng,"&maxy=",bounds.getNorthEast().lat,"&size=square&callback=",call].join(""), call);
 			};
 			this.isGeographAvailable = function(coords) {
 				return	bounds_GB.contains(coords) || bounds_DE.contains(coords) || bounds_IE.contains(coords) || bounds_CI.contains(coords);
@@ -1971,7 +1946,6 @@ var gmeResources = {
 						if (action === "exportDist") { control.exportDist(this); }
 						if (action === "getGeograph" && coords) { that.getGeograph(coords); }
 						if (action === "getHeight" && coords) { that.getHeight(coords); }
-						if (action === "getPanoramio") { that.getPanoramio(e.data.getBounds(), e.data.getZoom()); }
 						if (action === "getPostcode" && coords) { control.getPostcode(coords); }
 						if (action === "panTo" && coords) { e.data.panTo(coords); }
 						if (action === "removeMarker" && data) { control.removeMarker(data); }
@@ -2162,9 +2136,7 @@ var gmeResources = {
 					popupContent = [
 						"<p><strong>", DMM(e.latlng), "</strong><br/>Dec: <a href='geo:", ll, "?z=", z, "'>", ll, "</a>",
 						"<br/><a title='List ", (that.parameters.filterFinds ? "unfound " : ""), "caches near point' href='https://www.geocaching.com/seek/nearest.aspx?lat=", e.latlng.lat, "&lng=", e.latlng.lng,that.parameters.filterFinds ? "&f=1" : "", "' ", that.parameters.useNewTab ? "target='searchPage' " : "", ">List caches</a>",
-						hide,
-						",<br/><a title='Show Panoramio images from the map area' href='#' class='gme-event' data-gme-action='getPanoramio'>Panoramio</a>",
-						geograph, dir, streetview, nav,
+						hide, geograph, dir, streetview, nav,
 						",<br/><a title='Go to Wikimapia' ", that.parameters.useNewTab ? "target='wiki' " : "", "href='http://wikimapia.org/#lat=", e.latlng.lat, "&lon=", e.latlng.lng, "&z=", z, "'>Wikimapia</a>",
 						magic, postcode,
 						",<br/><a title='Drop a marker circle onto the map' href='#' class='gme-event' data-gme-action='dropMarker' data-gme-coords='", ll, "'>Marker</a>",
