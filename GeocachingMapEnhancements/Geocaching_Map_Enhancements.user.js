@@ -2539,7 +2539,7 @@ if(gmeResources.env.storage) {
 		"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
 		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
 		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
-	]
+	];
 
 	try {
 		paramsJSON = localStorage.getItem("GME_parameters");
