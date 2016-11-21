@@ -82,6 +82,7 @@ var gmeResources = {
 			.gme-button-wide:hover { color: #ccc; }\
 			a.GME_home { background-position: -572px 4px;}\
 			a.GME_config { background-position: -284px 4px;}\
+			a.GME_quest { background-position: -645px 4px;}\
 			a.GME_route {background-position: center; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAPCAYAAAA2yOUNAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAARNgAAETYBbRc9XAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAECSURBVCiRXc8xL4NRGMXxX980EhMWFpE0goFYdWonSTvxHYTJLGIymHyELv0MLHeweFneySBiITFQqaHEKqjBo4n3LM895%2F5zz3Mrw%2BFQu1mvYw%2BzmMIbnnCc8qKotBpr8zhDDa94D3ASD1jP0A3gHptYwEb4GrpVTGCIbsqLS7%2B6aDfrXRxhIsM4HtHxX53Ix7PY4RufJegz8vcMA8xhqwRtRT7IcIIvbLeb9WWIuRMvnVZajbUxXGMJL1E%2FiWncYSVLefGB86iYwWIAcJ7y4iMLc4heaade5DJIedHHTQm6TXnxPIJCB%2BjHuY%2F9v4sRlPLiCil%2BmsKDaqliF6sxR%2FoBZ6dQNafC%2BAMAAAAASUVORK5CYII%3D);}\
 			a.gme-button-refresh-labels { background-position: -320px 4px;}\
 			a.gme-button-clear-labels { background-position: -69px 4px;}\
@@ -1983,7 +1984,11 @@ var gmeResources = {
 					if (gmeConfig.env.storage) {
 						html += "<a class=\'GME_config gme-button\' title=\'Configure Geocaching Map Enhancements\' href=\'#GME_config\'></a>";
 					}
-					container.innerHTML = html;
+
+					// Questionnaire
+					html += "<a class=\'GME_quest gme-button\' title=\'GME User Questionnaire\' data-gme-action=\'launchQuestionnaire\'></a>";
+
+					container.innerHTML = html;				
 					$(container.lastChild).addClass("gme-button-r");
 					container.innerHTML += "<span class=\'gme-button gme-button-l gme-button-r gme-scale-container\' title=\'Approximate width of the full map view\' style=\'cursor:help;\'>Width: <span class=\'gme-scale\'>-</span></span><span class=\'gme-distance-container gme-button gme-button-r\' title=\'Measured distance\'>Route: <span class=\'gme-distance\'>"+ formatDistance(0) +"</span></span>";
 					contextmap.addControl(new L.GME_ZoomWarning()).on("layeradd", onPopup).on("layerremove", offPopup).on("viewreset", this.updateScale, this);
