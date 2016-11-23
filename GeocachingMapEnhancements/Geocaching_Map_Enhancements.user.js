@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.3.3
+// @version     0.7.4
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
-// @description Adds Ordnance Survey maps and grid reference search to Geocaching.com, along with several other enhancements.
+// @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
 // @include     http://www.geocaching.com/*
 // @include     https://www.geocaching.com/*
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
@@ -17,7 +17,6 @@
 // @connect     channel-islands.geographs.org
 // @connect     geo-en.hlipp.de
 // @connect     api.geonames.org
-// @connect     www.panoramio.com
 // @connect     api.postcodes.io
 // @connect     www.geocaching.com
 // @grant       GM_log
@@ -36,8 +35,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.3.3",
-		versionMsg: "This is a bugfix version to make GME robust to problems caused by server overloading, and other recent website updates. Enjoy!",
+		version: "0.7.4",
+		versionMsg: "This is a maintenance update to remove the Panoramio tool, as Panoramio has now shut down.\n\nHELP MAKE GME BETTER: please give feedback on how well GME works and what could be better by filling in the user survey. Launch the survey using the Tick icon on the GME toolbar, from the 'V' menu next to your user name, or directly at https://www.surveymonkey.co.uk/r/SRRPBCC",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
@@ -83,6 +82,7 @@ var gmeResources = {
 			.gme-button-wide:hover { color: #ccc; }\
 			a.GME_home { background-position: -572px 4px;}\
 			a.GME_config { background-position: -284px 4px;}\
+			a.GME_quest { background-position: -645px 4px;}\
 			a.GME_route {background-position: center; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAPCAYAAAA2yOUNAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAARNgAAETYBbRc9XAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAECSURBVCiRXc8xL4NRGMXxX980EhMWFpE0goFYdWonSTvxHYTJLGIymHyELv0MLHeweFneySBiITFQqaHEKqjBo4n3LM895%2F5zz3Mrw%2BFQu1mvYw%2BzmMIbnnCc8qKotBpr8zhDDa94D3ASD1jP0A3gHptYwEb4GrpVTGCIbsqLS7%2B6aDfrXRxhIsM4HtHxX53Ix7PY4RufJegz8vcMA8xhqwRtRT7IcIIvbLeb9WWIuRMvnVZajbUxXGMJL1E%2FiWncYSVLefGB86iYwWIAcJ7y4iMLc4heaade5DJIedHHTQm6TXnxPIJCB%2BjHuY%2F9v4sRlPLiCil%2BmsKDaqliF6sxR%2FoBZ6dQNafC%2BAMAAAAASUVORK5CYII%3D);}\
 			a.gme-button-refresh-labels { background-position: -320px 4px;}\
 			a.gme-button-clear-labels { background-position: -69px 4px;}\
@@ -203,7 +203,7 @@ var gmeResources = {
 						<p>v<span id="GME_version"></span> &copy; 2011-2016 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
 						<p>Elevation and reverse geocoding data provided by <a target="_blank" href="http://www.geonames.org/">GeoNames</a> and used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
 						<p>Grid reference manipulation is adapted from code &copy; 2005-2014 Chris Veness (<a target="_blank" href="http://www.movable-type.co.uk/scripts/latlong-gridref.html">www.movable-type.co.uk/scripts/latlong-gridref.html</a>, used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
-						<p>Photos provided by Panoramio and Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. Geograph photos may be resused under a <a target="_blank" href="http://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
+						<p>Photos provided by Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. They may be re-used under a <a target="_blank" href="http://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
 					</div>\
 				</div>\
 			</section>\
@@ -221,7 +221,11 @@ var gmeResources = {
 				<h3 class="GME_search_heading">GeoNames search results</h3>\
 				<ul class="GME_search_list"></ul>\
 				<p>Or try the <a href="#" class="GME_link_GSSearch">Geocaching.com search</a>\
-			</div>'
+			</div>',
+		questionnaire: '<section><h1 style="font: 3em bold; font-family: Arial, sans-serif; line-height: 200%;">Help improve GME</h1><h2 style="font: 2em;">Please take a short survey to help me understand what features Geocaching Map Enhancements should have, and how people use it. Thanks, JRI!</h2></section>\
+			<div class="leaflet-control-gme">\
+				<a href="#" class="gme-button gme-button-wide gme-button-l" rel="back" title="No thanks">No thanks</a><a href="https://www.surveymonkey.co.uk/r/SRRPBCC" target="_new" class="gme-button gme-button-wide gme-button-r" id="GME_default" title="Take the survey">Take Survey</a>\
+			</div>		<p><a href="https://www.surveymonkey.co.uk/r/SRRPBCC">Take the survey</a>'
 	},
 	script: {
 		common: function () {
@@ -257,7 +261,7 @@ var gmeResources = {
 					}
 					break;
 				case "maps":
-                    // Wait for the map to load and the default map selector to be added.
+					// Wait for the map to load and the default map selector to be added.
 					if (typeof L === "object" && typeof $ === "function" && window.MapSettings && window.MapSettings.Map && window.MapSettings.Map._loaded && $(".leaflet-control-layers").length > 0) {
 						gmeInit(gmeConfig.env.init);
 						window.setTimeout(load,500);
@@ -290,6 +294,8 @@ var gmeResources = {
 							$("#GME_custom_add").bind("click", addCustom);
 							$("#GME_custom_export").bind("click", exportCustom);
 							$("li.li-user ul").append("<li class='li-settings'><a class='icon-settings' id='gme-config-link' href='#GME_config' title='Configure Geocaching Map Enhancements extension'>Geocaching Map Enhancements</a></li>");
+							// Questionnaire
+							$("li.li-user ul").append("<li class='li-settings'><a class='icon-settings' id='gme-quest-link' href='#GME_questionnaire' title='Take Geocaching Map Enhancements user survey '>GME user survey</a></li>");
 						}
 					},
 					"drop": function () {
@@ -593,30 +599,6 @@ var gmeResources = {
 				} else {
 					console.error("GME: Bad coordinates to getHeight");
 				}
-			};
-			this.getPanoramio = function(bounds, zoom) {
-				var callprefix="GME_panoramio_callback", call;
-				zoom = zoom || 15;
-				function makeCallback(callname,z) { callbackCount++; return function (json) {
-					$("#GME_panoramio_callback").remove();
-					var i, html, p, searchlink = ["<a ",gmeConfig.parameters.useNewTab?"target='panoramio' ":"","href='http://www.panoramio.com/map/#lt=",bounds.getCenter().lat,"&ln=",bounds.getCenter().lng,"&z=",17-z,"&k=0'>"].join(""), logo = "<img src='http://www.panoramio.com/img/logo-tos.png' height='14' width='67' style='vertical-align: text-top;' />";
-					if (json.photos && json.count) {
-						html = ["<p><a href='http://www.panoramio.com' target='Panoramio'>",logo,"</a> - Selected Panoramio photos from the map area.</p><p>"].join("");
-						for (i=json.photos.length-1;i>=0;i--) {
-							p = json.photos[i];
-							html += ["<a ",that.parameters.useNewTab?"target='panoramio' ":"","href='",encodeURI(p.photo_url),"' style='margin-right:0.5em;' title='",htmlEntities(p.photo_title + " by " + p.owner_name), "'><img src='",encodeURI(p.photo_file_url),"' height='",p.height,"' width='", p.width, "' alt='",htmlEntities(p.photo_title + " by " + p.owner_name), "' /></a>"].join("");
-						}
-						html += ["</p><p style='font-size:90%;'><a href='http://www.panoramio.com' target='Panoramio'>",logo,"</a> Photos provided by Panoramio are under the copyright of their owners.</p><p>",searchlink,json.count>20?json.count+" photos in":"Search for photos near"," this area on Panoramio.com</a>"].join("");
-						$.fancybox(html);
-					} else {
-						$.fancybox(["No photos found in map area. ",searchlink,"Search on ", logo, "</a>"].join(""));
-					}
-					$("#"+callname).remove();
-					if (window[callname] !== undefined) { delete window[callname]; }
-				};}
-				call = callprefix + callbackCount;
-				window[call] = makeCallback(call,zoom);
-				JSONP(["http://www.panoramio.com/map/get_panoramas.php?set=public&from=0&to=20&minx=", bounds.getSouthWest().lng,"&miny=",bounds.getSouthWest().lat,"&maxx=",bounds.getNorthEast().lng,"&maxy=",bounds.getNorthEast().lat,"&size=square&callback=",call].join(""), call);
 			};
 			this.isGeographAvailable = function(coords) {
 				return	bounds_GB.contains(coords) || bounds_DE.contains(coords) || bounds_IE.contains(coords) || bounds_CI.contains(coords);
@@ -1734,8 +1716,8 @@ var gmeResources = {
 					map.on("layeradd", setBrightness);
 				}
 
-                /* If we're adding our own map selector control, we need to manually remove any pre-existing map layers.  Otherwise, they persist in the background underneath
-                 * the layers provided by GME.  We check for the _url or _google attribute to distinguish map layers from other Leaflet layers like controls or popups */
+				/* If we're adding our own map selector control, we need to manually remove any pre-existing map layers.  Otherwise, they persist in the background underneath
+				 * the layers provided by GME.	We check for the _url or _google attribute to distinguish map layers from other Leaflet layers like controls or popups */
 				if (control) {
 					if (gmeConfig.env.page === "maps" || gmeConfig.env.page === "track" || gmeConfig.env.page === "hide" || gmeConfig.env.page === "hide") {
 						$($(".leaflet-control-layers")[0]).remove();
@@ -1971,7 +1953,6 @@ var gmeResources = {
 						if (action === "exportDist") { control.exportDist(this); }
 						if (action === "getGeograph" && coords) { that.getGeograph(coords); }
 						if (action === "getHeight" && coords) { that.getHeight(coords); }
-						if (action === "getPanoramio") { that.getPanoramio(e.data.getBounds(), e.data.getZoom()); }
 						if (action === "getPostcode" && coords) { control.getPostcode(coords); }
 						if (action === "panTo" && coords) { e.data.panTo(coords); }
 						if (action === "removeMarker" && data) { control.removeMarker(data); }
@@ -2009,7 +1990,11 @@ var gmeResources = {
 					if (gmeConfig.env.storage) {
 						html += "<a class=\'GME_config gme-button\' title=\'Configure Geocaching Map Enhancements\' href=\'#GME_config\'></a>";
 					}
-					container.innerHTML = html;
+
+					// Questionnaire
+					html += "<a class=\'GME_quest gme-button\' title=\'GME User Survey\' href=\'#GME_questionnaire\'></a>";
+
+					container.innerHTML = html;				
 					$(container.lastChild).addClass("gme-button-r");
 					container.innerHTML += "<span class=\'gme-button gme-button-l gme-button-r gme-scale-container\' title=\'Approximate width of the full map view\' style=\'cursor:help;\'>Width: <span class=\'gme-scale\'>-</span></span><span class=\'gme-distance-container gme-button gme-button-r\' title=\'Measured distance\'>Route: <span class=\'gme-distance\'>"+ formatDistance(0) +"</span></span>";
 					contextmap.addControl(new L.GME_ZoomWarning()).on("layeradd", onPopup).on("layerremove", offPopup).on("viewreset", this.updateScale, this);
@@ -2162,9 +2147,7 @@ var gmeResources = {
 					popupContent = [
 						"<p><strong>", DMM(e.latlng), "</strong><br/>Dec: <a href='geo:", ll, "?z=", z, "'>", ll, "</a>",
 						"<br/><a title='List ", (that.parameters.filterFinds ? "unfound " : ""), "caches near point' href='https://www.geocaching.com/seek/nearest.aspx?lat=", e.latlng.lat, "&lng=", e.latlng.lng,that.parameters.filterFinds ? "&f=1" : "", "' ", that.parameters.useNewTab ? "target='searchPage' " : "", ">List caches</a>",
-						hide,
-						",<br/><a title='Show Panoramio images from the map area' href='#' class='gme-event' data-gme-action='getPanoramio'>Panoramio</a>",
-						geograph, dir, streetview, nav,
+						hide, geograph, dir, streetview, nav,
 						",<br/><a title='Go to Wikimapia' ", that.parameters.useNewTab ? "target='wiki' " : "", "href='http://wikimapia.org/#lat=", e.latlng.lat, "&lon=", e.latlng.lng, "&z=", z, "'>Wikimapia</a>",
 						magic, postcode,
 						",<br/><a title='Drop a marker circle onto the map' href='#' class='gme-event' data-gme-action='dropMarker' data-gme-coords='", ll, "'>Marker</a>",
@@ -2567,7 +2550,7 @@ if(gmeResources.env.storage) {
 		"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
 		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
 		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
-	]
+	];
 
 	try {
 		paramsJSON = localStorage.getItem("GME_parameters");
@@ -2654,6 +2637,9 @@ if(gmeResources.env.storage) {
 	insertPage('GME_config', gmeResources.html.config, 'Configure GME v' + gmeResources.parameters.version);
 	insertPage('GME_format', gmeResources.html.customInfo, 'Custom Mapsource Format', 'GME_config');
 }
+
+// Questionnaire
+insertPage('GME_questionnaire', gmeResources.html.questionnaire, 'GME User Survey');
 
 //	<bugfix>
 	// Trixie treats jQuery Mobile dialogs as new page loads, resetting GME's functions
