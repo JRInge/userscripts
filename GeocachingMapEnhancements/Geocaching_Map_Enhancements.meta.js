@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.3.3
+// @version     0.7.4
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
-// @description Adds Ordnance Survey maps and grid reference search to Geocaching.com, along with several other enhancements.
+// @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
 // @include     http://www.geocaching.com/*
 // @include     https://www.geocaching.com/*
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
@@ -17,7 +17,6 @@
 // @connect     channel-islands.geographs.org
 // @connect     geo-en.hlipp.de
 // @connect     api.geonames.org
-// @connect     www.panoramio.com
 // @connect     api.postcodes.io
 // @connect     www.geocaching.com
 // @grant       GM_log

@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.3.3
+// @version     0.7.4
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
-// @description Adds Ordnance Survey maps and grid reference search to Geocaching.com, along with several other enhancements.
+// @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
 // @include     http://www.geocaching.com/*
 // @include     https://www.geocaching.com/*
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
@@ -35,8 +35,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.3.3",
-		versionMsg: "This is a bugfix version to make GME robust to problems caused by server overloading, and other recent website updates. Enjoy!",
+		version: "0.7.4",
+		versionMsg: "This is a maintenance update to remove the Panoramio tool, as Panoramio has now shut down.\n\nHELP MAKE GME BETTER: please give feedback on how well GME works and what could be better by filling in the user survey. Launch the survey using the Tick icon on the GME toolbar, from the 'V' menu next to your user name, or directly at https://www.surveymonkey.co.uk/r/SRRPBCC",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
