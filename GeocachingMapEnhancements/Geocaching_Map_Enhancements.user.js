@@ -221,11 +221,7 @@ var gmeResources = {
 				<h3 class="GME_search_heading">GeoNames search results</h3>\
 				<ul class="GME_search_list"></ul>\
 				<p>Or try the <a href="#" class="GME_link_GSSearch">Geocaching.com search</a>\
-			</div>',
-		questionnaire: '<section><h1 style="font: 3em bold; font-family: Arial, sans-serif; line-height: 200%;">Help improve GME</h1><h2 style="font: 2em;">Please take a short survey to help me understand what features Geocaching Map Enhancements should have, and how people use it. Thanks, JRI!</h2></section>\
-			<div class="leaflet-control-gme">\
-				<a href="#" class="gme-button gme-button-wide gme-button-l" rel="back" title="No thanks">No thanks</a><a href="https://www.surveymonkey.co.uk/r/SRRPBCC" target="_new" class="gme-button gme-button-wide gme-button-r" id="GME_default" title="Take the survey">Take Survey</a>\
-			</div>		<p><a href="https://www.surveymonkey.co.uk/r/SRRPBCC">Take the survey</a>'
+			</div>'
 	},
 	script: {
 		common: function () {
@@ -294,8 +290,6 @@ var gmeResources = {
 							$("#GME_custom_add").bind("click", addCustom);
 							$("#GME_custom_export").bind("click", exportCustom);
 							$("li.li-user ul").append("<li class='li-settings'><a class='icon-settings' id='gme-config-link' href='#GME_config' title='Configure Geocaching Map Enhancements extension'>Geocaching Map Enhancements</a></li>");
-							// Questionnaire
-							$("li.li-user ul").append("<li class='li-settings'><a class='icon-settings' id='gme-quest-link' href='#GME_questionnaire' title='Take Geocaching Map Enhancements user survey '>GME user survey</a></li>");
 						}
 					},
 					"drop": function () {
@@ -1992,7 +1986,7 @@ var gmeResources = {
 					}
 
 					// Questionnaire
-					html += "<a class=\'GME_quest gme-button\' title=\'GME User Survey\' href=\'#GME_questionnaire\'></a>";
+					html += "<a class=\'GME_quest gme-button\' title=\'GME User Questionnaire\' data-gme-action=\'launchQuestionnaire\'></a>";
 
 					container.innerHTML = html;				
 					$(container.lastChild).addClass("gme-button-r");
@@ -2637,9 +2631,6 @@ if(gmeResources.env.storage) {
 	insertPage('GME_config', gmeResources.html.config, 'Configure GME v' + gmeResources.parameters.version);
 	insertPage('GME_format', gmeResources.html.customInfo, 'Custom Mapsource Format', 'GME_config');
 }
-
-// Questionnaire
-insertPage('GME_questionnaire', gmeResources.html.questionnaire, 'GME User Survey');
 
 //	<bugfix>
 	// Trixie treats jQuery Mobile dialogs as new page loads, resetting GME's functions
