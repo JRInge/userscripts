@@ -199,10 +199,10 @@ var gmeResources = {
 				<div class="gme-tab-content">\
 					<div class="gme-fieldgroup">\
 						<h3>Geocaching Map Enhancements</h3><br />\
-						<p>v<span id="GME_version"></span> &copy; 2011-2016 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
-						<p>Elevation and reverse geocoding data provided by <a target="_blank" href="http://www.geonames.org/">GeoNames</a> and used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
-						<p>Grid reference manipulation is adapted from code &copy; 2005-2014 Chris Veness (<a target="_blank" href="http://www.movable-type.co.uk/scripts/latlong-gridref.html">www.movable-type.co.uk/scripts/latlong-gridref.html</a>, used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
-						<p>Photos provided by Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. They may be re-used under a <a target="_blank" href="http://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
+						<p>v<span id="GME_version"></span> &copy; 2011-2016 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" rel="noopener noreferrer" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" rel="noopener noreferrer" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
+						<p>Elevation and reverse geocoding data provided by <a target="_blank" rel="noopener noreferrer" href="http://www.geonames.org/">GeoNames</a> and used under a <a target="_blank" rel="noopener noreferrer" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
+						<p>Grid reference manipulation is adapted from code &copy; 2005-2014 Chris Veness (<a target="_blank" rel="noopener noreferrer" href="http://www.movable-type.co.uk/scripts/latlong-gridref.html">www.movable-type.co.uk/scripts/latlong-gridref.html</a>, used under a <a target="_blank" rel="noopener noreferrer" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
+						<p>Photos provided by Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. They may be re-used under a <a target="_blank" rel="noopener noreferrer" href="http://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
 					</div>\
 				</div>\
 			</section>\
@@ -536,12 +536,12 @@ var gmeResources = {
 						html = ["<h3>Geograph images near ", DMM(coords), "</h3><p>"].join("");
 						for (i=json.items.length-1;i>=0;i--) {
 							p = json.items[i];
-							html += ["<a ",gmeConfig.parameters.useNewTab?"target='geograph' ":"","href='",encodeURI(p.link),"' style='margin-right:0.5em;' title='", htmlEntities(p.title) + " by " + htmlEntities(p.author), "'>",p.thumbTag,"</a>"].join("");
+							html += ["<a ",gmeConfig.parameters.useNewTab?"target='geograph' ":"","rel='noopener noreferrer' href='",encodeURI(p.link),"' style='margin-right:0.5em;' title='", htmlEntities(p.title) + " by " + htmlEntities(p.author), "'>",p.thumbTag,"</a>"].join("");
 						}
-						html += ["</p><p><a ",gmeConfig.parameters.useNewTab?"target='geograph' ":"","href='",searchLink(coords),"'>Search for more photos nearby on Geograph</a></p><p style='font-size:90%;'>Geograph photos are copyrighted by their owners and available under a <a href='http://creativecommons.org/licenses/by-sa/2.0/'>Creative Commons licence</a>. Hover mouse over thumbnails for more details, or click through for full images.</p>"].join("");
+						html += ["</p><p><a ",gmeConfig.parameters.useNewTab?"target='geograph' ":"","rel='noopener noreferrer' href='",searchLink(coords),"'>Search for more photos nearby on Geograph</a></p><p style='font-size:90%;'>Geograph photos are copyrighted by their owners and available under a <a href='http://creativecommons.org/licenses/by-sa/2.0/'>Creative Commons licence</a>. Hover mouse over thumbnails for more details, or click through for full images.</p>"].join("");
 						$.fancybox(html);
 					} else {
-						$.fancybox(["<p>No photos found nearby. <a ",that.parameters.useNewTab?"target='geograph' ":"","href='",searchLink(coords),"'>Search on Geograph</a></p>"].join(""));
+						$.fancybox(["<p>No photos found nearby. <a ",that.parameters.useNewTab?"target='geograph' ":"","rel='noopener noreferrer' href='",searchLink(coords),"'>Search on Geograph</a></p>"].join(""));
 					}
 					$("#"+callname).remove();
 					if (window[callname] !== undefined) { delete window[callname]; }
@@ -1219,7 +1219,7 @@ var gmeResources = {
 						sortorder.sort();
 						j = sortorder.length;
 						for (i =0; i<j; i++){
-							html += "<tr><td><a href='http://coord.info/" + sortorder[i] + "' target='_blank'>" + control.labels.labels[sortorder[i]][1] + "</a></td><td class='gme-cache-code'>&nbsp;" + sortorder[i] + "</td><td><a class='gme-event' title='Pan map to cache location' data-gme-action='panTo' data-gme-cache='" + sortorder[i] + "'><img src='../images/silk/map.png' width='16' height='16' alt='Pan' /></a></td></tr>";
+							html += "<tr><td><a href='http://coord.info/" + sortorder[i] + "' target='_blank' rel='noopener noreferrer'>" + control.labels.labels[sortorder[i]][1] + "</a></td><td class='gme-cache-code'>&nbsp;" + sortorder[i] + "</td><td><a class='gme-event' title='Pan map to cache location' data-gme-action='panTo' data-gme-cache='" + sortorder[i] + "'><img src='../images/silk/map.png' width='16' height='16' alt='Pan' /></a></td></tr>";
 						}
 						$("#gme_cachelist").html(html);
 					}
@@ -1278,7 +1278,7 @@ var gmeResources = {
 							if (parking.type === 217 || parking.type === 221) {
 								label = parking.type===217?"Parking Area":"Trailhead";
 								parkUrl = ["https://www.google.com/maps/dir/",gmeConfig.env.home.toUrl(),"/", parking.lat, ",", parking.lng, "/"].join("");
-								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[7].innerHTML += '<a target="_blank" href="' + parkUrl + '"><img width="16" height="16" title="Directions to ' + label + '" alt="' + label + '" src="https://www.geocaching.com/images/wpttypes/sm/pkg.jpg" /></a>';
+								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[7].innerHTML += '<a target="_blank" rel="noopener noreferrer" href="' + parkUrl + '"><img width="16" height="16" title="Directions to ' + label + '" alt="' + label + '" src="https://www.geocaching.com/images/wpttypes/sm/pkg.jpg" /></a>';
 							}
 						}
 					}
@@ -2393,7 +2393,7 @@ var gmeResources = {
 					if (gmeConfig.env.xhr) {
 						document.dispatchEvent(new Event("GME_GCsearch_event"));
 					} else {
-						$.fancybox("Search by GC-code is not available in this browser.<br />You can <a target='_blank' title='gc' href='http://coord.info/" + gc + "'>open the cache page</a> for " + gc + " instead");
+						$.fancybox("Search by GC-code is not available in this browser.<br />You can <a target='_blank' rel='noopener noreferrer' title='gc' href='http://coord.info/" + gc + "'>open the cache page</a> for " + gc + " instead");
 					}
 					return false;
 				},
