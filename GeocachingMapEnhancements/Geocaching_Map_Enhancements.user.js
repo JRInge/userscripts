@@ -2109,42 +2109,145 @@ var gmeResources = {
 					this._markers.clearLayer(this._markers._layers[mark]);
 				},
 				showInfo:function (e) {
-					var control=this, b = control._map.getBounds(), dir="", dist, ll=e.latlng.toUrl(), z=control._map.getZoom(), geograph="", height="", hide="", magic="",nav="", postcode="", popupContent, popup = new L.Popup(), streetview, sv;
-					if (that.isInUK(e.latlng)) {
-						magic = ", <a target='magic' title='Show MAGIC map of environmentally sensitive areas' href='http://magic.defra.gov.uk/MagicMap.aspx?srs=WGS84&startscale=" + (Math.cos(control._map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 684090188 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng)) / control._map.getSize().x +	"&layers=LandBasedSchemes,12,24:HabitatsAndSpecies,38:Designations,6,10,13,16,34,37,40,72,94&box=" + b.toBBoxString().replace(/,/g,":") + "'>MAGIC</a>";
-						postcode = ", <a href='#' title='Fetch location data from postcodes.io' class='gme-event' data-gme-action='getPostcode' data-gme-coords='" + ll + "'>Postcode</a>";
+					var control=this, popupContent="<p>", popup = new L.Popup(), i;
+
+					for(i = 0; i < this.tools.length; i++) {
+                        if( this.tools[i].isValid(e.latlng, control._map.getZoom())) {
+                            popupContent += this.tools[i].getHTML(e.latlng, control._map.getZoom(), control._map) + " ";
+                        }
 					}
-					if (that.isGeographAvailable(e.latlng)) {
-						geograph = ", <a href='#' title='Show Geograph images near this point' class='gme-event' data-gme-action='getGeograph' data-gme-coords='" + ll + "'>Geograph</a>";
-					}
-					if (e.latlng.lat > -65 && e.latlng.lat < 83) {
-						height=", <a href='#' title='Height of point above sea level' class='gme-event' data-gme-action='getHeight' data-gme-coords='" + ll + "'>Height</a>";
-					}
-					if (window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.AddGeocacheLayer && MapSettings.MapLayers.RemoveGeocacheLayer) {
-						hide = ", <a title='Toggles display of geocaches on the map' href='#' class='gme-event' data-gme-action='toggleCaches'>" + (MapSettings.MapLayers.Geocache ? "Hide" : "Show") + " caches</a>";
-					}
-					if (gmeConfig.env.home){
-						dir = ", <br /><a title='Launch Google Directions from home to this point' " + (that.parameters.useNewTab ? "target = 'directions' " : "") + "href='https://www.google.com/maps/dir/" + gmeConfig.env.home.toUrl() + "/" + ll + "/'>Directions</a>";
-					}
-					if (L.Browser.mobile || L.Browser.android) {
-						sv = "google.streetview:cbll=" + ll + "&cbp=1,0,,0,1&mz=" + z;
-						nav = ", <a title='Launch Google Navigation app' href='google.navigation:q=" + ll + "'>Navigation</a>";
-					} else {
-						sv = "https://maps.google.com/maps?q=&layer=c&cbll=" + ll + "&cbp=12,0,0,0,0&z=" + z;
-					}
-					streetview = ", <a title='Launch Google Streetview' " + (that.parameters.useNewTab ? "target='streetview' " : "") + "href='" + sv + "'>Streetview</a>";
-					popupContent = [
-						"<p><strong>", DMM(e.latlng), "</strong><br/>Dec: <a href='geo:", ll, "?z=", z, "'>", ll, "</a>",
-						"<br/><a title='List ", (that.parameters.filterFinds ? "unfound " : ""), "caches near point' href='https://www.geocaching.com/seek/nearest.aspx?lat=", e.latlng.lat, "&lng=", e.latlng.lng,that.parameters.filterFinds ? "&f=1" : "", "' ", that.parameters.useNewTab ? "target='searchPage' " : "", ">List caches</a>",
-						hide, geograph, dir, streetview, nav,
-						",<br/><a title='Go to Wikimapia' ", that.parameters.useNewTab ? "target='wiki' " : "", "href='http://wikimapia.org/#lat=", e.latlng.lat, "&lon=", e.latlng.lng, "&z=", z, "'>Wikimapia</a>",
-						magic, postcode,
-						",<br/><a title='Drop a marker circle onto the map' href='#' class='gme-event' data-gme-action='dropMarker' data-gme-coords='", ll, "'>Marker</a>",
-						height, "</p>"].join("");
+					popupContent += "</p>";
+						
 					popup.setLatLng(e.latlng);
 					popup.setContent(popupContent);
 					control._map.addLayer(popup);
 				},
+                tools: [
+                    {
+                        name: "Coords",
+                        getHTML: function(coords, zoom, map) {
+                            var ll = coords.toUrl();
+                            return "<strong>" + DMM(coords) + "</strong><br/>Dec: <a href='geo:" + ll + "?z=" + zoom + "'>" + ll + "</a></br>";
+                        },
+                        isValid: function(coords, zoom) { return true; }
+                    },
+                    {
+                        name: "List caches",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='List " + (that.parameters.filterFinds ? "unfound " : "") + "caches near point' href='https://www.geocaching.com/seek/nearest.aspx?lat=" + coords.lat + "&lng=" + coords.lng + (that.parameters.filterFinds ? "&f=1" : "") + "' target='_blank' rel='noopener noreferrer'>List caches</a>";
+                        },
+                        isValid: function(coords, zoom) { return true; }
+                    },
+                    {
+                        name: "Hide caches",
+                        action: "toggleCaches",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='Toggle display of geocaches on the map' href='#' class='gme-event' data-gme-action='toggleCaches'>" + (MapSettings.MapLayers.Geocache ? "Hide" : "Show") + " caches</a>"
+                        },
+                        isValid: function(coords, zoom) {
+                            return window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.AddGeocacheLayer && MapSettings.MapLayers.RemoveGeocacheLayer;
+                        }
+                    },
+                    {
+                        name: "Geograph",
+                        action: "getGeograph",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a href='#' title='Show Geograph images near this point' class='gme-event' data-gme-action='getGeograph' data-gme-coords='" + coords.toUrl() + "'>Geograph</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return	bounds_GB.contains(coords) || bounds_DE.contains(coords) || bounds_IE.contains(coords) || bounds_CI.contains(coords);
+                        }
+                    },
+                    {
+                        name: "Directions",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='Launch Google Directions from home to this point' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/dir/" + gmeConfig.env.home.toUrl() + "/" + coords.toUrl() + "/'>Directions</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return !!gmeConfig.env.home;
+                        }
+                    },
+                    {
+                        name: "Wikimapia",
+                        getHTML: function(coords, zoom, map) {
+                            var centre = map.getCenter();
+                            return "<a title='Go to wikimapia' target='_blank' rel='noopener noreferrer' href='http://wikimapia.org/#lat=" + centre.lat + "&lon=" + centre.lng + "&z=" + zoom + "'>Wikimapia</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return true;
+                        }
+                    },
+                    {
+                        name: "Marker",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='Drop route marker onto map' href='#' class='gme-event' data-gme-action='dropMarker' data-gme-coords='" + coords.toUrl() + "'>Marker</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return true;
+                        }
+                    },
+                    {
+                        name: "MAGIC",
+                        getHTML: function(coords, zoom, map) {
+                            var b = map.getBounds();
+                            return "<a title='Show MAGIC map of environmentally sensitive areas' target='_blank' rel='noopener noreferrer' href='http://magic.defra.gov.uk/MagicMap.aspx?srs=WGS84&startscale=" + (Math.cos(map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 684090188 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng)) / map.getSize().x +	"&layers=LandBasedSchemes,12,24:HabitatsAndSpecies,38:Designations,6,10,13,16,34,37,40,72,94&box=" + b.toBBoxString().replace(/,/g,":") + "'>MAGIC</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return that.isInUK(coords);
+                        }
+                    },
+                    {
+                        name: "Postcode",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='Fetch location data from postcodes.io' href='#' class='gme-event' data-gme-action='getPostcode' data-gme-coords='" + coords.toUrl() + "'>Postcode</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return that.isInUK(coords);
+                        }
+                    },
+                    {
+                        name: "Height",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='Height of point above sea level' href='#' class='gme-event' data-gme-action='getHeight' data-gme-coords='" + coords.toUrl() + "'>Height</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return (coords.lat > -65 && coords.lat < 83);
+                        }
+                    },
+                    {
+                        name: "StreetView",
+                        getHTML: function(coords, zoom, map) {
+                            var ll = coords.toUrl(), sv = "";
+                            if (L.Browser.mobile || L.Browser.android) {
+                                sv = "google.streetview:cbll=" + ll + "&cbp=1,0,,0,1&mz=" + zoom;
+                            } else {
+                                sv = "https://maps.google.com/maps?q=&layer=c&cbll=" + ll + "&cbp=12,0,0,0,0&z=" + zoom;
+                            }
+                            return "<a title='Launch Google Streetview' target='_blank' rel='noopener noreferrer' href='" + sv + "'>Streetview</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return true;
+                        }
+                    },
+                    {
+                        name: "MapApp",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a href='bingmaps:?cp=" + coords.lat + "~" + coords.lng + "' target='_blank' rel='noopener noreferrer'><a href='http://maps.apple.com/maps?q=" + coords.toUrl() + "&z=" + zoom + "' target='_blank' rel='noopener noreferrer'>Maps</a></a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return true;
+                        }
+                    },
+                    {
+                        name: "Navigation",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='Launch Google Navigation app' href='google.navigation:q=" + coords.toUrl() + "'>Navigation</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return (L.Browser.mobile || L.Browser.android);
+                        }
+                    }
+                ],
 				showRoute:function(e) {
 					L.DomEvent.stopPropagation(e);
 					this.dropDist(e.latlng);
