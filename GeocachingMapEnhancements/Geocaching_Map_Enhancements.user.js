@@ -43,7 +43,6 @@ var gmeResources = {
 		labels: "codes", // Label caches on the map with their GC code. Or "names" to use long name.
 		measure: "metric",	// Or "imperial" - used for the scale indicators
 		osgbSearch: true,		// Enhance search box with OSGB grid references, zooming, etc. (may interfere with postal code searches)
-		useNewTab: true,		// True opens geocache lists in a new window, rather than replacing the map.
 		defaultMap: "OpenStreetMap",
 		maps: [
 	//	{alt:"Readable Name", tileUrl: "URL template including {s} (subdomain) and either {q} (quadkey) or {x},{y},{z} (Google/TMS tile coordinates + zoom)", subdomains: "0123", minZoom: 0, maxZoom: 24, attribution: "Copyright message (HTML allowed)", name: "shortname", overlay:false }
@@ -170,7 +169,6 @@ var gmeResources = {
 					<div class="gme-fieldgroup">\
 						<h3>Miscellaneous settings</h3>\
 						<ul>\
-							<li><label title="Use new tabs for cache list and other websites"><input type="checkbox" checked="checked" name="GME_useNewTab" id="GME_useNewTab" /> Use new tabs</label></li>\
 							<li><label title="Only list unfound caches in search"><input type="checkbox" name="GME_filterFinds" id="GME_filterFinds" /> Filter finds</label></li>\
 							<li><label><input type="checkbox" checked="checked" name="GME_osgbSearch" id="GME_osgbSearch" /> Enhance search</label></li>\
 							<li><label title="Location widget constantly updates position"><input type="checkbox" name="GME_follow" id="GME_follow" /> FollowMe Mode</label></li>\
@@ -536,12 +534,12 @@ var gmeResources = {
 						html = ["<h3>Geograph images near ", DMM(coords), "</h3><p>"].join("");
 						for (i=json.items.length-1;i>=0;i--) {
 							p = json.items[i];
-							html += ["<a ",gmeConfig.parameters.useNewTab?"target='geograph' ":"","rel='noopener noreferrer' href='",encodeURI(p.link),"' style='margin-right:0.5em;' title='", htmlEntities(p.title) + " by " + htmlEntities(p.author), "'>",p.thumbTag,"</a>"].join("");
+							html += ["<a target='_blank' rel='noopener noreferrer' href='",encodeURI(p.link),"' style='margin-right:0.5em;' title='", htmlEntities(p.title) + " by " + htmlEntities(p.author), "'>",p.thumbTag,"</a>"].join("");
 						}
-						html += ["</p><p><a ",gmeConfig.parameters.useNewTab?"target='geograph' ":"","rel='noopener noreferrer' href='",searchLink(coords),"'>Search for more photos nearby on Geograph</a></p><p style='font-size:90%;'>Geograph photos are copyrighted by their owners and available under a <a href='http://creativecommons.org/licenses/by-sa/2.0/'>Creative Commons licence</a>. Hover mouse over thumbnails for more details, or click through for full images.</p>"].join("");
+						html += ["</p><p><a target='_blank' rel='noopener noreferrer' href='",searchLink(coords),"'>Search for more photos nearby on Geograph</a></p><p style='font-size:90%;'>Geograph photos are copyrighted by their owners and available under a <a href='http://creativecommons.org/licenses/by-sa/2.0/'>Creative Commons licence</a>. Hover mouse over thumbnails for more details, or click through for full images.</p>"].join("");
 						$.fancybox(html);
 					} else {
-						$.fancybox(["<p>No photos found nearby. <a ",that.parameters.useNewTab?"target='geograph' ":"","rel='noopener noreferrer' href='",searchLink(coords),"'>Search on Geograph</a></p>"].join(""));
+						$.fancybox(["<p>No photos found nearby. <a target='_blank' rel='noopener noreferrer' href='",searchLink(coords),"'>Search on Geograph</a></p>"].join(""));
 					}
 					$("#"+callname).remove();
 					if (window[callname] !== undefined) { delete window[callname]; }
@@ -555,11 +553,7 @@ var gmeResources = {
 					}
 					if (bounds_DE.contains(coords)) {
 						host="http://geo-en.hlipp.de/";
-						if (gmeConfig.parameters.useNewTab) {
-							window.open(searchLink(coords), "geograph");
-						} else {
-							document.location = searchLink(coords);
-						}
+						window.open(searchLink(coords), "_blank");
 						return;
 					}
 					call = callprefix + callbackCount;
@@ -631,11 +625,7 @@ var gmeResources = {
 			this.seekByLatLng = function(latlng) {
 				if (validCoords(latlng)) {
 					var url = ["https://www.geocaching.com/seek/nearest.aspx?origin_lat=",latlng.lat,"&origin_long=",latlng.lng, that.parameters.filterFinds?"&f=1":""].join("");
-					if (that.parameters.useNewTab) {
-						window.open(url, "searchPage");
-					} else {
-						document.location = url;
-					}
+					window.open(url, "_blank");
 				} else {
 					console.error("GME: Invalid coordinates for search");
 				}
@@ -727,7 +717,6 @@ var gmeResources = {
 						sel[i].selected = "selected";
 					}
 				}
-				$("#GME_useNewTab").attr("checked", that.parameters.useNewTab);
 				$("#GME_filterFinds").attr("checked", that.parameters.filterFinds);
 				$("#GME_osgbSearch").attr("checked", that.parameters.osgbSearch);
 				$("#GME_follow").attr("checked", that.parameters.follow);
@@ -769,7 +758,6 @@ var gmeResources = {
 				that.parameters.labels = $("#GME_labelStyle")[0].value;
 				that.parameters.measure = $("#GME_measure")[0].value;
 				that.parameters.osgbSearch = $("#GME_osgbSearch")[0].checked? true : false;
-				that.parameters.useNewTab = $("#GME_useNewTab")[0].checked? true : false;
 				localStorage.setItem("GME_parameters", JSON.stringify(that.parameters));
 				refresh();
 			}
@@ -1363,11 +1351,7 @@ var gmeResources = {
 					e.stopImmediatePropagation();
 					if (q) {
 						url = "https://www.google.co.uk/search?q=allintitle%3A" + encodeURIComponent(q) + "+site%3Awww.geocaching.com%2Fgeocache%2F+OR+site%3Awww.geocaching.com%2Fseek%2Fcache_details.aspx";
-						if (that.parameters.useNewTab) {
-							window.open(url, "searchPage");
-						} else {
-							document.location = url;
-						}
+						window.open(url, "_blank");
 					}
 					return false;
 				}
