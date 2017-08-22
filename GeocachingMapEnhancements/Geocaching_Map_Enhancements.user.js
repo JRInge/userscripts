@@ -10,7 +10,7 @@
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2011-16, James Inge (http://geo.inge.org.uk/)
 // @attribution GeoNames (http://www.geonames.org/)
-// @attribution Postcodes.io (http://postcodes.io/)
+// @attribution Postcodes.io (https://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
 // @grant       GM_xmlhttpRequest
 // @connect     geograph.org.uk
@@ -198,9 +198,9 @@ var gmeResources = {
 					<div class="gme-fieldgroup">\
 						<h3>Geocaching Map Enhancements</h3><br />\
 						<p>v<span id="GME_version"></span> &copy; 2011-2016 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" rel="noopener noreferrer" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" rel="noopener noreferrer" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
-						<p>Elevation and reverse geocoding data provided by <a target="_blank" rel="noopener noreferrer" href="http://www.geonames.org/">GeoNames</a> and used under a <a target="_blank" rel="noopener noreferrer" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
-						<p>Grid reference manipulation is adapted from code &copy; 2005-2014 Chris Veness (<a target="_blank" rel="noopener noreferrer" href="http://www.movable-type.co.uk/scripts/latlong-gridref.html">www.movable-type.co.uk/scripts/latlong-gridref.html</a>, used under a <a target="_blank" rel="noopener noreferrer" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
-						<p>Photos provided by Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. They may be re-used under a <a target="_blank" rel="noopener noreferrer" href="http://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
+						<p>Elevation and reverse geocoding data provided by <a target="_blank" rel="noopener noreferrer" href="http://www.geonames.org/">GeoNames</a> and used under a <a target="_blank" rel="noopener noreferrer" href="https://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
+						<p>Grid reference manipulation is adapted from code &copy; 2005-2014 Chris Veness (<a target="_blank" rel="noopener noreferrer" href="http://www.movable-type.co.uk/scripts/latlong-gridref.html">www.movable-type.co.uk/scripts/latlong-gridref.html</a>, used under a <a target="_blank" rel="noopener noreferrer" href="https://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
+						<p>Photos provided by Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. They may be re-used under a <a target="_blank" rel="noopener noreferrer" href="https://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
 					</div>\
 				</div>\
 			</section>\
@@ -210,7 +210,7 @@ var gmeResources = {
 		customInfo: '<p>Custom mapsources can be added by supplying entering a <a rel="external" href="http://www.json.org/">JSON</a> configuration string that tells GME what to call the map, where to find it, and how it is set up. e.g.</p>\
 			<p><code>{"alt":"OS NPE (GB only)","tileUrl":"https://ooc.openstreetmap.org/npe/{z}/{x}/{y}.png", "minZoom":6, "maxZoom": 15, "attribution": "OpenStreetMap NPE" }</code></p>\
 			<p>The <code>"alt"</code> and <code>"tileUrl"</code> parameters are mandatory. <code>"tileUrl"</code> can contain {x}, {y} and {z} for Google-style coordinate systems (also works with TMS systems like Eniro, but needs the <code>"scheme":"tms"</code> parameter), or {q} for Bing-style quadkeys. GME can also connect with WMS servers, in which case a <code>"layers"</code> parameter is required.</p>\
-			<p>The other parameters are the same as those used by the <a rel="external" href="http://leafletjs.com/reference.html#tilelayer">Leaflet API</a>, with the addition of a <code>"overlay":true</code> option, that makes the mapsource appear as a selectable overlay.</p>\
+			<p>The other parameters are the same as those used by the <a rel="external" href="http://leafletjs.com/reference-versions.html">Leaflet API</a>, with the addition of a <code>"overlay":true</code> option, that makes the mapsource appear as a selectable overlay.</p>\
 			<ul><li><a rel="external" href="http://geo.inge.org.uk/gme_config.htm">Detailed documentation</a></li><li><a rel="external" href="http://geo.inge.org.uk/gme_maps.htm">More mapsource examples</a></li></ul>',
 		search: '<input type="text" placeholder="Address, coordinates, GC-code, keyword, etc." id="SearchBox_Text" title="Jump to a specific zoom level by typing zoom then a number. Zoom 1 shows the whole world, maxiumum zoom is normally 18-22. To search using a British National Grid reference, just type it in the search box and hit the button! You can use 2, 4, 6, 8 or 10-digit grid refs with the 2-letter prefix but no spaces in the number (e.g. SU12344225) or absolute grid refs with a comma but no prefix (e.g. 439668,1175316)." />\
 			<button id="SearchBox_OS" title="Search">Search</button>\
@@ -518,13 +518,13 @@ var gmeResources = {
 					if (coords === undefined) { return false; }
 					var host="";
 					if (bounds_GB.contains(coords) || bounds_IE.contains(coords)) {
-						host="http://geograph.org.uk/";
+						host="https://geograph.org.uk/";
 					}
 					if (bounds_CI.contains(coords)) {
-						host="http://channel-islands.geographs.org/";
+						host="https://channel-islands.geographs.org/";
 					}
 					if (bounds_DE.contains(coords)) {
-						host="http://geo-en.hlipp.de/";
+						host="https://geo-en.hlipp.de/";
 					}
 					return host?[host,"search.php?location=", coords.toUrl()].join(""):false;
 				}
@@ -536,7 +536,7 @@ var gmeResources = {
 							p = json.items[i];
 							html += ["<a target='_blank' rel='noopener noreferrer' href='",encodeURI(p.link),"' style='margin-right:0.5em;' title='", htmlEntities(p.title) + " by " + htmlEntities(p.author), "'>",p.thumbTag,"</a>"].join("");
 						}
-						html += ["</p><p><a target='_blank' rel='noopener noreferrer' href='",searchLink(coords),"'>Search for more photos nearby on Geograph</a></p><p style='font-size:90%;'>Geograph photos are copyrighted by their owners and available under a <a href='http://creativecommons.org/licenses/by-sa/2.0/'>Creative Commons licence</a>. Hover mouse over thumbnails for more details, or click through for full images.</p>"].join("");
+						html += ["</p><p><a target='_blank' rel='noopener noreferrer' href='",searchLink(coords),"'>Search for more photos nearby on Geograph</a></p><p style='font-size:90%;'>Geograph photos are copyrighted by their owners and available under a <a href='https://creativecommons.org/licenses/by-sa/2.0/'>Creative Commons licence</a>. Hover mouse over thumbnails for more details, or click through for full images.</p>"].join("");
 						$.fancybox(html);
 					} else {
 						$.fancybox(["<p>No photos found nearby. <a target='_blank' rel='noopener noreferrer' href='",searchLink(coords),"'>Search on Geograph</a></p>"].join(""));
@@ -546,13 +546,13 @@ var gmeResources = {
 				};}
 				if (validCoords(coords) && this.isGeographAvailable(coords)) {
 					if (bounds_GB.contains(coords) || bounds_IE.contains(coords)) {
-						host="http://mobile.api.geograph.org.uk/";
+						host="https://mobile.api.geograph.org.uk/";
 					}
 					if (bounds_CI.contains(coords)) {
-						host="http://channel-islands.geographs.org/";
+						host="https://channel-islands.geographs.org/";
 					}
 					if (bounds_DE.contains(coords)) {
-						host="http://geo-en.hlipp.de/";
+						host="https://geo-en.hlipp.de/";
 						window.open(searchLink(coords), "_blank");
 						return;
 					}
@@ -827,13 +827,13 @@ var gmeResources = {
 				}
 				var c, dataURI, dt, i, locfmt,
 					id = $("#ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode")[0].innerHTML,
-					loc = [GME_formatLOC_wpt(id, cache_coords.primary[0].name, cache_coords.primary[0], cache_coords.primary[0].type,{desc:"Cache Details",href:"http://coord.info/"+id})];
+					loc = [GME_formatLOC_wpt(id, cache_coords.primary[0].name, cache_coords.primary[0], cache_coords.primary[0].type,{desc:"Cache Details",href:"https://coord.info/"+id})];
 				for (i = cache_coords.additional.length-1; i >= 0; i--) {
 					c = cache_coords.additional[i];
 					loc.push(GME_formatLOC_wpt(c.pf + id.slice(2), [c.name,$("#awpt_"+c.pf).parent().parent().next().children()[2].innerHTML.trim()].join(" "), c, c.type));
 				}
 				if (cache_coords.primary[0].isUserDefined) {
-					loc.push(GME_formatLOC_wpt("GO"+id.slice(2), cache_coords.primary[0].name, {lat:cache_coords.primary[0].oldLatLng[0], lng:cache_coords.primary[0].oldLatLng[1]}, "Original Coordinates",{desc:"Cache Details",href:"http://coord.info/"+id}));
+					loc.push(GME_formatLOC_wpt("GO"+id.slice(2), cache_coords.primary[0].name, {lat:cache_coords.primary[0].oldLatLng[0], lng:cache_coords.primary[0].oldLatLng[1]}, "Original Coordinates",{desc:"Cache Details",href:"https://coord.info/"+id}));
 				}
 				locfmt = GME_formatLOC(loc);
 				dataURI = "data:application/xml-loc," + encodeURIComponent(locfmt);
@@ -1207,7 +1207,7 @@ var gmeResources = {
 						sortorder.sort();
 						j = sortorder.length;
 						for (i =0; i<j; i++){
-							html += "<tr><td><a href='http://coord.info/" + sortorder[i] + "' target='_blank' rel='noopener noreferrer'>" + control.labels.labels[sortorder[i]][1] + "</a></td><td class='gme-cache-code'>&nbsp;" + sortorder[i] + "</td><td><a class='gme-event' title='Pan map to cache location' data-gme-action='panTo' data-gme-cache='" + sortorder[i] + "'><img src='../images/silk/map.png' width='16' height='16' alt='Pan' /></a></td></tr>";
+							html += "<tr><td><a href='https://coord.info/" + sortorder[i] + "' target='_blank' rel='noopener noreferrer'>" + control.labels.labels[sortorder[i]][1] + "</a></td><td class='gme-cache-code'>&nbsp;" + sortorder[i] + "</td><td><a class='gme-event' title='Pan map to cache location' data-gme-action='panTo' data-gme-cache='" + sortorder[i] + "'><img src='../images/silk/map.png' width='16' height='16' alt='Pan' /></a></td></tr>";
 						}
 						$("#gme_cachelist").html(html);
 					}
@@ -1441,7 +1441,7 @@ var gmeResources = {
 					getGPX:function() {
 						var name = $(".CommonUsername").attr("title"),
 							author = name ?
-								(name + '</name>\r\n\t\t\t<link href="http://www.geocaching.com/profile/?u=' + name + '"><text>' + name + '\'s profile</text></link>\r\n') :
+								(name + '</name>\r\n\t\t\t<link href="https://www.geocaching.com/profile/?u=' + name + '"><text>' + name + '\'s profile</text></link>\r\n') :
 								"Geocaching.com user</name>\r\n",
 							date = !!Date.prototype.toISOString ? ["\t\t<time>", new Date().toISOString(), "</time>\r\n"].join("") : "",
 							i, l,
@@ -2216,7 +2216,7 @@ var gmeResources = {
                     {
                         name: "MapApp",
                         getHTML: function(coords, zoom, map) {
-                            return "<a href='bingmaps:?cp=" + coords.lat + "~" + coords.lng + "' target='_blank' rel='noopener noreferrer'><a href='http://maps.apple.com/maps?q=" + coords.toUrl() + "&z=" + zoom + "' target='_blank' rel='noopener noreferrer'>Maps</a></a>";
+                            return "<a href='bingmaps:?cp=" + coords.lat + "~" + coords.lng + "' target='_blank' rel='noopener noreferrer'><a href='https://maps.apple.com/maps?q=" + coords.toUrl() + "&z=" + zoom + "' target='_blank' rel='noopener noreferrer'>Maps</a></a>";
                         },
                         isValid: function(coords, zoom) {
                             return true;
@@ -2377,7 +2377,7 @@ var gmeResources = {
 					if (gmeConfig.env.xhr) {
 						document.dispatchEvent(new Event("GME_GCsearch_event"));
 					} else {
-						$.fancybox("Search by GC-code is not available in this browser.<br />You can <a target='_blank' rel='noopener noreferrer' title='gc' href='http://coord.info/" + gc + "'>open the cache page</a> for " + gc + " instead");
+						$.fancybox("Search by GC-code is not available in this browser.<br />You can <a target='_blank' rel='noopener noreferrer' title='gc' href='https://coord.info/" + gc + "'>open the cache page</a> for " + gc + " instead");
 					}
 					return false;
 				},
