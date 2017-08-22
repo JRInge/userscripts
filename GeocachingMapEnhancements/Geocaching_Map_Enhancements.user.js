@@ -521,7 +521,7 @@ var gmeResources = {
 						host="https://geograph.org.uk/";
 					}
 					if (bounds_CI.contains(coords)) {
-						host="https://channel-islands.geographs.org/";
+						host="https://www.geograph.org.gg/";
 					}
 					if (bounds_DE.contains(coords)) {
 						host="https://geo-en.hlipp.de/";
@@ -545,20 +545,14 @@ var gmeResources = {
 					if (window[callname] !== undefined) { delete window[callname]; }
 				};}
 				if (validCoords(coords) && this.isGeographAvailable(coords)) {
-					if (bounds_GB.contains(coords) || bounds_IE.contains(coords)) {
-						host="https://mobile.api.geograph.org.uk/";
-					}
-					if (bounds_CI.contains(coords)) {
-						host="https://channel-islands.geographs.org/";
-					}
-					if (bounds_DE.contains(coords)) {
-						host="https://geo-en.hlipp.de/";
+					if (!bounds_CI.contains(coords) && (bounds_GB.contains(coords) || bounds_IE.contains(coords))) {
+						host="https://api.geograph.org.uk/";
+                        call = callprefix + callbackCount;
+                        window[call] = makeCallback(call);
+                        JSONP(host + "syndicator.php?key=geo.inge.org.uk&location=" + coords.toUrl() + "&format=JSON&callback=" + call, call);
+					} else {
 						window.open(searchLink(coords), "_blank");
-						return;
 					}
-					call = callprefix + callbackCount;
-					window[call] = makeCallback(call);
-					JSONP(host + "syndicator.php?key=geo.inge.org.uk&location=" + coords.toUrl() + "&format=JSON&callback=" + call, call);
 				} else {
 					console.error("GME: Bad coordinates to getGeograph");
 				}
