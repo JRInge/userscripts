@@ -81,7 +81,11 @@ var gmeResources = {
 			.gme-button-wide:hover { color: #ccc; }\
 			a.GME_home { background-position: -572px 4px;}\
 			a.GME_config { background-position: -284px 4px;}\
-			a.GME_route {background-position: center; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAPCAYAAAA2yOUNAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAARNgAAETYBbRc9XAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAECSURBVCiRXc8xL4NRGMXxX980EhMWFpE0goFYdWonSTvxHYTJLGIymHyELv0MLHeweFneySBiITFQqaHEKqjBo4n3LM895%2F5zz3Mrw%2BFQu1mvYw%2BzmMIbnnCc8qKotBpr8zhDDa94D3ASD1jP0A3gHptYwEb4GrpVTGCIbsqLS7%2B6aDfrXRxhIsM4HtHxX53Ix7PY4RufJegz8vcMA8xhqwRtRT7IcIIvbLeb9WWIuRMvnVZajbUxXGMJL1E%2FiWncYSVLefGB86iYwWIAcJ7y4iMLc4heaade5DJIedHHTQm6TXnxPIJCB%2BjHuY%2F9v4sRlPLiCil%2BmsKDaqliF6sxR%2FoBZ6dQNafC%2BAMAAAAASUVORK5CYII%3D);}\
+			a.GME_route, a.GME_hide {background: url(https://geo.inge.org.uk/userscripts/gme_icons_0_8_0.png) no-repeat #eee;}\
+			a.GME_route { background-position: 7px 3px;}\
+			a.GME_route.gme-button-active { background-position: 5px 1px;}\
+			a.GME_hide { background-position: -17px 3px;}\
+			a.GME_hide.gme-button-active { background-position: -19px 1px;}\
 			a.gme-button-refresh-labels { background-position: -320px 4px;}\
 			a.gme-button-clear-labels { background-position: -69px 4px;}\
 			span.gme-distance-container { display: none; }\
@@ -1945,12 +1949,14 @@ var gmeResources = {
 						if (action === "panToHome") { control.panToHome(); }
 						if (action === "toggleInfo") { control.toggleTool("info"); }
 						if (action === "toggleRoute") { control.toggleTool("route"); }
+						if (action === "toggleCaches") { control.toggleCaches(); }
 					}
 					this._map = contextmap;
 					this._map.infoMode = false;
 					this._map.routeMode = false;
 					this._markers = L.layerGroup().addTo(contextmap);
 					html = "<a class=\'GME_info gme-button gme-button-l\' title=\'Enable location info tool\' data-gme-action=\'toggleInfo\'></a>";
+					html += "<a class=\'GME_hide gme-button\' title=\'Hide caches\' data-gme-action=\'toggleCaches\'></a>";
 					html += "<a class=\'GME_route gme-button\' title=\'Enable route tool\' data-gme-action=\'toggleRoute\'></a>";
 					if (gmeConfig.env.home) {
 						html += "<a title=\'Go to home location\' class=\'GME_home gme-button\' data-gme-action=\'panToHome\'></a>";
@@ -2117,16 +2123,6 @@ var gmeResources = {
                         isValid: function(coords, zoom) { return true; }
                     },
                     {
-                        name: "Hide caches",
-                        action: "toggleCaches",
-                        getHTML: function(coords, zoom, map) {
-                            return "<a title='Toggle display of geocaches on the map' href='#' class='gme-event' data-gme-action='toggleCaches'>" + (MapSettings.MapLayers.Geocache ? "Hide" : "Show") + " caches</a>"
-                        },
-                        isValid: function(coords, zoom) {
-                            return window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.AddGeocacheLayer && MapSettings.MapLayers.RemoveGeocacheLayer;
-                        }
-                    },
-                    {
                         name: "Geograph",
                         action: "getGeograph",
                         getHTML: function(coords, zoom, map) {
@@ -2234,8 +2230,10 @@ var gmeResources = {
 					if (window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.AddGeocacheLayer && MapSettings.MapLayers.RemoveGeocacheLayer) {
 						if (MapSettings.MapLayers.Geocache) {
 							MapSettings.MapLayers.RemoveGeocacheLayer();
+							$(".GME_hide").addClass("gme-button-active").attr("title","Show caches");
 						} else {
 							MapSettings.MapLayers.AddGeocacheLayer();
+							$(".GME_hide").removeClass("gme-button-active").attr("title","Hide caches");
 						}
 					}
 				},
