@@ -2001,6 +2001,7 @@ var gmeResources = {
 				},
 				exportDist:function(e) {
 					if (!this._dist_line) { return; }
+					e.download = "ExportedRoute.gpx";
 					e.href = "data:application/xml-gpx," + encodeURIComponent(this._dist_line.getGPX());
 					return false;
 				},
