@@ -5,7 +5,6 @@
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
 // @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
-// @include     http://www.geocaching.com/*
 // @include     https://www.geocaching.com/*
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2011-16, James Inge (http://geo.inge.org.uk/)
@@ -147,7 +146,6 @@ var gmeResources = {
 						<ul id="GME_mapfields"></ul>\
 						<label>Default map source: &nbsp;<select name="GME_map_default" id="GME_map_default"></select></label>\
 					</div>\
-					<p><strong>Where did my custom maps go?</strong> Geocaching.com now serves its main map and cache pages via a secure https connection, but a few other areas of the site (including trackables maps) are still sent via normal http. Unfortunately, GME\'s configuration can\'t be shared between http and https, so you may see a different selections on trackable pages and the main map. To get them back, access this configuration screen from the gear icon on the main map or the pulldown menu next to your username on most other pages, then use the &quot;Export custom maps&quot; and &quot;Add mapsource&quot; functions on the <a onclick=\'document.getElementById("gme-tab-manage").checked=true;\'>Manage Maps</a> tab to cut and paste your custom map configuration from one set of pages to the other.</p>\
 				</div>\
 			</section>\
 			<section class="gme-tab">\
