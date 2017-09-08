@@ -71,32 +71,31 @@ var gmeResources = {
 			.GME_search_results.hidden { display: none; }\
 			.groundspeak-control-findmylocation { border: 1px solid #888; border-radius: 5px; box-shadow: 0 0 8px rgba(0, 0, 0, 0.4); padding:0; background:rgba(255,255,255,0.8);}\
 			.groundspeak-control-findmylocation a { padding: 3px; }\
-			a.gme-button, span.gme-button { display: inline-block; box-sizing: content-box; -moz-box-sizing: content-box; padding:3px; vertical-align:middle; background:url(https://www.geocaching.com/map/css/themes/images/icons-18-black.png) no-repeat #eee; background-color: rgba(255,255,255,0.8); border: 1px solid #888; border-right:0; height:19px; width:19px; text-decoration: none; }\
-			a.gme-button-l, span.gme-button-l { border-bottom-left-radius:5px; border-top-left-radius:5px; }\
-			a.gme-button-r, span.gme-button-r { border-right: 1px solid #888; border-bottom-right-radius: 5px; border-top-right-radius:5px; margin-right:0.5em;}\
-			a.gme-button:hover { background-color: #fff; }\
-			a.gme-button-active {border:solid 3px #02b; padding:1px 0 1px 1px; background-color:#fff;}\
-			a.gme-button-active:hover {border-color:#63f;filter:alpha(opacity=100);}\
-			span.gme-button, a.gme-button-wide { padding-left:5px; padding-right:5px; font-size:12px; font-weight:bold; width:auto; background-image:none; color: #424242; }\
-			.gme-button-wide:hover { color: #ccc; }\
-			a.GME_home { background-position: -572px 4px;}\
-			a.GME_config { background-position: -284px 4px;}\
-			a.GME_route, a.GME_hide {background: url(https://geo.inge.org.uk/userscripts/gme_icons_0_8_0.png) no-repeat #eee;}\
-			a.GME_route { background-position: 7px 3px;}\
-			a.GME_route.gme-button-active { background-position: 5px 1px;}\
-			a.GME_hide { background-position: -17px 3px;}\
-			a.GME_hide.gme-button-active { background-position: -19px 1px;}\
-			a.gme-button-refresh-labels { background-position: -320px 4px;}\
-			a.gme-button-clear-labels { background-position: -69px 4px;}\
+			.gme-button { display: inline-block; box-sizing: content-box; -moz-box-sizing: content-box; padding:3px; vertical-align:middle; background:url(https://www.geocaching.com/map/css/themes/images/icons-18-black.png) no-repeat #eee; background-color: rgba(255,255,255,0.8); border: 1px solid #888; border-right:0; height:19px; width:19px; text-decoration: none; }\
+			.gme-button-l { border-bottom-left-radius:5px; border-top-left-radius:5px; }\
+			.gme-button-r { border-right: 1px solid #888; border-bottom-right-radius: 5px; border-top-right-radius:5px; margin-right:0.5em;}\
+			.gme-button:hover { background-color: #fff; }\
+			.gme-button-active {border:solid 3px #02b; padding:1px 0 1px 1px; background-color:#fff;}\
+			.gme-button-active:hover {border-color:#63f;filter:alpha(opacity=100);}\
+			span.gme-button, .gme-button-wide { padding-left:5px; padding-right:5px; font-size:12px; font-weight:bold; width:auto; background-image:none; color: #424242; }\
+			.GME_home { background-position: -572px 4px;}\
+			.GME_config { background-position: -284px 4px;}\
+			.GME_route, .GME_hide {background: url(https://geo.inge.org.uk/userscripts/gme_icons_0_8_0.png) no-repeat #eee;}\
+			.GME_route { background-position: 7px 3px;}\
+			.GME_route.gme-button-active { background-position: 5px 1px;}\
+			.GME_hide { background-position: -17px 3px;}\
+			.GME_hide.gme-button-active { background-position: -19px 1px;}\
+			.gme-button-refresh-labels { background-position: -320px 4px;}\
+			.gme-button-clear-labels { background-position: -69px 4px;}\
 			span.gme-distance-container { display: none; }\
 			span.gme-distance-container.show { display: inline-block; }\
-			a.GME_info { background-position: -537px 4px;}\
-			a.GME_info.gme-button-active {background-position: -540px 1px;}\
+			.GME_info { background-position: -537px 4px;}\
+			.GME_info.gme-button-active {background-position: -540px 1px;}\
 			#GME_loc, a.gme-button.leaflet-active {outline: none;}\
 			.leaflet-control-zoomwarning { top: 94px; }\
 			.leaflet-control-zoomwarning a { filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#BFC80000",EndColorStr="#BFC80000"); background-color:rgba(200,0,0,0.75); margin-left: -4px; background-position: -502px 2px;height:14px;width:14px; border-color: #b00; box-shadow: 0 0 8px rgba(0, 0, 0, 0.4); }\
 			.leaflet-control-zoomwarning a:hover { background-color:rgba(230,0,0,0.75); }\
-			a.gme-event { cursor: pointer; }\
+			.gme-event { cursor: pointer; }\
 			.gme-modalDialog {position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: rgba(0,0,0,0.5); z-index: 1000; opacity:.5; -webkit-transition: opacity 400ms ease-in; -moz-transition: opacity 400ms ease-in; transition: opacity 400ms ease-in; pointer-events: none; display:none; }\
 			.gme-modalDialog:target, .gme-modalDialog.gme-targetted { opacity:1; display:block; pointer-events: auto; }\
 			.gme-modalDialog > div { position: relative; margin: 4% 12.5%; height: 30em; max-height: 75%; padding: 0 0 13px 0; border: 1px solid #000; border-radius: 10px; background: #fff; background: -moz-linear-gradient(#fff, #999); background: -webkit-linear-gradient(#fff, #999); background: -o-linear-gradient(#fff, #999); }\
@@ -158,7 +157,7 @@ var gmeResources = {
 					<div class="gme-fieldgroup">\
 						<h3>Add map sources</h3>\
 						<label>Mapsource: <input type="text" name="GME_map_custom" id="GME_map_custom">&nbsp;</label>\
-						<div class="leaflet-control-gme"><a id="GME_custom_add" class="gme-button gme-button-wide gme-button-l gme-button-r" title="Add custom map source">Add</a> <a href="#GME_format" title="Map source format info" class="gme-button gme-button-wide gme-button-l">Mapsource format info</a><a id="GME_custom_export" title="Export custom map source JSON" class="gme-button gme-button-wide gme-button-r">Export custom maps</a></div>\
+						<div class="leaflet-control-gme"><button type="button" id="GME_custom_add" class="gme-button gme-button-wide gme-button-l gme-button-r" title="Add custom map source">Add</button> <a href="#GME_format" title="Map source format info" class="gme-button gme-button-wide gme-button-l">Mapsource format info</a><button type="button" id="GME_custom_export" title="Export custom map source JSON" class="gme-button gme-button-wide gme-button-r">Export custom maps</button></div>\
 					</div>\
 					<div class="gme-fieldgroup">\
 						<h3>Remove map sources</h3>\
@@ -209,7 +208,7 @@ var gmeResources = {
 				</div>\
 			</section>\
 			<div class="leaflet-control-gme">\
-				<a href="#" class="gme-button gme-button-wide gme-button-l" rel="back" title="Cancel">Cancel</a><a href="#" class="gme-button gme-button-wide" id="GME_default" title="Reset to defaults">Defaults</a><a href="#" class="gme-button gme-button-wide gme-button-r" id="GME_set" title="Confirm settings">Save</a>\
+				<a href="#" class="gme-button gme-button-wide gme-button-l" rel="back" title="Cancel">Cancel</a><button type="button" class="gme-button gme-button-wide" id="GME_default" title="Reset to defaults">Defaults</button><button type="button" class="gme-button gme-button-wide gme-button-r" id="GME_set" title="Confirm settings">Save</button>\
 			</div>',
 		customInfo: '<p>Custom mapsources can be added by supplying entering a <a rel="external" href="http://www.json.org/">JSON</a> configuration string that tells GME what to call the map, where to find it, and how it is set up. e.g.</p>\
 			<p><code>{"alt":"OS NPE (GB only)","tileUrl":"https://ooc.openstreetmap.org/npe/{z}/{x}/{y}.png", "minZoom":6, "maxZoom": 15, "attribution": "OpenStreetMap NPE" }</code></p>\
@@ -1955,11 +1954,11 @@ var gmeResources = {
 					this._map.infoMode = false;
 					this._map.routeMode = false;
 					this._markers = L.layerGroup().addTo(contextmap);
-					html = "<a class=\'GME_info gme-button gme-button-l\' title=\'Enable location info tool\' data-gme-action=\'toggleInfo\'></a>";
-					html += "<a class=\'GME_hide gme-button\' title=\'Hide caches\' data-gme-action=\'toggleCaches\'></a>";
-					html += "<a class=\'GME_route gme-button\' title=\'Enable route tool\' data-gme-action=\'toggleRoute\'></a>";
+					html = "<button type='button' class=\'GME_info gme-button gme-button-l\' title=\'Enable location info tool\' data-gme-action=\'toggleInfo\'></button>";
+					html += "<button type='button' class=\'GME_hide gme-button\' title=\'Hide caches\' data-gme-action=\'toggleCaches\'></button>";
+					html += "<button type='button' class=\'GME_route gme-button\' title=\'Enable route tool\' data-gme-action=\'toggleRoute\'></button>";
 					if (gmeConfig.env.home) {
-						html += "<a title=\'Go to home location\' class=\'GME_home gme-button\' data-gme-action=\'panToHome\'></a>";
+						html += "<button type='button' title=\'Go to home location\' class=\'GME_home gme-button\' data-gme-action=\'panToHome\'></button>";
 					}
 					if (gmeConfig.parameters.osgbSearch) {
 						$(".GME_search_results").on("click", ".gme-event", contextmap, mapHandler);
