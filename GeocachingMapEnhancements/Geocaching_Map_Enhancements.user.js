@@ -1610,8 +1610,20 @@ var gmeResources = {
 				return bounds;
 			}
 			function genericLayerFn(url, options) {
-				if (typeof url === "string" && typeof options.tileUrl === "string" && typeof options.alt==="string") {
-					return (/\{q\}/).test(url)?(new L.GME_QuadkeyLayer(url, options)):((/\{s4\}|\{x100\}/).test(url)?(new L.GME_complexLayer(url,options)):((/\{x\}/).test(url)?(new L.TileLayer(url, options)):(new L.TileLayer.WMS(url, options))));
+                function filterOpts(opts) {
+                    /* Remove GME's internal options, so they don't get passed to servers (WMS in particular). */
+                    var opt, filtered = {}, exclude = ["tileUrl", "ignore", "alt"];
+                    for (opt in opts) {
+                        if (exclude.indexOf(opt) === -1) {
+                            filtered[opt] = options[opt];
+                        }
+                    }
+                    return filtered;
+                }
+                var filteredOpts = filterOpts(options);
+                
+				if (typeof url === "string") {
+					return (/\{q\}/).test(url)?(new L.GME_QuadkeyLayer(url, filteredOpts)):((/\{s4\}|\{x100\}/).test(url)?(new L.GME_complexLayer(url,filteredOpts)):((/\{x\}/).test(url)?(new L.TileLayer(url, filteredOpts)):(new L.TileLayer.WMS(url, filteredOpts))));
 				}
 				console.error("GME: Bad map source: " + JSON.stringify(options));
 				return undefined;
