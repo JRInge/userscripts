@@ -51,7 +51,6 @@ var gmeResources = {
 			{alt:"Bing Aerial View", tileUrl:"https://ecn.t{s}.tiles.virtualearth.net/tiles/a{q}?g=737&n=z", subdomains: "0123", minZoom: 1, maxZoom: 20, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "bingaerial" },
 			{alt:"Google Maps",tileUrl:"https://mt.google.com/vt?&x={x}&y={y}&z={z}",name:"googlemaps",attribution:"<a href=\'https://maps.google.com/\'>Google</a> Maps",subdomains:"1234",tileSize:256,maxZoom:22},
 			{alt:"Google Satellite",tileUrl:"https://mt.google.com/vt?lyrs=s&x={x}&y={y}&z={z}",name:"googlemapssat",attribution:"<a href=\'https://maps.google.com/\'>Google</a> Maps Satellite",subdomains:"1234",tileSize:256,maxZoom:22},
-			{alt:"London Street Maps", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&productSet=mmCB", subdomains: "0123", minZoom: 14, maxZoom: 17, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "binglondon", ignore: true},
 			{alt:"Freemap Slovakia Hiking", tileUrl: "http://t{s}.freemap.sk/T/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true},
 			{alt:"Freemap Slovakia Bicycle", tileUrl: "http://t{s}.freemap.sk/C/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true},
 			{alt:"Freemap Slovakia Car", tileUrl: "http://t{s}.freemap.sk/A/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true},
@@ -2624,8 +2623,10 @@ try {
 
 if(gmeResources.env.storage) {
 	var a, b, customJSON, GME_custom, paramsJSON, storedParams;
+	/* List of defunct tileUrls to remove from settings */
 	var blacklist = [
 		"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
+		"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&productSet=mmCB",
 		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
 		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
 	];
