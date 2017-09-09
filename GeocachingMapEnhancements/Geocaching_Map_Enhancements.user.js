@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.4
+// @version     0.8.0
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
 // @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
 // @include     https://www.geocaching.com/*
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @copyright   2011-16, James Inge (http://geo.inge.org.uk/)
+// @copyright   2011-17, James Inge (http://geo.inge.org.uk/)
 // @attribution GeoNames (http://www.geonames.org/)
 // @attribution Postcodes.io (https://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
@@ -19,9 +19,9 @@
 // @connect     api.postcodes.io
 // @connect     www.geocaching.com
 // @grant       GM_log
-// @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocachingMapEnhancements/GeocachingMap48.png
-// @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocachingMapEnhancements/GeocachingMap64.png
-// @updateURL   http://geo.inge.org.uk/userscripts/GeocachingMapEnhancements.meta.js
+// @icon        https://geo.inge.org.uk/userscripts/GeocachingMap48.png
+// @icon64      https://geo.inge.org.uk/userscripts/GeocachingMap64.png
+// @updateURL   https://geo.inge.org.uk/userscripts/GeocachingMapEnhancements.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Geocaching_Map_Enhancements.user.js
 // ==/UserScript==
 
@@ -34,14 +34,14 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.4",
-		versionMsg: "This is a maintenance update to remove the Panoramio tool, as Panoramio has now shut down.\n\nHELP MAKE GME BETTER: please give feedback on how well GME works and what could be better by filling in the user survey. Launch the survey using the Tick icon on the GME toolbar, from the 'V' menu next to your user name, or directly at https://www.surveymonkey.co.uk/r/SRRPBCC",
+		version: "0.8.0",
+		versionMsg: "This is a maintenance update to remove the user survey (thanks for all your responses!) and make various bugfixes. There is also a new tool to let you hide or show all the caches on the map.",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
 		labels: "codes", // Label caches on the map with their GC code. Or "names" to use long name.
 		measure: "metric",	// Or "imperial" - used for the scale indicators
-		osgbSearch: true,		// Enhance search box with OSGB grid references, zooming, etc. (may interfere with postal code searches)
+		osgbSearch: true,	// Enhance search box with OSGB grid references, zooming, etc. (may interfere with postal code searches)
 		defaultMap: "OpenStreetMap",
 		maps: [
 	//	{alt:"Readable Name", tileUrl: "URL template including {s} (subdomain) and either {q} (quadkey) or {x},{y},{z} (Google/TMS tile coordinates + zoom)", subdomains: "0123", minZoom: 0, maxZoom: 24, attribution: "Copyright message (HTML allowed)", name: "shortname", overlay:false }
