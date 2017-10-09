@@ -64,6 +64,7 @@ var gmeResources = {
 		main: '.leaflet-control-gme,.leaflet-control-zoomwarning {border-radius:7px; filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#3F000000",EndColorStr="#3F000000"); padding:5px;z-index:8;}\
 			.leaflet-control-gme {display: inline-block; padding: 0; background: rgba(0, 0, 0, 0.2); box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);}\
 			.gme-control-scale {bottom:5em !important;margin-left:13px !important; left: 385px;}\
+			.leaflet-left {/* left: 0; */}\
 			.gme-left {left: 385px; margin-left:13px !important;}\
 			div.gme-identify-layer {margin-top:-1em;margin-left:1em;padding-left:0.1em;font-weight:bold;background:rgba(255,255,255,0.57);}\
 			#gme_caches table { margin-top: 0.5em; }\
