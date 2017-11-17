@@ -1259,7 +1259,7 @@ var gmeResources = {
 							parking = cmapAdditionalWaypoints[i];
 							if (parking.type === 217 || parking.type === 221) {
 								label = parking.type===217?"Parking Area":"Trailhead";
-								parkUrl = ["https://www.google.com/maps/dir/",gmeConfig.env.home.toUrl(),"/", parking.lat, ",", parking.lng, "/"].join("");
+								parkUrl = "https://www.google.com/maps/dir/?api=1&origin=" + gmeConfig.env.home.toUrl() + "&destination=" + parking.lat + "," + parking.lng;
 								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[7].innerHTML += '<a target="_blank" rel="noopener noreferrer" href="' + parkUrl + '"><img width="16" height="16" title="Directions to ' + label + '" alt="' + label + '" src="https://www.geocaching.com/images/wpttypes/sm/pkg.jpg" /></a>';
 							}
 						}
@@ -2144,7 +2144,7 @@ var gmeResources = {
                     {
                         name: "Directions",
                         getHTML: function(coords, zoom, map) {
-                            return "<a title='Launch Google Directions from home to this point' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/dir/" + gmeConfig.env.home.toUrl() + "/" + coords.toUrl() + "/'>Directions</a>";
+                            return "<a title='Launch Google Directions from home to this point' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/dir/?api=1&origin=" + gmeConfig.env.home.toUrl() + "&destination=" + coords.toUrl() + "'>Directions</a>";
                         },
                         isValid: function(coords, zoom) {
                             return !!gmeConfig.env.home;
@@ -2200,13 +2200,7 @@ var gmeResources = {
                     {
                         name: "StreetView",
                         getHTML: function(coords, zoom, map) {
-                            var ll = coords.toUrl(), sv = "";
-                            if (L.Browser.mobile || L.Browser.android) {
-                                sv = "google.streetview:cbll=" + ll + "&cbp=1,0,,0,1&mz=" + zoom;
-                            } else {
-                                sv = "https://maps.google.com/maps?q=&layer=c&cbll=" + ll + "&cbp=12,0,0,0,0&z=" + zoom;
-                            }
-                            return "<a title='Launch Google Streetview' target='_blank' rel='noopener noreferrer' href='" + sv + "'>Streetview</a>";
+                            return "<a title='Launch Google Streetview' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" + coords.toUrl() + "'>Streetview</a>";
                         },
                         isValid: function(coords, zoom) {
                             return true;
@@ -2215,19 +2209,11 @@ var gmeResources = {
                     {
                         name: "MapApp",
                         getHTML: function(coords, zoom, map) {
-                            return "<a href='bingmaps:?cp=" + coords.lat + "~" + coords.lng + "' target='_blank' rel='noopener noreferrer'><a href='https://maps.apple.com/maps?q=" + coords.toUrl() + "&z=" + zoom + "' target='_blank' rel='noopener noreferrer'>Maps</a></a>";
+                            /* Open Bing Maps app if available, otherwise use a cross-platform Google Maps URI */
+                            return "<a title='Launch Bing Maps' href='bingmaps:?cp=" + coords.lat + "~" + coords.lng + "' target='_blank' rel='noopener noreferrer'><a title='Launch Google Maps' href='https://www.google.com/maps/@?api=1&map_action=map&center=" + coords.toUrl() + "&zoom=" + zoom + "' target='_blank' rel='noopener noreferrer'>Maps</a></a>";
                         },
                         isValid: function(coords, zoom) {
                             return true;
-                        }
-                    },
-                    {
-                        name: "Navigation",
-                        getHTML: function(coords, zoom, map) {
-                            return "<a title='Launch Google Navigation app' href='google.navigation:q=" + coords.toUrl() + "'>Navigation</a>";
-                        },
-                        isValid: function(coords, zoom) {
-                            return (L.Browser.mobile || L.Browser.android);
                         }
                     }
                 ],
