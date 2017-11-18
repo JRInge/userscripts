@@ -12,13 +12,13 @@
 // @attribution Postcodes.io (https://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
 // @grant       GM_xmlhttpRequest
+// @grant       GM.xmlHttpRequest
 // @connect     geograph.org.uk
 // @connect     channel-islands.geographs.org
 // @connect     geo-en.hlipp.de
 // @connect     api.geonames.org
 // @connect     api.postcodes.io
 // @connect     www.geocaching.com
-// @grant       GM_log
 // @icon        https://geo.inge.org.uk/userscripts/GeocachingMap48.png
 // @icon64      https://geo.inge.org.uk/userscripts/GeocachingMap64.png
 // @updateURL   https://geo.inge.org.uk/userscripts/GeocachingMapEnhancements.meta.js
@@ -26,7 +26,7 @@
 // ==/UserScript==
 
 /* jshint multistr: true */
-/* global $, amplify, DMM, FileReader, GM_log, GM_xmlhttpRequest, Groundspeak, L, LatLon, mapLatLng, MapSettings */
+/* global $, amplify, DMM, FileReader, GM, GM_xmlhttpRequest, Groundspeak, L, LatLon, mapLatLng, MapSettings */
 
 (function () {
 "use strict";
@@ -133,7 +133,7 @@ var gmeResources = {
 		loggedin: (!!document.getElementById("ctl00_uxLoginStatus_divSignedIn") || !!document.getElementById("uxLoginStatus_divSignedIn")),
 		page: "default",
 		storage: false,
-		xhr: (typeof GM_xmlhttpRequest === 'function')
+		xhr: (typeof GM_xmlhttpRequest === 'function') ? 'GM' : ((typeof GM === 'object' && typeof GM.xmlHttpRequest === 'function') ? 'GM4': '')
 	},
 	html: {
 		config: '<section class="gme-tab">\
@@ -457,13 +457,13 @@ var gmeResources = {
 			}
 
 			if (window.console === undefined) {
-				if (typeof GM_log === 'function') {
-					window.console = { log: function (text) { GM_log(text); }};
-				} else {
-					window.console = { log: function () {}};
-				}
-				window.console.warn = window.console.log;
-				window.console.info = window.console.log;
+                var logFn = function (text) {};
+				window.console = {
+                    error: logFn,
+                    log: logFn,
+                    info: logFn,
+                    warn: logFn
+                };
 			}
 			
 			if (gmeConfig.env.xhr) {
@@ -2361,7 +2361,7 @@ var gmeResources = {
 					}
 					s.type = "text/plain";
 					s.text = gc;
-					if (gmeConfig.env.xhr) {
+					if (gmeConfig.env.xhr === "GM") {
 						document.dispatchEvent(new Event("GME_GCsearch_event"));
 					} else {
 						$.fancybox("Search by GC-code is not available in this browser.<br />You can <a target='_blank' rel='noopener noreferrer' title='gc' href='https://coord.info/" + gc + "'>open the cache page</a> for " + gc + " instead");
@@ -2453,24 +2453,33 @@ var gmeResources = {
 		xhr: function (e) {
 			var node = document.getElementById("gme_jsonp_node"),
 				callback = node.getAttribute("data-gme-callback"),
-				url = node.text;
-			setTimeout(function() { GM_xmlhttpRequest({
-				"method": "GET",
-				"url": url,
-				"onload": function(response) {
-					var x = response.responseText,
-						call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
-						s;
-					if (call && call.length === 2 && call[1] === callback) {
-						s = document.getElementById("gme_jsonp_node");
-						s.setAttribute("data-gme-callback", callback);
-						s.text = x.substring(x.indexOf("(")+1, x.lastIndexOf(")"));
-						document.dispatchEvent(new Event("GME_XHR_callback"));
-					} else {
-						console.warn("Received: " + x);
-					}
-				}
-			});}, 0);
+				url = node.text,
+				details = {
+                    "method": "GET",
+                    "url": url,
+                    "onload": function(response) {
+                        var x = response.responseText,
+                            call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
+                            s;
+                        if (call && call.length === 2 && call[1] === callback) {
+                            s = document.getElementById("gme_jsonp_node");
+                            s.setAttribute("data-gme-callback", callback);
+                            s.text = x.substring(x.indexOf("(")+1, x.lastIndexOf(")"));
+                            document.dispatchEvent(new Event("GME_XHR_callback"));
+                        } else {
+                            console.warn("Received: " + x);
+                        }
+                    }
+                };
+			if (gmeResources.env.xhr === 'GM4') {
+                // GreaseMonkey 4+
+                GM.xmlHttpRequest(details);
+			} else {
+                // Other userscript engines
+                setTimeout(function() {
+                    GM_xmlhttpRequest(details);
+                }, 0);
+            }
 		}
 	}
 },
@@ -2559,24 +2568,29 @@ function unwrapFunction(fn) {
 function xhr(e) {
 	var node = document.getElementById("gme_jsonp_node"),
 		callback = node.getAttribute("data-gme-callback"),
-		url = node.text;
-	setTimeout(function() { GM_xmlhttpRequest({
-		"method": "GET",
-		"url": url,
-		"onload": function(response) {
-			var x = response.responseText,
-				call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
-				s;
-			if (call && call.length === 2 && call[1] === callback) {
-				s = document.getElementById("gme_jsonp_node");
-				s.setAttribute("data-gme-callback", callback);
-				s.text = x.substring(x.indexOf("(")+1, x.lastIndexOf(")"));
-				document.dispatchEvent(new Event("GME_XHR_callback"));
-			} else {
-				console.warn("Received: " + x);
-			}
-		}
-	});}, 0);
+		url = node.text,
+		details = {
+            "method": "GET",
+            "url": url,
+            "onload": function(response) {
+                var x = response.responseText,
+                    call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
+                    s;
+                if (call && call.length === 2 && call[1] === callback) {
+                    s = document.getElementById("gme_jsonp_node");
+                    s.setAttribute("data-gme-callback", callback);
+                    s.text = x.substring(x.indexOf("(")+1, x.lastIndexOf(")"));
+                    document.dispatchEvent(new Event("GME_XHR_callback"));
+                } else {
+                    console.warn("Received: " + x);
+                }
+            }
+        };
+    if (gmeResources.env.xhr === 'GM4') {
+        GM.xmlHttpRequest(details);
+    } else {
+        setTimeout(function() { GM_xmlhttpRequest(details);}, 0);
+    }
 }
 
 //don't run on frames or iframes
@@ -2771,22 +2785,27 @@ switch(gmeResources.env.page) {
 		if (gmeResources.env.xhr) {
 			document.addEventListener("GME_GCsearch_event", function (e) {
 				var node = document.getElementById("gme_jsonp_node"),
-					gc = node.text;
-				setTimeout(function () {GM_xmlhttpRequest({
-					method: "GET",
-					url: "https://www.geocaching.com/geocache/" + gc,
-					onload: function (data) {
-						try {
-							var r = data.responseText,
-								k = r.indexOf("mapLatLng = {"),
-								c = JSON.parse(r.substring(k + 12, r.indexOf("}", k) + 1));
-							insertScript("GME_control._map.panTo(new L.LatLng(" + c.lat + ", " + c.lng + "));", "GC-search result");
-						} catch (e) {
-							console.warn("GME: Couldn't fetch cache coordinates:" + e);
-						}
-					}
-				}); }, 0);
-			});
+					gc = node.text,
+					details = {
+                        method: "GET",
+                        url: "https://www.geocaching.com/geocache/" + gc,
+                        onload: function (data) {
+                            try {
+                                var r = data.responseText,
+                                    k = r.indexOf("mapLatLng = {"),
+                                    c = JSON.parse(r.substring(k + 12, r.indexOf("}", k) + 1));
+                                insertScript("GME_control._map.panTo(new L.LatLng(" + c.lat + ", " + c.lng + "));", "GC-search result");
+                            } catch (e) {
+                                console.warn("GME: Couldn't fetch cache coordinates:" + e + "\nReceived " + r.length + " bytes, coords at " + k);
+                            }
+                        }
+                    };
+                if (gmeResources.env.xhr === 'GM4') {
+                    GM.xmlHttpRequest(details);
+                } else {
+                    setTimeout(function () {GM_xmlhttpRequest(details); }, 0);
+                }
+            });
 		}
 		if (gmeResources.parameters.osgbSearch) {
 			targets = document.getElementsByClassName("SearchBox");
