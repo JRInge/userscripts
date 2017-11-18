@@ -6,7 +6,7 @@
 // @namespace   inge.org.uk/userscripts
 // @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
 // @include     https://www.geocaching.com/*
-// @license     MIT License; http://www.opensource.org/licenses/mit-license.php
+// @license     MIT; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2011-17, James Inge (http://geo.inge.org.uk/)
 // @attribution GeoNames (http://www.geonames.org/)
 // @attribution Postcodes.io (https://postcodes.io/)
