@@ -1298,6 +1298,7 @@ var gmeResources = {
 					$(".SearchBox").on("keydown", goSearch);
 					$("#search p")[0].innerHTML = "Search by <span style='cursor:help;' title='Enhanced by Geonames'>Address</span>, Coordinates, GC-code,<br/><span style='cursor:help;' title='Jump to a specific zoom level by typing zoom then a number. Zoom 1 shows the whole world, maxiumum zoom is normally 18-22.'>zoom</span> or <span style='cursor:help;' title='To search using a British National Grid reference, just type it in the search box and hit the button! You can use 2, 4, 6, 8 or 10-digit grid refs with the 2-letter prefix but no spaces in the number (e.g. SU12344225) or absolute grid refs with a comma but no prefix (e.g. 439668,1175316).'>Grid Ref</span>";
 				}
+				if (window.pnlOpen === false) {
 					$(".leaflet-control-toolbar,.groundspeak-control-findmylocation,.leaflet-control-scale,.gme-left").css("left","30px");
 				}
 				if (gmeConfig.env.storage) {
