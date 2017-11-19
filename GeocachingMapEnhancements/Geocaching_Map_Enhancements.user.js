@@ -1,33 +1,32 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.7.4
+// @version     0.8.0
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
 // @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
-// @include     http://www.geocaching.com/*
 // @include     https://www.geocaching.com/*
-// @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @copyright   2011-16, James Inge (http://geo.inge.org.uk/)
+// @license     MIT; http://www.opensource.org/licenses/mit-license.php
+// @copyright   2011-17, James Inge (http://geo.inge.org.uk/)
 // @attribution GeoNames (http://www.geonames.org/)
-// @attribution Postcodes.io (http://postcodes.io/)
+// @attribution Postcodes.io (https://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
 // @grant       GM_xmlhttpRequest
+// @grant       GM.xmlHttpRequest
 // @connect     geograph.org.uk
 // @connect     channel-islands.geographs.org
 // @connect     geo-en.hlipp.de
 // @connect     api.geonames.org
 // @connect     api.postcodes.io
 // @connect     www.geocaching.com
-// @grant       GM_log
-// @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocachingMapEnhancements/GeocachingMap48.png
-// @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocachingMapEnhancements/GeocachingMap64.png
-// @updateURL   http://geo.inge.org.uk/userscripts/GeocachingMapEnhancements.meta.js
+// @icon        https://geo.inge.org.uk/userscripts/GeocachingMap48.png
+// @icon64      https://geo.inge.org.uk/userscripts/GeocachingMap64.png
+// @updateURL   https://geo.inge.org.uk/userscripts/GeocachingMapEnhancements.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Geocaching_Map_Enhancements.user.js
 // ==/UserScript==
 
 /* jshint multistr: true */
-/* global $, amplify, DMM, FileReader, GM_log, GM_xmlhttpRequest, Groundspeak, L, LatLon, mapLatLng, MapSettings */
+/* global $, amplify, DMM, FileReader, GM, GM_xmlhttpRequest, Groundspeak, L, LatLon, mapLatLng, MapSettings */
 
 (function () {
 "use strict";
@@ -35,15 +34,14 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.7.4",
-		versionMsg: "This is a maintenance update to remove the Panoramio tool, as Panoramio has now shut down.\n\nHELP MAKE GME BETTER: please give feedback on how well GME works and what could be better by filling in the user survey. Launch the survey using the Tick icon on the GME toolbar, from the 'V' menu next to your user name, or directly at https://www.surveymonkey.co.uk/r/SRRPBCC",
+		version: "0.8.0",
+		versionMsg: "This is a maintenance update to remove the user survey (thanks for all your responses!) and make various bugfixes. There is also a new tool to let you hide or show all the caches on the map.",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
 		labels: "codes", // Label caches on the map with their GC code. Or "names" to use long name.
 		measure: "metric",	// Or "imperial" - used for the scale indicators
-		osgbSearch: true,		// Enhance search box with OSGB grid references, zooming, etc. (may interfere with postal code searches)
-		useNewTab: true,		// True opens geocache lists in a new window, rather than replacing the map.
+		osgbSearch: true,	// Enhance search box with OSGB grid references, zooming, etc. (may interfere with postal code searches)
 		defaultMap: "OpenStreetMap",
 		maps: [
 	//	{alt:"Readable Name", tileUrl: "URL template including {s} (subdomain) and either {q} (quadkey) or {x},{y},{z} (Google/TMS tile coordinates + zoom)", subdomains: "0123", minZoom: 0, maxZoom: 24, attribution: "Copyright message (HTML allowed)", name: "shortname", overlay:false }
@@ -53,7 +51,6 @@ var gmeResources = {
 			{alt:"Bing Aerial View", tileUrl:"https://ecn.t{s}.tiles.virtualearth.net/tiles/a{q}?g=737&n=z", subdomains: "0123", minZoom: 1, maxZoom: 20, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "bingaerial" },
 			{alt:"Google Maps",tileUrl:"https://mt.google.com/vt?&x={x}&y={y}&z={z}",name:"googlemaps",attribution:"<a href=\'https://maps.google.com/\'>Google</a> Maps",subdomains:"1234",tileSize:256,maxZoom:22},
 			{alt:"Google Satellite",tileUrl:"https://mt.google.com/vt?lyrs=s&x={x}&y={y}&z={z}",name:"googlemapssat",attribution:"<a href=\'https://maps.google.com/\'>Google</a> Maps Satellite",subdomains:"1234",tileSize:256,maxZoom:22},
-			{alt:"London Street Maps", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&productSet=mmCB", subdomains: "0123", minZoom: 14, maxZoom: 17, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "binglondon", ignore: true},
 			{alt:"Freemap Slovakia Hiking", tileUrl: "http://t{s}.freemap.sk/T/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true},
 			{alt:"Freemap Slovakia Bicycle", tileUrl: "http://t{s}.freemap.sk/C/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true},
 			{alt:"Freemap Slovakia Car", tileUrl: "http://t{s}.freemap.sk/A/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true},
@@ -72,29 +69,31 @@ var gmeResources = {
 			.GME_search_results.hidden { display: none; }\
 			.groundspeak-control-findmylocation { border: 1px solid #888; border-radius: 5px; box-shadow: 0 0 8px rgba(0, 0, 0, 0.4); padding:0; background:rgba(255,255,255,0.8);}\
 			.groundspeak-control-findmylocation a { padding: 3px; }\
-			a.gme-button, span.gme-button { display: inline-block; box-sizing: content-box; -moz-box-sizing: content-box; padding:3px; vertical-align:middle; background:url(https://www.geocaching.com/map/css/themes/images/icons-18-black.png) no-repeat #eee; background-color: rgba(255,255,255,0.8); border: 1px solid #888; border-right:0; height:19px; width:19px; text-decoration: none; }\
-			a.gme-button-l, span.gme-button-l { border-bottom-left-radius:5px; border-top-left-radius:5px; }\
-			a.gme-button-r, span.gme-button-r { border-right: 1px solid #888; border-bottom-right-radius: 5px; border-top-right-radius:5px; margin-right:0.5em;}\
-			a.gme-button:hover { background-color: #fff; }\
-			a.gme-button-active {border:solid 3px #02b; padding:1px 0 1px 1px; background-color:#fff;}\
-			a.gme-button-active:hover {border-color:#63f;filter:alpha(opacity=100);}\
-			span.gme-button, a.gme-button-wide { padding-left:5px; padding-right:5px; font-size:12px; font-weight:bold; width:auto; background-image:none; color: #424242; }\
-			.gme-button-wide:hover { color: #ccc; }\
-			a.GME_home { background-position: -572px 4px;}\
-			a.GME_config { background-position: -284px 4px;}\
-			a.GME_quest { background-position: -645px 4px;}\
-			a.GME_route {background-position: center; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAPCAYAAAA2yOUNAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAARNgAAETYBbRc9XAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAECSURBVCiRXc8xL4NRGMXxX980EhMWFpE0goFYdWonSTvxHYTJLGIymHyELv0MLHeweFneySBiITFQqaHEKqjBo4n3LM895%2F5zz3Mrw%2BFQu1mvYw%2BzmMIbnnCc8qKotBpr8zhDDa94D3ASD1jP0A3gHptYwEb4GrpVTGCIbsqLS7%2B6aDfrXRxhIsM4HtHxX53Ix7PY4RufJegz8vcMA8xhqwRtRT7IcIIvbLeb9WWIuRMvnVZajbUxXGMJL1E%2FiWncYSVLefGB86iYwWIAcJ7y4iMLc4heaade5DJIedHHTQm6TXnxPIJCB%2BjHuY%2F9v4sRlPLiCil%2BmsKDaqliF6sxR%2FoBZ6dQNafC%2BAMAAAAASUVORK5CYII%3D);}\
-			a.gme-button-refresh-labels { background-position: -320px 4px;}\
-			a.gme-button-clear-labels { background-position: -69px 4px;}\
+			.gme-button { display: inline-block; box-sizing: content-box; -moz-box-sizing: content-box; padding:3px; vertical-align:middle; background:url(https://www.geocaching.com/map/css/themes/images/icons-18-black.png) no-repeat #eee; background-color: rgba(255,255,255,0.8); border: 1px solid #888; border-right:0; height:19px; width:19px; text-decoration: none; }\
+			.gme-button-l { border-bottom-left-radius:5px; border-top-left-radius:5px; }\
+			.gme-button-r { border-right: 1px solid #888; border-bottom-right-radius: 5px; border-top-right-radius:5px; margin-right:0.5em;}\
+			.gme-button:hover { background-color: #fff; }\
+			.gme-button-active {border:solid 3px #02b; padding:1px 0 1px 1px; background-color:#fff;}\
+			.gme-button-active:hover {border-color:#63f;filter:alpha(opacity=100);}\
+			span.gme-button, .gme-button-wide { padding-left:5px; padding-right:5px; font-size:12px; font-weight:bold; width:auto; background-image:none; color: #424242; }\
+			.GME_home { background-position: -572px 4px;}\
+			.GME_config { background-position: -284px 4px;}\
+			.GME_route, .GME_hide {background: url(https://geo.inge.org.uk/userscripts/gme_icons_0_8_0.png) no-repeat #eee;}\
+			.GME_route { background-position: 7px 3px;}\
+			.GME_route.gme-button-active { background-position: 5px 1px;}\
+			.GME_hide { background-position: -17px 3px;}\
+			.GME_hide.gme-button-active { background-position: -19px 1px;}\
+			.gme-button-refresh-labels { background-position: -320px 4px;}\
+			.gme-button-clear-labels { background-position: -69px 4px;}\
 			span.gme-distance-container { display: none; }\
 			span.gme-distance-container.show { display: inline-block; }\
-			a.GME_info { background-position: -537px 4px;}\
-			a.GME_info.gme-button-active {background-position: -540px 1px;}\
+			.GME_info { background-position: -537px 4px;}\
+			.GME_info.gme-button-active {background-position: -540px 1px;}\
 			#GME_loc, a.gme-button.leaflet-active {outline: none;}\
 			.leaflet-control-zoomwarning { top: 94px; }\
 			.leaflet-control-zoomwarning a { filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#BFC80000",EndColorStr="#BFC80000"); background-color:rgba(200,0,0,0.75); margin-left: -4px; background-position: -502px 2px;height:14px;width:14px; border-color: #b00; box-shadow: 0 0 8px rgba(0, 0, 0, 0.4); }\
 			.leaflet-control-zoomwarning a:hover { background-color:rgba(230,0,0,0.75); }\
-			a.gme-event { cursor: pointer; }\
+			.gme-event { cursor: pointer; }\
 			.gme-modalDialog {position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: rgba(0,0,0,0.5); z-index: 1000; opacity:.5; -webkit-transition: opacity 400ms ease-in; -moz-transition: opacity 400ms ease-in; transition: opacity 400ms ease-in; pointer-events: none; display:none; }\
 			.gme-modalDialog:target, .gme-modalDialog.gme-targetted { opacity:1; display:block; pointer-events: auto; }\
 			.gme-modalDialog > div { position: relative; margin: 4% 12.5%; height: 30em; max-height: 75%; padding: 0 0 13px 0; border: 1px solid #000; border-radius: 10px; background: #fff; background: -moz-linear-gradient(#fff, #999); background: -webkit-linear-gradient(#fff, #999); background: -o-linear-gradient(#fff, #999); }\
@@ -134,7 +133,7 @@ var gmeResources = {
 		loggedin: (!!document.getElementById("ctl00_uxLoginStatus_divSignedIn") || !!document.getElementById("uxLoginStatus_divSignedIn")),
 		page: "default",
 		storage: false,
-		xhr: (typeof GM_xmlhttpRequest === 'function')
+		xhr: (typeof GM_xmlhttpRequest === 'function') ? 'GM' : ((typeof GM === 'object' && typeof GM.xmlHttpRequest === 'function') ? 'GM4': '')
 	},
 	html: {
 		config: '<section class="gme-tab">\
@@ -146,7 +145,6 @@ var gmeResources = {
 						<ul id="GME_mapfields"></ul>\
 						<label>Default map source: &nbsp;<select name="GME_map_default" id="GME_map_default"></select></label>\
 					</div>\
-					<p><strong>Where did my custom maps go?</strong> Geocaching.com now serves its main map and cache pages via a secure https connection, but a few other areas of the site (including trackables maps) are still sent via normal http. Unfortunately, GME\'s configuration can\'t be shared between http and https, so you may see a different selections on trackable pages and the main map. To get them back, access this configuration screen from the gear icon on the main map or the pulldown menu next to your username on most other pages, then use the &quot;Export custom maps&quot; and &quot;Add mapsource&quot; functions on the <a onclick=\'document.getElementById("gme-tab-manage").checked=true;\'>Manage Maps</a> tab to cut and paste your custom map configuration from one set of pages to the other.</p>\
 				</div>\
 			</section>\
 			<section class="gme-tab">\
@@ -156,7 +154,7 @@ var gmeResources = {
 					<div class="gme-fieldgroup">\
 						<h3>Add map sources</h3>\
 						<label>Mapsource: <input type="text" name="GME_map_custom" id="GME_map_custom">&nbsp;</label>\
-						<div class="leaflet-control-gme"><a id="GME_custom_add" class="gme-button gme-button-wide gme-button-l gme-button-r" title="Add custom map source">Add</a> <a href="#GME_format" title="Map source format info" class="gme-button gme-button-wide gme-button-l">Mapsource format info</a><a id="GME_custom_export" title="Export custom map source JSON" class="gme-button gme-button-wide gme-button-r">Export custom maps</a></div>\
+						<div class="leaflet-control-gme"><button type="button" id="GME_custom_add" class="gme-button gme-button-wide gme-button-l gme-button-r" title="Add custom map source">Add</button> <a href="#GME_format" title="Map source format info" class="gme-button gme-button-wide gme-button-l">Mapsource format info</a><button type="button" id="GME_custom_export" title="Export custom map source JSON" class="gme-button gme-button-wide gme-button-r">Export custom maps</button></div>\
 					</div>\
 					<div class="gme-fieldgroup">\
 						<h3>Remove map sources</h3>\
@@ -171,7 +169,6 @@ var gmeResources = {
 					<div class="gme-fieldgroup">\
 						<h3>Miscellaneous settings</h3>\
 						<ul>\
-							<li><label title="Use new tabs for cache list and other websites"><input type="checkbox" checked="checked" name="GME_useNewTab" id="GME_useNewTab" /> Use new tabs</label></li>\
 							<li><label title="Only list unfound caches in search"><input type="checkbox" name="GME_filterFinds" id="GME_filterFinds" /> Filter finds</label></li>\
 							<li><label><input type="checkbox" checked="checked" name="GME_osgbSearch" id="GME_osgbSearch" /> Enhance search</label></li>\
 							<li><label title="Location widget constantly updates position"><input type="checkbox" name="GME_follow" id="GME_follow" /> FollowMe Mode</label></li>\
@@ -200,20 +197,20 @@ var gmeResources = {
 				<div class="gme-tab-content">\
 					<div class="gme-fieldgroup">\
 						<h3>Geocaching Map Enhancements</h3><br />\
-						<p>v<span id="GME_version"></span> &copy; 2011-2016 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
-						<p>Elevation and reverse geocoding data provided by <a target="_blank" href="http://www.geonames.org/">GeoNames</a> and used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
-						<p>Grid reference manipulation is adapted from code &copy; 2005-2014 Chris Veness (<a target="_blank" href="http://www.movable-type.co.uk/scripts/latlong-gridref.html">www.movable-type.co.uk/scripts/latlong-gridref.html</a>, used under a <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
-						<p>Photos provided by Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. They may be re-used under a <a target="_blank" href="http://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
+						<p>v<span id="GME_version"></span> &copy; 2011-2016 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" rel="noopener noreferrer" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" rel="noopener noreferrer" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
+						<p>Elevation and reverse geocoding data provided by <a target="_blank" rel="noopener noreferrer" href="http://www.geonames.org/">GeoNames</a> and used under a <a target="_blank" rel="noopener noreferrer" href="https://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
+						<p>Grid reference manipulation is adapted from code &copy; 2005-2014 Chris Veness (<a target="_blank" rel="noopener noreferrer" href="http://www.movable-type.co.uk/scripts/latlong-gridref.html">www.movable-type.co.uk/scripts/latlong-gridref.html</a>, used under a <a target="_blank" rel="noopener noreferrer" href="https://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
+						<p>Photos provided by Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. They may be re-used under a <a target="_blank" rel="noopener noreferrer" href="https://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
 					</div>\
 				</div>\
 			</section>\
 			<div class="leaflet-control-gme">\
-				<a href="#" class="gme-button gme-button-wide gme-button-l" rel="back" title="Cancel">Cancel</a><a href="#" class="gme-button gme-button-wide" id="GME_default" title="Reset to defaults">Defaults</a><a href="#" class="gme-button gme-button-wide gme-button-r" id="GME_set" title="Confirm settings">Save</a>\
+				<a href="#" class="gme-button gme-button-wide gme-button-l" rel="back" title="Cancel">Cancel</a><button type="button" class="gme-button gme-button-wide" id="GME_default" title="Reset to defaults">Defaults</button><button type="button" class="gme-button gme-button-wide gme-button-r" id="GME_set" title="Confirm settings">Save</button>\
 			</div>',
 		customInfo: '<p>Custom mapsources can be added by supplying entering a <a rel="external" href="http://www.json.org/">JSON</a> configuration string that tells GME what to call the map, where to find it, and how it is set up. e.g.</p>\
 			<p><code>{"alt":"OS NPE (GB only)","tileUrl":"https://ooc.openstreetmap.org/npe/{z}/{x}/{y}.png", "minZoom":6, "maxZoom": 15, "attribution": "OpenStreetMap NPE" }</code></p>\
 			<p>The <code>"alt"</code> and <code>"tileUrl"</code> parameters are mandatory. <code>"tileUrl"</code> can contain {x}, {y} and {z} for Google-style coordinate systems (also works with TMS systems like Eniro, but needs the <code>"scheme":"tms"</code> parameter), or {q} for Bing-style quadkeys. GME can also connect with WMS servers, in which case a <code>"layers"</code> parameter is required.</p>\
-			<p>The other parameters are the same as those used by the <a rel="external" href="http://leafletjs.com/reference.html#tilelayer">Leaflet API</a>, with the addition of a <code>"overlay":true</code> option, that makes the mapsource appear as a selectable overlay.</p>\
+			<p>The other parameters are the same as those used by the <a rel="external" href="http://leafletjs.com/reference-versions.html">Leaflet API</a>, with the addition of a <code>"overlay":true</code> option, that makes the mapsource appear as a selectable overlay.</p>\
 			<ul><li><a rel="external" href="http://geo.inge.org.uk/gme_config.htm">Detailed documentation</a></li><li><a rel="external" href="http://geo.inge.org.uk/gme_maps.htm">More mapsource examples</a></li></ul>',
 		search: '<input type="text" placeholder="Address, coordinates, GC-code, keyword, etc." id="SearchBox_Text" title="Jump to a specific zoom level by typing zoom then a number. Zoom 1 shows the whole world, maxiumum zoom is normally 18-22. To search using a British National Grid reference, just type it in the search box and hit the button! You can use 2, 4, 6, 8 or 10-digit grid refs with the 2-letter prefix but no spaces in the number (e.g. SU12344225) or absolute grid refs with a comma but no prefix (e.g. 439668,1175316)." />\
 			<button id="SearchBox_OS" title="Search">Search</button>\
@@ -221,11 +218,7 @@ var gmeResources = {
 				<h3 class="GME_search_heading">GeoNames search results</h3>\
 				<ul class="GME_search_list"></ul>\
 				<p>Or try the <a href="#" class="GME_link_GSSearch">Geocaching.com search</a>\
-			</div>',
-		questionnaire: '<section><h1 style="font: 3em bold; font-family: Arial, sans-serif; line-height: 200%;">Help improve GME</h1><h2 style="font: 2em;">Please take a short survey to help me understand what features Geocaching Map Enhancements should have, and how people use it. Thanks, JRI!</h2></section>\
-			<div class="leaflet-control-gme">\
-				<a href="#" class="gme-button gme-button-wide gme-button-l" rel="back" title="No thanks">No thanks</a><a href="https://www.surveymonkey.co.uk/r/SRRPBCC" target="_new" class="gme-button gme-button-wide gme-button-r" id="GME_default" title="Take the survey">Take Survey</a>\
-			</div>		<p><a href="https://www.surveymonkey.co.uk/r/SRRPBCC">Take the survey</a>'
+			</div>'
 	},
 	script: {
 		common: function () {
@@ -294,8 +287,6 @@ var gmeResources = {
 							$("#GME_custom_add").bind("click", addCustom);
 							$("#GME_custom_export").bind("click", exportCustom);
 							$("li.li-user ul").append("<li class='li-settings'><a class='icon-settings' id='gme-config-link' href='#GME_config' title='Configure Geocaching Map Enhancements extension'>Geocaching Map Enhancements</a></li>");
-							// Questionnaire
-							$("li.li-user ul").append("<li class='li-settings'><a class='icon-settings' id='gme-quest-link' href='#GME_questionnaire' title='Take Geocaching Map Enhancements user survey '>GME user survey</a></li>");
 						}
 					},
 					"drop": function () {
@@ -466,13 +457,13 @@ var gmeResources = {
 			}
 
 			if (window.console === undefined) {
-				if (typeof GM_log === 'function') {
-					window.console = { log: function (text) { GM_log(text); }};
-				} else {
-					window.console = { log: function () {}};
-				}
-				window.console.warn = window.console.log;
-				window.console.info = window.console.log;
+                var logFn = function (text) {};
+				window.console = {
+                    error: logFn,
+                    log: logFn,
+                    info: logFn,
+                    warn: logFn
+                };
 			}
 			
 			if (gmeConfig.env.xhr) {
@@ -527,13 +518,13 @@ var gmeResources = {
 					if (coords === undefined) { return false; }
 					var host="";
 					if (bounds_GB.contains(coords) || bounds_IE.contains(coords)) {
-						host="http://geograph.org.uk/";
+						host="https://geograph.org.uk/";
 					}
 					if (bounds_CI.contains(coords)) {
-						host="http://channel-islands.geographs.org/";
+						host="https://www.geograph.org.gg/";
 					}
 					if (bounds_DE.contains(coords)) {
-						host="http://geo-en.hlipp.de/";
+						host="https://geo-en.hlipp.de/";
 					}
 					return host?[host,"search.php?location=", coords.toUrl()].join(""):false;
 				}
@@ -543,35 +534,25 @@ var gmeResources = {
 						html = ["<h3>Geograph images near ", DMM(coords), "</h3><p>"].join("");
 						for (i=json.items.length-1;i>=0;i--) {
 							p = json.items[i];
-							html += ["<a ",gmeConfig.parameters.useNewTab?"target='geograph' ":"","href='",encodeURI(p.link),"' style='margin-right:0.5em;' title='", htmlEntities(p.title) + " by " + htmlEntities(p.author), "'>",p.thumbTag,"</a>"].join("");
+							html += ["<a target='_blank' rel='noopener noreferrer' href='",encodeURI(p.link),"' style='margin-right:0.5em;' title='", htmlEntities(p.title) + " by " + htmlEntities(p.author), "'>",p.thumbTag,"</a>"].join("");
 						}
-						html += ["</p><p><a ",gmeConfig.parameters.useNewTab?"target='geograph' ":"","href='",searchLink(coords),"'>Search for more photos nearby on Geograph</a></p><p style='font-size:90%;'>Geograph photos are copyrighted by their owners and available under a <a href='http://creativecommons.org/licenses/by-sa/2.0/'>Creative Commons licence</a>. Hover mouse over thumbnails for more details, or click through for full images.</p>"].join("");
+						html += ["</p><p><a target='_blank' rel='noopener noreferrer' href='",searchLink(coords),"'>Search for more photos nearby on Geograph</a></p><p style='font-size:90%;'>Geograph photos are copyrighted by their owners and available under a <a href='https://creativecommons.org/licenses/by-sa/2.0/'>Creative Commons licence</a>. Hover mouse over thumbnails for more details, or click through for full images.</p>"].join("");
 						$.fancybox(html);
 					} else {
-						$.fancybox(["<p>No photos found nearby. <a ",that.parameters.useNewTab?"target='geograph' ":"","href='",searchLink(coords),"'>Search on Geograph</a></p>"].join(""));
+						$.fancybox(["<p>No photos found nearby. <a target='_blank' rel='noopener noreferrer' href='",searchLink(coords),"'>Search on Geograph</a></p>"].join(""));
 					}
 					$("#"+callname).remove();
 					if (window[callname] !== undefined) { delete window[callname]; }
 				};}
 				if (validCoords(coords) && this.isGeographAvailable(coords)) {
-					if (bounds_GB.contains(coords) || bounds_IE.contains(coords)) {
-						host="http://mobile.api.geograph.org.uk/";
+					if (!bounds_CI.contains(coords) && (bounds_GB.contains(coords) || bounds_IE.contains(coords))) {
+						host="https://api.geograph.org.uk/";
+                        call = callprefix + callbackCount;
+                        window[call] = makeCallback(call);
+                        JSONP(host + "syndicator.php?key=geo.inge.org.uk&location=" + coords.toUrl() + "&format=JSON&callback=" + call, call);
+					} else {
+						window.open(searchLink(coords), "_blank");
 					}
-					if (bounds_CI.contains(coords)) {
-						host="http://channel-islands.geographs.org/";
-					}
-					if (bounds_DE.contains(coords)) {
-						host="http://geo-en.hlipp.de/";
-						if (gmeConfig.parameters.useNewTab) {
-							window.open(searchLink(coords), "geograph");
-						} else {
-							document.location = searchLink(coords);
-						}
-						return;
-					}
-					call = callprefix + callbackCount;
-					window[call] = makeCallback(call);
-					JSONP(host + "syndicator.php?key=geo.inge.org.uk&location=" + coords.toUrl() + "&format=JSON&callback=" + call, call);
 				} else {
 					console.error("GME: Bad coordinates to getGeograph");
 				}
@@ -638,11 +619,7 @@ var gmeResources = {
 			this.seekByLatLng = function(latlng) {
 				if (validCoords(latlng)) {
 					var url = ["https://www.geocaching.com/seek/nearest.aspx?origin_lat=",latlng.lat,"&origin_long=",latlng.lng, that.parameters.filterFinds?"&f=1":""].join("");
-					if (that.parameters.useNewTab) {
-						window.open(url, "searchPage");
-					} else {
-						document.location = url;
-					}
+					window.open(url, "_blank");
 				} else {
 					console.error("GME: Invalid coordinates for search");
 				}
@@ -734,7 +711,6 @@ var gmeResources = {
 						sel[i].selected = "selected";
 					}
 				}
-				$("#GME_useNewTab").attr("checked", that.parameters.useNewTab);
 				$("#GME_filterFinds").attr("checked", that.parameters.filterFinds);
 				$("#GME_osgbSearch").attr("checked", that.parameters.osgbSearch);
 				$("#GME_follow").attr("checked", that.parameters.follow);
@@ -776,7 +752,6 @@ var gmeResources = {
 				that.parameters.labels = $("#GME_labelStyle")[0].value;
 				that.parameters.measure = $("#GME_measure")[0].value;
 				that.parameters.osgbSearch = $("#GME_osgbSearch")[0].checked? true : false;
-				that.parameters.useNewTab = $("#GME_useNewTab")[0].checked? true : false;
 				localStorage.setItem("GME_parameters", JSON.stringify(that.parameters));
 				refresh();
 			}
@@ -846,13 +821,13 @@ var gmeResources = {
 				}
 				var c, dataURI, dt, i, locfmt,
 					id = $("#ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode")[0].innerHTML,
-					loc = [GME_formatLOC_wpt(id, cache_coords.primary[0].name, cache_coords.primary[0], cache_coords.primary[0].type,{desc:"Cache Details",href:"http://coord.info/"+id})];
+					loc = [GME_formatLOC_wpt(id, cache_coords.primary[0].name, cache_coords.primary[0], cache_coords.primary[0].type,{desc:"Cache Details",href:"https://coord.info/"+id})];
 				for (i = cache_coords.additional.length-1; i >= 0; i--) {
 					c = cache_coords.additional[i];
 					loc.push(GME_formatLOC_wpt(c.pf + id.slice(2), [c.name,$("#awpt_"+c.pf).parent().parent().next().children()[2].innerHTML.trim()].join(" "), c, c.type));
 				}
 				if (cache_coords.primary[0].isUserDefined) {
-					loc.push(GME_formatLOC_wpt("GO"+id.slice(2), cache_coords.primary[0].name, {lat:cache_coords.primary[0].oldLatLng[0], lng:cache_coords.primary[0].oldLatLng[1]}, "Original Coordinates",{desc:"Cache Details",href:"http://coord.info/"+id}));
+					loc.push(GME_formatLOC_wpt("GO"+id.slice(2), cache_coords.primary[0].name, {lat:cache_coords.primary[0].oldLatLng[0], lng:cache_coords.primary[0].oldLatLng[1]}, "Original Coordinates",{desc:"Cache Details",href:"https://coord.info/"+id}));
 				}
 				locfmt = GME_formatLOC(loc);
 				dataURI = "data:application/xml-loc," + encodeURIComponent(locfmt);
@@ -1226,7 +1201,7 @@ var gmeResources = {
 						sortorder.sort();
 						j = sortorder.length;
 						for (i =0; i<j; i++){
-							html += "<tr><td><a href='http://coord.info/" + sortorder[i] + "' target='_blank'>" + control.labels.labels[sortorder[i]][1] + "</a></td><td class='gme-cache-code'>&nbsp;" + sortorder[i] + "</td><td><a class='gme-event' title='Pan map to cache location' data-gme-action='panTo' data-gme-cache='" + sortorder[i] + "'><img src='../images/silk/map.png' width='16' height='16' alt='Pan' /></a></td></tr>";
+							html += "<tr><td><a href='https://coord.info/" + sortorder[i] + "' target='_blank' rel='noopener noreferrer'>" + control.labels.labels[sortorder[i]][1] + "</a></td><td class='gme-cache-code'>&nbsp;" + sortorder[i] + "</td><td><a class='gme-event' title='Pan map to cache location' data-gme-action='panTo' data-gme-cache='" + sortorder[i] + "'><img src='../images/silk/map.png' width='16' height='16' alt='Pan' /></a></td></tr>";
 						}
 						$("#gme_cachelist").html(html);
 					}
@@ -1284,8 +1259,8 @@ var gmeResources = {
 							parking = cmapAdditionalWaypoints[i];
 							if (parking.type === 217 || parking.type === 221) {
 								label = parking.type===217?"Parking Area":"Trailhead";
-								parkUrl = ["https://www.google.com/maps/dir/",gmeConfig.env.home.toUrl(),"/", parking.lat, ",", parking.lng, "/"].join("");
-								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[7].innerHTML += '<a target="_blank" href="' + parkUrl + '"><img width="16" height="16" title="Directions to ' + label + '" alt="' + label + '" src="https://www.geocaching.com/images/wpttypes/sm/pkg.jpg" /></a>';
+								parkUrl = "https://www.google.com/maps/dir/?api=1&origin=" + gmeConfig.env.home.toUrl() + "&destination=" + parking.lat + "," + parking.lng;
+								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[7].innerHTML += '<a target="_blank" rel="noopener noreferrer" href="' + parkUrl + '"><img width="16" height="16" title="Directions to ' + label + '" alt="' + label + '" src="https://www.geocaching.com/images/wpttypes/sm/pkg.jpg" /></a>';
 							}
 						}
 					}
@@ -1323,7 +1298,7 @@ var gmeResources = {
 					$(".SearchBox").on("keydown", goSearch);
 					$("#search p")[0].innerHTML = "Search by <span style='cursor:help;' title='Enhanced by Geonames'>Address</span>, Coordinates, GC-code,<br/><span style='cursor:help;' title='Jump to a specific zoom level by typing zoom then a number. Zoom 1 shows the whole world, maxiumum zoom is normally 18-22.'>zoom</span> or <span style='cursor:help;' title='To search using a British National Grid reference, just type it in the search box and hit the button! You can use 2, 4, 6, 8 or 10-digit grid refs with the 2-letter prefix but no spaces in the number (e.g. SU12344225) or absolute grid refs with a comma but no prefix (e.g. 439668,1175316).'>Grid Ref</span>";
 				}
-				if (window.amplify && typeof amplify.store === "function" && amplify.store("ShowPanel") === false) {
+				if (window.pnlOpen === false) {
 					$(".leaflet-control-toolbar,.groundspeak-control-findmylocation,.leaflet-control-scale,.gme-left").css("left","30px");
 				}
 				if (gmeConfig.env.storage) {
@@ -1370,11 +1345,7 @@ var gmeResources = {
 					e.stopImmediatePropagation();
 					if (q) {
 						url = "https://www.google.co.uk/search?q=allintitle%3A" + encodeURIComponent(q) + "+site%3Awww.geocaching.com%2Fgeocache%2F+OR+site%3Awww.geocaching.com%2Fseek%2Fcache_details.aspx";
-						if (that.parameters.useNewTab) {
-							window.open(url, "searchPage");
-						} else {
-							document.location = url;
-						}
+						window.open(url, "_blank");
 					}
 					return false;
 				}
@@ -1464,7 +1435,7 @@ var gmeResources = {
 					getGPX:function() {
 						var name = $(".CommonUsername").attr("title"),
 							author = name ?
-								(name + '</name>\r\n\t\t\t<link href="http://www.geocaching.com/profile/?u=' + name + '"><text>' + name + '\'s profile</text></link>\r\n') :
+								(name + '</name>\r\n\t\t\t<link href="https://www.geocaching.com/profile/?u=' + name + '"><text>' + name + '\'s profile</text></link>\r\n') :
 								"Geocaching.com user</name>\r\n",
 							date = !!Date.prototype.toISOString ? ["\t\t<time>", new Date().toISOString(), "</time>\r\n"].join("") : "",
 							i, l,
@@ -1636,8 +1607,20 @@ var gmeResources = {
 				return bounds;
 			}
 			function genericLayerFn(url, options) {
-				if (typeof url === "string" && typeof options.tileUrl === "string" && typeof options.alt==="string") {
-					return (/\{q\}/).test(url)?(new L.GME_QuadkeyLayer(url, options)):((/\{s4\}|\{x100\}/).test(url)?(new L.GME_complexLayer(url,options)):((/\{x\}/).test(url)?(new L.TileLayer(url, options)):(new L.TileLayer.WMS(url, options))));
+                function filterOpts(opts) {
+                    /* Remove GME's internal options, so they don't get passed to servers (WMS in particular). */
+                    var opt, filtered = {}, exclude = ["tileUrl", "ignore", "alt"];
+                    for (opt in opts) {
+                        if (exclude.indexOf(opt) === -1) {
+                            filtered[opt] = options[opt];
+                        }
+                    }
+                    return filtered;
+                }
+                var filteredOpts = filterOpts(options);
+                
+				if (typeof url === "string") {
+					return (/\{q\}/).test(url)?(new L.GME_QuadkeyLayer(url, filteredOpts)):((/\{s4\}|\{x100\}/).test(url)?(new L.GME_complexLayer(url,filteredOpts)):((/\{x\}/).test(url)?(new L.TileLayer(url, filteredOpts)):(new L.TileLayer.WMS(url, filteredOpts))));
 				}
 				console.error("GME: Bad map source: " + JSON.stringify(options));
 				return undefined;
@@ -1974,15 +1957,17 @@ var gmeResources = {
 						if (action === "panToHome") { control.panToHome(); }
 						if (action === "toggleInfo") { control.toggleTool("info"); }
 						if (action === "toggleRoute") { control.toggleTool("route"); }
+						if (action === "toggleCaches") { control.toggleCaches(); }
 					}
 					this._map = contextmap;
 					this._map.infoMode = false;
 					this._map.routeMode = false;
 					this._markers = L.layerGroup().addTo(contextmap);
-					html = "<a class=\'GME_info gme-button gme-button-l\' title=\'Enable location info tool\' data-gme-action=\'toggleInfo\'></a>";
-					html += "<a class=\'GME_route gme-button\' title=\'Enable route tool\' data-gme-action=\'toggleRoute\'></a>";
+					html = "<button type='button' class=\'GME_info gme-button gme-button-l\' title=\'Enable location info tool\' data-gme-action=\'toggleInfo\'></button>";
+					html += "<button type='button' class=\'GME_hide gme-button\' title=\'Hide caches\' data-gme-action=\'toggleCaches\'></button>";
+					html += "<button type='button' class=\'GME_route gme-button\' title=\'Enable route tool\' data-gme-action=\'toggleRoute\'></button>";
 					if (gmeConfig.env.home) {
-						html += "<a title=\'Go to home location\' class=\'GME_home gme-button\' data-gme-action=\'panToHome\'></a>";
+						html += "<button type='button' title=\'Go to home location\' class=\'GME_home gme-button\' data-gme-action=\'panToHome\'></button>";
 					}
 					if (gmeConfig.parameters.osgbSearch) {
 						$(".GME_search_results").on("click", ".gme-event", contextmap, mapHandler);
@@ -1990,11 +1975,7 @@ var gmeResources = {
 					if (gmeConfig.env.storage) {
 						html += "<a class=\'GME_config gme-button\' title=\'Configure Geocaching Map Enhancements\' href=\'#GME_config\'></a>";
 					}
-
-					// Questionnaire
-					html += "<a class=\'GME_quest gme-button\' title=\'GME User Survey\' href=\'#GME_questionnaire\'></a>";
-
-					container.innerHTML = html;				
+					container.innerHTML = html;
 					$(container.lastChild).addClass("gme-button-r");
 					container.innerHTML += "<span class=\'gme-button gme-button-l gme-button-r gme-scale-container\' title=\'Approximate width of the full map view\' style=\'cursor:help;\'>Width: <span class=\'gme-scale\'>-</span></span><span class=\'gme-distance-container gme-button gme-button-r\' title=\'Measured distance\'>Route: <span class=\'gme-distance\'>"+ formatDistance(0) +"</span></span>";
 					contextmap.addControl(new L.GME_ZoomWarning()).on("layeradd", onPopup).on("layerremove", offPopup).on("viewreset", this.updateScale, this);
@@ -2028,6 +2009,7 @@ var gmeResources = {
 				},
 				exportDist:function(e) {
 					if (!this._dist_line) { return; }
+					e.download = "ExportedRoute.gpx";
 					e.href = "data:application/xml-gpx," + encodeURIComponent(this._dist_line.getGPX());
 					return false;
 				},
@@ -2120,42 +2102,121 @@ var gmeResources = {
 					this._markers.clearLayer(this._markers._layers[mark]);
 				},
 				showInfo:function (e) {
-					var control=this, b = control._map.getBounds(), dir="", dist, ll=e.latlng.toUrl(), z=control._map.getZoom(), geograph="", height="", hide="", magic="",nav="", postcode="", popupContent, popup = new L.Popup(), streetview, sv;
-					if (that.isInUK(e.latlng)) {
-						magic = ", <a target='magic' title='Show MAGIC map of environmentally sensitive areas' href='http://magic.defra.gov.uk/MagicMap.aspx?srs=WGS84&startscale=" + (Math.cos(control._map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 684090188 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng)) / control._map.getSize().x +	"&layers=LandBasedSchemes,12,24:HabitatsAndSpecies,38:Designations,6,10,13,16,34,37,40,72,94&box=" + b.toBBoxString().replace(/,/g,":") + "'>MAGIC</a>";
-						postcode = ", <a href='#' title='Fetch location data from postcodes.io' class='gme-event' data-gme-action='getPostcode' data-gme-coords='" + ll + "'>Postcode</a>";
+					var control=this, popupContent="<p>", popup = new L.Popup(), i;
+
+					for(i = 0; i < this.tools.length; i++) {
+                        if( this.tools[i].isValid(e.latlng, control._map.getZoom())) {
+                            popupContent += this.tools[i].getHTML(e.latlng, control._map.getZoom(), control._map) + " ";
+                        }
 					}
-					if (that.isGeographAvailable(e.latlng)) {
-						geograph = ", <a href='#' title='Show Geograph images near this point' class='gme-event' data-gme-action='getGeograph' data-gme-coords='" + ll + "'>Geograph</a>";
-					}
-					if (e.latlng.lat > -65 && e.latlng.lat < 83) {
-						height=", <a href='#' title='Height of point above sea level' class='gme-event' data-gme-action='getHeight' data-gme-coords='" + ll + "'>Height</a>";
-					}
-					if (window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.AddGeocacheLayer && MapSettings.MapLayers.RemoveGeocacheLayer) {
-						hide = ", <a title='Toggles display of geocaches on the map' href='#' class='gme-event' data-gme-action='toggleCaches'>" + (MapSettings.MapLayers.Geocache ? "Hide" : "Show") + " caches</a>";
-					}
-					if (gmeConfig.env.home){
-						dir = ", <br /><a title='Launch Google Directions from home to this point' " + (that.parameters.useNewTab ? "target = 'directions' " : "") + "href='https://www.google.com/maps/dir/" + gmeConfig.env.home.toUrl() + "/" + ll + "/'>Directions</a>";
-					}
-					if (L.Browser.mobile || L.Browser.android) {
-						sv = "google.streetview:cbll=" + ll + "&cbp=1,0,,0,1&mz=" + z;
-						nav = ", <a title='Launch Google Navigation app' href='google.navigation:q=" + ll + "'>Navigation</a>";
-					} else {
-						sv = "https://maps.google.com/maps?q=&layer=c&cbll=" + ll + "&cbp=12,0,0,0,0&z=" + z;
-					}
-					streetview = ", <a title='Launch Google Streetview' " + (that.parameters.useNewTab ? "target='streetview' " : "") + "href='" + sv + "'>Streetview</a>";
-					popupContent = [
-						"<p><strong>", DMM(e.latlng), "</strong><br/>Dec: <a href='geo:", ll, "?z=", z, "'>", ll, "</a>",
-						"<br/><a title='List ", (that.parameters.filterFinds ? "unfound " : ""), "caches near point' href='https://www.geocaching.com/seek/nearest.aspx?lat=", e.latlng.lat, "&lng=", e.latlng.lng,that.parameters.filterFinds ? "&f=1" : "", "' ", that.parameters.useNewTab ? "target='searchPage' " : "", ">List caches</a>",
-						hide, geograph, dir, streetview, nav,
-						",<br/><a title='Go to Wikimapia' ", that.parameters.useNewTab ? "target='wiki' " : "", "href='http://wikimapia.org/#lat=", e.latlng.lat, "&lon=", e.latlng.lng, "&z=", z, "'>Wikimapia</a>",
-						magic, postcode,
-						",<br/><a title='Drop a marker circle onto the map' href='#' class='gme-event' data-gme-action='dropMarker' data-gme-coords='", ll, "'>Marker</a>",
-						height, "</p>"].join("");
+					popupContent += "</p>";
+						
 					popup.setLatLng(e.latlng);
 					popup.setContent(popupContent);
 					control._map.addLayer(popup);
 				},
+                tools: [
+                    {
+                        name: "Coords",
+                        getHTML: function(coords, zoom, map) {
+                            var ll = coords.toUrl();
+                            return "<strong>" + DMM(coords) + "</strong><br/>Dec: <a href='geo:" + ll + "?z=" + zoom + "'>" + ll + "</a></br>";
+                        },
+                        isValid: function(coords, zoom) { return true; }
+                    },
+                    {
+                        name: "List caches",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='List " + (that.parameters.filterFinds ? "unfound " : "") + "caches near point' href='https://www.geocaching.com/seek/nearest.aspx?lat=" + coords.lat + "&lng=" + coords.lng + (that.parameters.filterFinds ? "&f=1" : "") + "' target='_blank' rel='noopener noreferrer'>List caches</a>";
+                        },
+                        isValid: function(coords, zoom) { return true; }
+                    },
+                    {
+                        name: "Geograph",
+                        action: "getGeograph",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a href='#' title='Show Geograph images near this point' class='gme-event' data-gme-action='getGeograph' data-gme-coords='" + coords.toUrl() + "'>Geograph</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return	bounds_GB.contains(coords) || bounds_DE.contains(coords) || bounds_IE.contains(coords) || bounds_CI.contains(coords);
+                        }
+                    },
+                    {
+                        name: "Directions",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='Launch Google Directions from home to this point' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/dir/?api=1&origin=" + gmeConfig.env.home.toUrl() + "&destination=" + coords.toUrl() + "'>Directions</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return !!gmeConfig.env.home;
+                        }
+                    },
+                    {
+                        name: "Wikimapia",
+                        getHTML: function(coords, zoom, map) {
+                            var centre = map.getCenter();
+                            return "<a title='Go to wikimapia' target='_blank' rel='noopener noreferrer' href='http://wikimapia.org/#lat=" + centre.lat + "&lon=" + centre.lng + "&z=" + zoom + "'>Wikimapia</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return true;
+                        }
+                    },
+                    {
+                        name: "Marker",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='Drop route marker onto map' href='#' class='gme-event' data-gme-action='dropMarker' data-gme-coords='" + coords.toUrl() + "'>Marker</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return true;
+                        }
+                    },
+                    {
+                        name: "MAGIC",
+                        getHTML: function(coords, zoom, map) {
+                            var b = map.getBounds();
+                            return "<a title='Show MAGIC map of environmentally sensitive areas' target='_blank' rel='noopener noreferrer' href='http://magic.defra.gov.uk/MagicMap.aspx?srs=WGS84&startscale=" + (Math.cos(map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 684090188 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng)) / map.getSize().x +	"&layers=LandBasedSchemes,12,24:HabitatsAndSpecies,38:Designations,6,10,13,16,34,37,40,72,94&box=" + b.toBBoxString().replace(/,/g,":") + "'>MAGIC</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return that.isInUK(coords);
+                        }
+                    },
+                    {
+                        name: "Postcode",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='Fetch location data from postcodes.io' href='#' class='gme-event' data-gme-action='getPostcode' data-gme-coords='" + coords.toUrl() + "'>Postcode</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return that.isInUK(coords);
+                        }
+                    },
+                    {
+                        name: "Height",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='Height of point above sea level' href='#' class='gme-event' data-gme-action='getHeight' data-gme-coords='" + coords.toUrl() + "'>Height</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return (coords.lat > -65 && coords.lat < 83);
+                        }
+                    },
+                    {
+                        name: "StreetView",
+                        getHTML: function(coords, zoom, map) {
+                            return "<a title='Launch Google Streetview' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" + coords.toUrl() + "'>Streetview</a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return true;
+                        }
+                    },
+                    {
+                        name: "MapApp",
+                        getHTML: function(coords, zoom, map) {
+                            /* Open Bing Maps app if available, otherwise use a cross-platform Google Maps URI */
+                            return "<a title='Launch Bing Maps' href='bingmaps:?cp=" + coords.lat + "~" + coords.lng + "' target='_blank' rel='noopener noreferrer'><a title='Launch Google Maps' href='https://www.google.com/maps/@?api=1&map_action=map&center=" + coords.toUrl() + "&zoom=" + zoom + "' target='_blank' rel='noopener noreferrer'>Maps</a></a>";
+                        },
+                        isValid: function(coords, zoom) {
+                            return true;
+                        }
+                    }
+                ],
 				showRoute:function(e) {
 					L.DomEvent.stopPropagation(e);
 					this.dropDist(e.latlng);
@@ -2164,8 +2225,10 @@ var gmeResources = {
 					if (window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.AddGeocacheLayer && MapSettings.MapLayers.RemoveGeocacheLayer) {
 						if (MapSettings.MapLayers.Geocache) {
 							MapSettings.MapLayers.RemoveGeocacheLayer();
+							$(".GME_hide").addClass("gme-button-active").attr("title","Show caches");
 						} else {
 							MapSettings.MapLayers.AddGeocacheLayer();
+							$(".GME_hide").removeClass("gme-button-active").attr("title","Hide caches");
 						}
 					}
 				},
@@ -2298,10 +2361,10 @@ var gmeResources = {
 					}
 					s.type = "text/plain";
 					s.text = gc;
-					if (gmeConfig.env.xhr) {
+					if (gmeConfig.env.xhr === "GM") {
 						document.dispatchEvent(new Event("GME_GCsearch_event"));
 					} else {
-						$.fancybox("Search by GC-code is not available in this browser.<br />You can <a target='_blank' title='gc' href='http://coord.info/" + gc + "'>open the cache page</a> for " + gc + " instead");
+						$.fancybox("Search by GC-code is not available in this browser.<br />You can <a target='_blank' rel='noopener noreferrer' title='gc' href='https://coord.info/" + gc + "'>open the cache page</a> for " + gc + " instead");
 					}
 					return false;
 				},
@@ -2390,24 +2453,33 @@ var gmeResources = {
 		xhr: function (e) {
 			var node = document.getElementById("gme_jsonp_node"),
 				callback = node.getAttribute("data-gme-callback"),
-				url = node.text;
-			setTimeout(function() { GM_xmlhttpRequest({
-				"method": "GET",
-				"url": url,
-				"onload": function(response) {
-					var x = response.responseText,
-						call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
-						s;
-					if (call && call.length === 2 && call[1] === callback) {
-						s = document.getElementById("gme_jsonp_node");
-						s.setAttribute("data-gme-callback", callback);
-						s.text = x.substring(x.indexOf("(")+1, x.lastIndexOf(")"));
-						document.dispatchEvent(new Event("GME_XHR_callback"));
-					} else {
-						console.warn("Received: " + x);
-					}
-				}
-			});}, 0);
+				url = node.text,
+				details = {
+                    "method": "GET",
+                    "url": url,
+                    "onload": function(response) {
+                        var x = response.responseText,
+                            call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
+                            s;
+                        if (call && call.length === 2 && call[1] === callback) {
+                            s = document.getElementById("gme_jsonp_node");
+                            s.setAttribute("data-gme-callback", callback);
+                            s.text = x.substring(x.indexOf("(")+1, x.lastIndexOf(")"));
+                            document.dispatchEvent(new Event("GME_XHR_callback"));
+                        } else {
+                            console.warn("Received: " + x);
+                        }
+                    }
+                };
+			if (gmeResources.env.xhr === 'GM4') {
+                // GreaseMonkey 4+
+                GM.xmlHttpRequest(details);
+			} else {
+                // Other userscript engines
+                setTimeout(function() {
+                    GM_xmlhttpRequest(details);
+                }, 0);
+            }
 		}
 	}
 },
@@ -2496,24 +2568,29 @@ function unwrapFunction(fn) {
 function xhr(e) {
 	var node = document.getElementById("gme_jsonp_node"),
 		callback = node.getAttribute("data-gme-callback"),
-		url = node.text;
-	setTimeout(function() { GM_xmlhttpRequest({
-		"method": "GET",
-		"url": url,
-		"onload": function(response) {
-			var x = response.responseText,
-				call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
-				s;
-			if (call && call.length === 2 && call[1] === callback) {
-				s = document.getElementById("gme_jsonp_node");
-				s.setAttribute("data-gme-callback", callback);
-				s.text = x.substring(x.indexOf("(")+1, x.lastIndexOf(")"));
-				document.dispatchEvent(new Event("GME_XHR_callback"));
-			} else {
-				console.warn("Received: " + x);
-			}
-		}
-	});}, 0);
+		url = node.text,
+		details = {
+            "method": "GET",
+            "url": url,
+            "onload": function(response) {
+                var x = response.responseText,
+                    call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
+                    s;
+                if (call && call.length === 2 && call[1] === callback) {
+                    s = document.getElementById("gme_jsonp_node");
+                    s.setAttribute("data-gme-callback", callback);
+                    s.text = x.substring(x.indexOf("(")+1, x.lastIndexOf(")"));
+                    document.dispatchEvent(new Event("GME_XHR_callback"));
+                } else {
+                    console.warn("Received: " + x);
+                }
+            }
+        };
+    if (gmeResources.env.xhr === 'GM4') {
+        GM.xmlHttpRequest(details);
+    } else {
+        setTimeout(function() { GM_xmlhttpRequest(details);}, 0);
+    }
 }
 
 //don't run on frames or iframes
@@ -2546,8 +2623,10 @@ try {
 
 if(gmeResources.env.storage) {
 	var a, b, customJSON, GME_custom, paramsJSON, storedParams;
+	/* List of defunct tileUrls to remove from settings */
 	var blacklist = [
 		"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
+		"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&productSet=mmCB",
 		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
 		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
 	];
@@ -2638,9 +2717,6 @@ if(gmeResources.env.storage) {
 	insertPage('GME_format', gmeResources.html.customInfo, 'Custom Mapsource Format', 'GME_config');
 }
 
-// Questionnaire
-insertPage('GME_questionnaire', gmeResources.html.questionnaire, 'GME User Survey');
-
 //	<bugfix>
 	// Trixie treats jQuery Mobile dialogs as new page loads, resetting GME's functions
 	if (window.GME !== undefined) { return; }
@@ -2709,22 +2785,27 @@ switch(gmeResources.env.page) {
 		if (gmeResources.env.xhr) {
 			document.addEventListener("GME_GCsearch_event", function (e) {
 				var node = document.getElementById("gme_jsonp_node"),
-					gc = node.text;
-				setTimeout(function () {GM_xmlhttpRequest({
-					method: "GET",
-					url: "https://www.geocaching.com/geocache/" + gc,
-					onload: function (data) {
-						try {
-							var r = data.responseText,
-								k = r.indexOf("mapLatLng = {"),
-								c = JSON.parse(r.substring(k + 12, r.indexOf("}", k) + 1));
-							insertScript("GME_control._map.panTo(new L.LatLng(" + c.lat + ", " + c.lng + "));", "GC-search result");
-						} catch (e) {
-							console.warn("GME: Couldn't fetch cache coordinates:" + e);
-						}
-					}
-				}); }, 0);
-			});
+					gc = node.text,
+					details = {
+                        method: "GET",
+                        url: "https://www.geocaching.com/geocache/" + gc,
+                        onload: function (data) {
+                            try {
+                                var r = data.responseText,
+                                    k = r.indexOf("mapLatLng = {"),
+                                    c = JSON.parse(r.substring(k + 12, r.indexOf("}", k) + 1));
+                                insertScript("GME_control._map.panTo(new L.LatLng(" + c.lat + ", " + c.lng + "));", "GC-search result");
+                            } catch (e) {
+                                console.warn("GME: Couldn't fetch cache coordinates:" + e + "\nReceived " + r.length + " bytes, coords at " + k);
+                            }
+                        }
+                    };
+                if (gmeResources.env.xhr === 'GM4') {
+                    GM.xmlHttpRequest(details);
+                } else {
+                    setTimeout(function () {GM_xmlhttpRequest(details); }, 0);
+                }
+            });
 		}
 		if (gmeResources.parameters.osgbSearch) {
 			targets = document.getElementsByClassName("SearchBox");
