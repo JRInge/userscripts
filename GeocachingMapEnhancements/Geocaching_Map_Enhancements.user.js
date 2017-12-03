@@ -2353,20 +2353,28 @@ var gmeResources = {
 					return false;
 				},
 				panToGC:function(gc) {
-					var s = document.getElementById("gme_jsonp_node");
-					if (!s) {
-						s = document.createElement("script");
-						s.id = "gme_jsonp_node";
-						document.documentElement.firstChild.appendChild(s);
-					}
-					s.type = "text/plain";
-					s.text = gc;
-					if (gmeConfig.env.xhr === "GM") {
-						document.dispatchEvent(new Event("GME_GCsearch_event"));
-					} else {
-						$.fancybox("Search by GC-code is not available in this browser.<br />You can <a target='_blank' rel='noopener noreferrer' title='gc' href='https://coord.info/" + gc + "'>open the cache page</a> for " + gc + " instead");
-					}
-					return false;
+          var req = new XMLHttpRequest(),
+              map = this._map || e;
+          req.addEventListener("load", function (e) {
+            var r = req.responseText,
+                k = r.indexOf("mapLatLng = {"),
+                c;
+            if (req.status < 400) {
+              try {
+                c = JSON.parse(r.substring(k + 12, r.indexOf("}", k) + 1));
+                map.panTo(new L.LatLng(c.lat, c.lng));
+              } catch (e) {
+                console.warn("GME: Couldn't extract cache coordinates:" + e + "\nReceived " + r.length + " bytes, coords at " + k);
+              }
+            } else {
+              if (req.status === 404) {
+                alert("Sorry, cache " + gc + " doesn't seem to exist.");
+              }
+              console.warn("GME: error retrieving cache page to find coords for " + gc + ": " + req.statusText);
+            }
+          });
+          req.open("GET", "https://www.geocaching.com/geocache/" + gc);
+          req.send();
 				},
 				updateScale:function (e, timer) {
 					var map = this._map || e;
@@ -2782,31 +2790,6 @@ switch(gmeResources.env.page) {
 			return;
 		}
 
-		if (gmeResources.env.xhr) {
-			document.addEventListener("GME_GCsearch_event", function (e) {
-				var node = document.getElementById("gme_jsonp_node"),
-					gc = node.text,
-					details = {
-                        method: "GET",
-                        url: "https://www.geocaching.com/geocache/" + gc,
-                        onload: function (data) {
-                            try {
-                                var r = data.responseText,
-                                    k = r.indexOf("mapLatLng = {"),
-                                    c = JSON.parse(r.substring(k + 12, r.indexOf("}", k) + 1));
-                                insertScript("GME_control._map.panTo(new L.LatLng(" + c.lat + ", " + c.lng + "));", "GC-search result");
-                            } catch (e) {
-                                console.warn("GME: Couldn't fetch cache coordinates:" + e + "\nReceived " + r.length + " bytes, coords at " + k);
-                            }
-                        }
-                    };
-                if (gmeResources.env.xhr === 'GM4') {
-                    GM.xmlHttpRequest(details);
-                } else {
-                    setTimeout(function () {GM_xmlhttpRequest(details); }, 0);
-                }
-            });
-		}
 		if (gmeResources.parameters.osgbSearch) {
 			targets = document.getElementsByClassName("SearchBox");
 			if (targets[0]) {
