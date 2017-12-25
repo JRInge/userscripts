@@ -11,7 +11,7 @@
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheCircles/images/circle48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheCircles/images/circle64.png
 // @grant       GM_xmlhttpRequest
-// @connect     https://www.geocaching.com/geocache/*
+// @connect     www.geocaching.com
 // @updateURL   http://geo.inge.org.uk/userscripts/Geocache_Circles.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Geocache_Circles.user.js
 // ==/UserScript==
