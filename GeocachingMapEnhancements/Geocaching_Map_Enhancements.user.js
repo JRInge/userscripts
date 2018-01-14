@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.8.0
+// @version     0.8.1
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
 // @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
 // @include     https://www.geocaching.com/*
 // @license     MIT; http://www.opensource.org/licenses/mit-license.php
-// @copyright   2011-17, James Inge (http://geo.inge.org.uk/)
+// @copyright   2011-18, James Inge (http://geo.inge.org.uk/)
 // @attribution GeoNames (http://www.geonames.org/)
 // @attribution Postcodes.io (https://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
@@ -34,8 +34,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.8.0",
-		versionMsg: "This is a maintenance update to remove the user survey (thanks for all your responses!) and make various bugfixes. There is also a new tool to let you hide or show all the caches on the map.",
+		version: "0.8.1",
+		versionMsg: "Bugfix update: fixes searching by GC-code from the Search sidebar, and links for directions to parking and trailhead waypoints on cache pages.",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
