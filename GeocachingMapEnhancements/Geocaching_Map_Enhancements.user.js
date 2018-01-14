@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.8.0
+// @version     0.8.1
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
 // @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
 // @include     https://www.geocaching.com/*
 // @license     MIT; http://www.opensource.org/licenses/mit-license.php
-// @copyright   2011-17, James Inge (http://geo.inge.org.uk/)
+// @copyright   2011-18, James Inge (http://geo.inge.org.uk/)
 // @attribution GeoNames (http://www.geonames.org/)
 // @attribution Postcodes.io (https://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
@@ -34,8 +34,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.8.0",
-		versionMsg: "This is a maintenance update to remove the user survey (thanks for all your responses!) and make various bugfixes. There is also a new tool to let you hide or show all the caches on the map.",
+		version: "0.8.1",
+		versionMsg: "Bugfix update: fixes searching by GC-code from the Search sidebar, and links for directions to parking and trailhead waypoints on cache pages.",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
@@ -197,7 +197,7 @@ var gmeResources = {
 				<div class="gme-tab-content">\
 					<div class="gme-fieldgroup">\
 						<h3>Geocaching Map Enhancements</h3><br />\
-						<p>v<span id="GME_version"></span> &copy; 2011-2016 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" rel="noopener noreferrer" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" rel="noopener noreferrer" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
+						<p>v<span id="GME_version"></span> &copy; 2011-2018 James Inge. Geocaching Map Enhancements is licensed for reuse under the <a target="_blank" rel="noopener noreferrer" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>. For documentation, see <a target="_blank" rel="noopener noreferrer" href="http://geo.inge.org.uk/gme.htm">http://geo.inge.org.uk/gme.htm</a></p>\
 						<p>Elevation and reverse geocoding data provided by <a target="_blank" rel="noopener noreferrer" href="http://www.geonames.org/">GeoNames</a> and used under a <a target="_blank" rel="noopener noreferrer" href="https://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
 						<p>Grid reference manipulation is adapted from code &copy; 2005-2014 Chris Veness (<a target="_blank" rel="noopener noreferrer" href="http://www.movable-type.co.uk/scripts/latlong-gridref.html">www.movable-type.co.uk/scripts/latlong-gridref.html</a>, used under a <a target="_blank" rel="noopener noreferrer" href="https://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> (CC-BY) License.</p>\
 						<p>Photos provided by Geograph are copyright their respective owners - hover mouse over thumbnails or click through for attribution details. They may be re-used under a <a target="_blank" rel="noopener noreferrer" href="https://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareAlike 2.0</a> (CC-BY-SA) License.</p>\
@@ -1259,8 +1259,9 @@ var gmeResources = {
 							parking = cmapAdditionalWaypoints[i];
 							if (parking.type === 217 || parking.type === 221) {
 								label = parking.type===217?"Parking Area":"Trailhead";
-								parkUrl = "https://www.google.com/maps/dir/?api=1&origin=" + gmeConfig.env.home.toUrl() + "&destination=" + parking.lat + "," + parking.lng;
-								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[7].innerHTML += '<a target="_blank" rel="noopener noreferrer" href="' + parkUrl + '"><img width="16" height="16" title="Directions to ' + label + '" alt="' + label + '" src="https://www.geocaching.com/images/wpttypes/sm/pkg.jpg" /></a>';
+								parkUrl = `https://www.google.com/maps/dir/${gmeConfig.env.home.toUrl()}/${parking.lat},${parking.lng}/`;
+								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[1].innerHTML +=
+									`<a target="_blank" rel="noopener noreferrer" href="${parkUrl}"><img width="16" height="16" title="[GME] Directions to ${label}" alt="${label}" src="https://www.geocaching.com/images/icons/16/directions.png" /></a>`;
 							}
 						}
 					}
@@ -2353,20 +2354,28 @@ var gmeResources = {
 					return false;
 				},
 				panToGC:function(gc) {
-					var s = document.getElementById("gme_jsonp_node");
-					if (!s) {
-						s = document.createElement("script");
-						s.id = "gme_jsonp_node";
-						document.documentElement.firstChild.appendChild(s);
-					}
-					s.type = "text/plain";
-					s.text = gc;
-					if (gmeConfig.env.xhr === "GM") {
-						document.dispatchEvent(new Event("GME_GCsearch_event"));
-					} else {
-						$.fancybox("Search by GC-code is not available in this browser.<br />You can <a target='_blank' rel='noopener noreferrer' title='gc' href='https://coord.info/" + gc + "'>open the cache page</a> for " + gc + " instead");
-					}
-					return false;
+          var req = new XMLHttpRequest(),
+              map = this._map || e;
+          req.addEventListener("load", function (e) {
+            var r = req.responseText,
+                k = r.indexOf("mapLatLng = {"),
+                c;
+            if (req.status < 400) {
+              try {
+                c = JSON.parse(r.substring(k + 12, r.indexOf("}", k) + 1));
+                map.panTo(new L.LatLng(c.lat, c.lng));
+              } catch (e) {
+                console.warn("GME: Couldn't extract cache coordinates:" + e + "\nReceived " + r.length + " bytes, coords at " + k);
+              }
+            } else {
+              if (req.status === 404) {
+                alert("Sorry, cache " + gc + " doesn't seem to exist.");
+              }
+              console.warn("GME: error retrieving cache page to find coords for " + gc + ": " + req.statusText);
+            }
+          });
+          req.open("GET", "https://www.geocaching.com/geocache/" + gc);
+          req.send();
 				},
 				updateScale:function (e, timer) {
 					var map = this._map || e;
@@ -2782,31 +2791,6 @@ switch(gmeResources.env.page) {
 			return;
 		}
 
-		if (gmeResources.env.xhr) {
-			document.addEventListener("GME_GCsearch_event", function (e) {
-				var node = document.getElementById("gme_jsonp_node"),
-					gc = node.text,
-					details = {
-                        method: "GET",
-                        url: "https://www.geocaching.com/geocache/" + gc,
-                        onload: function (data) {
-                            try {
-                                var r = data.responseText,
-                                    k = r.indexOf("mapLatLng = {"),
-                                    c = JSON.parse(r.substring(k + 12, r.indexOf("}", k) + 1));
-                                insertScript("GME_control._map.panTo(new L.LatLng(" + c.lat + ", " + c.lng + "));", "GC-search result");
-                            } catch (e) {
-                                console.warn("GME: Couldn't fetch cache coordinates:" + e + "\nReceived " + r.length + " bytes, coords at " + k);
-                            }
-                        }
-                    };
-                if (gmeResources.env.xhr === 'GM4') {
-                    GM.xmlHttpRequest(details);
-                } else {
-                    setTimeout(function () {GM_xmlhttpRequest(details); }, 0);
-                }
-            });
-		}
 		if (gmeResources.parameters.osgbSearch) {
 			targets = document.getElementsByClassName("SearchBox");
 			if (targets[0]) {

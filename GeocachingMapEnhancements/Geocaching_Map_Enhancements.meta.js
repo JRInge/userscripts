@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.8.0
+// @version     0.8.1
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
 // @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
 // @include     https://www.geocaching.com/*
 // @license     MIT; http://www.opensource.org/licenses/mit-license.php
-// @copyright   2011-17, James Inge (http://geo.inge.org.uk/)
+// @copyright   2011-18, James Inge (http://geo.inge.org.uk/)
 // @attribution GeoNames (http://www.geonames.org/)
 // @attribution Postcodes.io (https://postcodes.io/)
 // @attribution Chris Veness (http://www.movable-type.co.uk/scripts/latlong-gridref.html)
