@@ -1259,8 +1259,9 @@ var gmeResources = {
 							parking = cmapAdditionalWaypoints[i];
 							if (parking.type === 217 || parking.type === 221) {
 								label = parking.type===217?"Parking Area":"Trailhead";
-								parkUrl = "https://www.google.com/maps/dir/?api=1&origin=" + gmeConfig.env.home.toUrl() + "&destination=" + parking.lat + "," + parking.lng;
-								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[7].innerHTML += '<a target="_blank" rel="noopener noreferrer" href="' + parkUrl + '"><img width="16" height="16" title="Directions to ' + label + '" alt="' + label + '" src="https://www.geocaching.com/images/wpttypes/sm/pkg.jpg" /></a>';
+								parkUrl = `https://www.google.com/maps/dir/${gmeConfig.env.home.toUrl()}/${parking.lat},${parking.lng}/`;
+								$("#awpt_"+parking.pf)[0].parentNode.parentNode.children[1].innerHTML +=
+									`<a target="_blank" rel="noopener noreferrer" href="${parkUrl}"><img width="16" height="16" title="[GME] Directions to ${label}" alt="${label}" src="https://www.geocaching.com/images/icons/16/directions.png" /></a>`;
 							}
 						}
 					}
