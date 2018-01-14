@@ -5,13 +5,14 @@
 // @include     https://www.geocaching.com/geocache/GC*
 // @author      JRI
 // @oujs:author JRI
-// @copyright   2010-16, James Inge (http://geo.inge.org.uk/)
-// @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @version     1.1.1
+// @copyright   2010-18, James Inge (http://geo.inge.org.uk/)
+// @license     MIT; http://www.opensource.org/licenses/mit-license.php
+// @version     1.1.2
 // @grant       GM_xmlhttpRequest
+// @grant       GM.xmlHttpRequest
 // @connect     maps.googleapis.com
-// @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheHeight/images/height48.png
-// @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheHeight/images/height64.png
-// @updateURL   http://geo.inge.org.uk/userscripts/Geocache_Height_feet.meta.js
+// @icon        https://geo.inge.org.uk/userscripts/height48.png
+// @icon64      https://geo.inge.org.uk/userscripts/height64.png
+// @updateURL   https://geo.inge.org.uk/userscripts/Geocache_Height_feet.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Geocache_Height_feet.user.js
 // ==/UserScript==
