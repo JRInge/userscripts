@@ -1,49 +1,41 @@
     function getCoords(uriId) {
         /* Looks for coordinates in a URI and returns them as a URI string fragment. Returns null on failure */
-        var target = document.getElementById(uriId);
-        var pattern = /lat=([\-0-9\.]+)&lng=([\-0-9\.]+)/;
-        var matched;
+        const target = document.getElementById(uriId);
+        const pattern = /lat=([\-0-9.]+)&lng=([\-0-9.]+)/;
 
         if (target === null || target.href === undefined) {
             return null;
         }
 
-        matched = target.href.match(pattern);
+        const matched = target.href.match(pattern);
         if (matched.length === 3) {
-            return [matched[1], matched[2]].join();
+            return `${matched[1]},${matched[2]}`;
         }
         return null;
     }
 
     function isPMOnly() {
-        var form = document.getElementById("aspnetForm");
-        if (form && (/cache_pmo\.aspx/).test(form.action)) {
-            return true;
-        }
-        return false;
+        const form = document.getElementById("aspnetForm");
+        return (form && (/cache_pmo\.aspx/).test(form.action));
     }
 
     function parseHeight(jsonString) {
-        var json;
-
         try {
-            json = JSON.parse(jsonString);
+            const json = JSON.parse(jsonString);
+            if (typeof json.results[0].elevation !== "number") {
+                console.error("Geocache Height didn't get the data format it expected from Google");
+                return false;
+            }
+            return json.results[0].elevation;
         } catch (e) {
-            console.error(e + "Geocache Height didn't get valid JSON data from Google");
+            console.error(e + ": Geocache Height didn't get valid JSON data from Google");
             return false;
         }
-
-        if (typeof json.results[0].elevation !== "number") {
-            console.error("Geocache Height didn't get the data format it expected from Google");
-            return false;
-        }
-
-        return json.results[0].elevation;
     }
 
-    var coords = getCoords("ctl00_ContentBody_uxViewLargerMap");
-    var target = document.getElementById("uxLatLon");
-    var scriptId = "Geocache Height v1.1.0 ";
+    const coords = getCoords("ctl00_ContentBody_uxViewLargerMap");
+    const target = document.getElementById("uxLatLon");
+    const scriptId = "Geocache Height v1.1.2 ";
 
     //don't run on frames or iframes
     if (window.top !== window.self) {
@@ -65,15 +57,24 @@
         return;
     }
 
-    console.info(scriptId);
+    const xhr = (typeof GM_xmlhttpRequest === "function")
+        ? GM_xmlhttpRequest
+        : ((typeof GM === "object" && typeof GM.xmlHttpRequest === "function")
+            ? GM.xmlHttpRequest
+            : undefined);
 
-    GM_xmlhttpRequest({
-        method: 'GET',
-        url: "https://maps.googleapis.com/maps/api/elevation/json?sensor=false&locations=" + coords,
-        onload: function (responseDetails) {
-            var height = parseHeight(responseDetails.responseText);
-            if (height !== false) {
-                target.parentElement.appendChild(formatHeight(height));
+    if (xhr) {
+        console.info(scriptId);
+        xhr({
+            method: "GET",
+            url: "https://maps.googleapis.com/maps/api/elevation/json?sensor=false&locations=" + coords,
+            onload: function (responseDetails) {
+                var height = parseHeight(responseDetails.responseText);
+                if (height !== false) {
+                    target.parentElement.appendChild(formatHeight(height));
+                }
             }
-        }
-    });
+        });
+    } else {
+        console.error(scriptId + "needs a userscript manager that supports cross-site XHR");
+    }
