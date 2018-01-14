@@ -5,4 +5,4 @@
         heightElement.innerHTML += Math.round(height * 3.28084) + "ft";
         return heightElement;
     }
-    
+

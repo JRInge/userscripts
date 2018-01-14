@@ -5,4 +5,4 @@
         heightElement.innerHTML += Math.round(height) + "m";
         return heightElement;
     }
-    
+
