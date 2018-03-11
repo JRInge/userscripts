@@ -1366,17 +1366,22 @@ var gmeResources = {
 			}
 			function reload() {
 				$($(".leaflet-control-layers")[0]).remove();
+				try {
+					GME_control.removeFrom(map);
+				} catch (e) {}
 				GME_control.addTo(map);
-				map.eachLayer(function(layer) {
-					if (layer._url) {
-						map.removeLayer(layer);
-					}
-				});
 				GME_control._layerControl.addTo(map);
-				GME_control._layerControl.setDefault();
 				if (gmeConfig.env.dragdrop) {
 					map.addControl(new L.GME_dropHandler());
 				}
+                setTimeout(function() {
+                    map.eachLayer(function(layer) {
+                        if (layer instanceof L.TileLayer) {
+                            map.removeLayer(layer);
+                        }
+                    });
+                    GME_control._layerControl.setDefault();
+                }, 1000);
 			}
 			window.setTimeout(setEnv, 3000);
 		},
@@ -1706,12 +1711,13 @@ var gmeResources = {
 					if (gmeConfig.env.page === "maps" || gmeConfig.env.page === "track" || gmeConfig.env.page === "hide" || gmeConfig.env.page === "hide") {
 						$($(".leaflet-control-layers")[0]).remove();
 						for (layer in map._layers) {
-							if (map._layers.hasOwnProperty(layer) && (map._layers[layer]._url || map._layers[layer]._google)) {
-								map.removeLayer(map._layers[layer]);
+							if (map._layers[layer] instanceof L.TileLayer) {
+                                if (window.MapSettings !== undefined && MapSettings.MapLayers !== undefined && MapSettings.MapLayers.Geocache === map._layers[layer]) {
+                                    // Leave geocache layer in place
+                                } else {
+                                    map.removeLayer(map._layers[layer]);
+                                }
 							}
-						}
-						if (window.MapSettings !== undefined && MapSettings.MapLayers !== undefined && typeof MapSettings.MapLayers.ResetGeocacheLayer === "function") {
-							MapSettings.MapLayers.ResetGeocacheLayer();
 						}
 					}
 					map.addControl(control);
