@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.8.1
+// @version     0.8.2
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -34,8 +34,8 @@
 var gmeResources = {
 	parameters: {
 		// Defaults
-		version: "0.8.1",
-		versionMsg: "Bugfix update: fixes searching by GC-code from the Search sidebar, and links for directions to parking and trailhead waypoints on cache pages.",
+		version: "0.8.2",
+		versionMsg: "Bugfix update: improves display of lists and PQs on geocaching map.",
 		brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 		filterFinds: false, // True filters finds out of list searches.
 		follow: false,	// Locator widget follows current location (moving map mode)
