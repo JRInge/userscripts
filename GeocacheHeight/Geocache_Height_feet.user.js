@@ -5,12 +5,12 @@
 // @include     https://www.geocaching.com/geocache/GC*
 // @author      JRI
 // @oujs:author JRI
-// @copyright   2010-18, James Inge (http://geo.inge.org.uk/)
+// @copyright   2010-19, James Inge (http://geo.inge.org.uk/)
 // @license     MIT; http://www.opensource.org/licenses/mit-license.php
-// @version     1.1.2
+// @version     1.1.3
 // @grant       GM_xmlhttpRequest
 // @grant       GM.xmlHttpRequest
-// @connect     maps.googleapis.com
+// @connect     api.geonames.org
 // @icon        https://geo.inge.org.uk/userscripts/height48.png
 // @icon64      https://geo.inge.org.uk/userscripts/height64.png
 // @updateURL   https://geo.inge.org.uk/userscripts/Geocache_Height_feet.meta.js
@@ -27,10 +27,11 @@
 //  v1.1.0  Update and re-write for changes to geocaching.com.
 //  v1.1.1  Add @connect metadata to request permission to connect to Google, avoiding security pop-ups in Tampermonkey.
 //  v1.1.2  Added compatibility with Greasemonkey 4
+//  v1.1.3  Switched from Google Elevation API to Geonames
 //
 
 /*jslint browser, devel */
-/*global mapLatLng, window, GM, GM_xmlhttpRequest */
+/*global window, GM, GM_xmlhttpRequest */
 
 (function () {
     "use strict";
@@ -43,19 +44,17 @@
     }
 
     function getCoords(uriId) {
-        /* Looks for coordinates in a URI and returns them as a URI string fragment. Returns null on failure */
+        /* Looks for coordinates in the href of an element with the given id, and returns them as at LatLng object
+         * Returns undefined on failure
+         */
         const target = document.getElementById(uriId);
         const pattern = /lat=([\-0-9.]+)&lng=([\-0-9.]+)/;
+        let matched;
 
-        if (target === null || target.href === undefined) {
-            return null;
-        }
-
-        const matched = target.href.match(pattern);
-        if (matched.length === 3) {
-            return `${matched[1]},${matched[2]}`;
-        }
-        return null;
+        return (target && target.href && (matched = target.href.match(pattern), matched.length === 3)
+            ? {lat: matched[1], lng: matched[2]}
+            : void 0
+        );
     }
 
     function isPMOnly() {
@@ -64,16 +63,21 @@
     }
 
     function parseHeight(jsonString) {
+        /* Extracts height information from JSON response.  Returns a number
+         * in metres on success, null for no data or undefined on failure.
+         */
         try {
             const json = JSON.parse(jsonString);
-            if (typeof json.results[0].elevation !== "number") {
-                console.error("Geocache Height didn't get the data format it expected from Google");
-                return false;
-            }
-            return json.results[0].elevation;
+            return (
+                typeof json.astergdem === "number"
+                ? (
+                    json.astergdem > -9999
+                    ? json.astergdem
+                    : (console.debug(`${scriptId}received no height data for this location.`), null))
+                : (console.error(`${scriptId}didn't get the data format it expected from Geonames`), null)
+            );
         } catch (e) {
-            console.error(e + ": Geocache Height didn't get valid JSON data from Google");
-            return false;
+            console.error(`${e}: ${scriptId}didn't get valid JSON data from Geonames`);
         }
     }
 
@@ -96,7 +100,7 @@
         return;
     }
 
-    if (coords === null) {
+    if (!coords) {
         console.error(scriptId + "couldn't work out coordinates for cache");
         return;
     }
@@ -111,10 +115,10 @@
         console.info(scriptId);
         xhr({
             method: "GET",
-            url: "https://maps.googleapis.com/maps/api/elevation/json?sensor=false&locations=" + coords,
+            url: `http://api.geonames.org/astergdemJSON?lat=${coords.lat}&lng=${coords.lng}&username=gme_h`,
             onload: function (responseDetails) {
                 var height = parseHeight(responseDetails.responseText);
-                if (height !== false) {
+                if (height != null) {
                     target.parentElement.appendChild(formatHeight(height));
                 }
             }

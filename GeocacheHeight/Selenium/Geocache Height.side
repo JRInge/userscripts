@@ -1,0 +1,335 @@
+{
+  "id": "b5e6dfef-1dc5-4d29-aaf6-2395cfa0774b",
+  "version": "2.0",
+  "name": "Geocache Height",
+  "url": "https://www.geocaching.com",
+  "tests": [{
+    "id": "62332dfa-b439-4cb6-8202-c516ef2c6314",
+    "name": "High cache (feet)",
+    "commands": [{
+      "id": "9c33ad7d-05a4-4eb2-910e-e156082d9747",
+      "comment": "",
+      "command": "open",
+      "target": "/geocache/GC1GA4V_ngorongoro-view",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "1547bfab-5b00-4bf2-b419-f724f3e7023a",
+      "comment": "Check URI containing coordinates is present",
+      "command": "verifyElementPresent",
+      "target": "id=ctl00_ContentBody_uxViewLargerMap",
+      "targets": [
+        ["id=ctl00_ContentBody_CacheName", "id"],
+        ["css=#ctl00_ContentBody_CacheName", "css:finder"],
+        ["xpath=//span[@id='ctl00_ContentBody_CacheName']", "xpath:attributes"],
+        ["xpath=//div[@id='cacheDetails']/div/h2/span", "xpath:idRelative"],
+        ["xpath=//h2/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Ngorongoro View')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "11e7a6ea-4f10-4561-8442-d1a61ba10a0c",
+      "comment": "Check anchor to attach output is present",
+      "command": "verifyElementPresent",
+      "target": "id=uxLatLon",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "dd12c223-5d6b-4e69-bcc2-766468f131c1",
+      "comment": "Wait for script output",
+      "command": "waitForElementPresent",
+      "target": "id=jriCacheHeightFt",
+      "targets": [
+        ["id=jriCacheHeight", "id"],
+        ["css=#jriCacheHeight", "css:finder"],
+        ["xpath=//span[@id='jriCacheHeight']", "xpath:attributes"],
+        ["xpath=//a[@id='uxLatLonLink']/strong/span[2]", "xpath:idRelative"],
+        ["xpath=//strong/span[2]", "xpath:position"],
+        ["xpath=//span[contains(.,'+2213m')]", "xpath:innerText"]
+      ],
+      "value": "10000"
+    }, {
+      "id": "e551e609-ca08-4b6b-9faa-c78ad8c72911",
+      "comment": "Check correct height",
+      "command": "assertText",
+      "target": "id=jriCacheHeightFt",
+      "targets": [],
+      "value": "+7260ft"
+    }]
+  }, {
+    "id": "6b4bf13d-3f4b-424d-8133-baefe322f5d2",
+    "name": "Low cache",
+    "commands": [{
+      "id": "0e53f94f-62d1-4515-897d-8b8685e362ec",
+      "comment": "",
+      "command": "open",
+      "target": "/geocache/GCH657_dont-drink-the-water",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "83fc59b4-eedd-4e10-a57e-1e4c9613f868",
+      "comment": "Check URI containing coordinates is present",
+      "command": "verifyElementPresent",
+      "target": "id=ctl00_ContentBody_uxViewLargerMap",
+      "targets": [
+        ["id=ctl00_ContentBody_CacheName", "id"],
+        ["css=#ctl00_ContentBody_CacheName", "css:finder"],
+        ["xpath=//span[@id='ctl00_ContentBody_CacheName']", "xpath:attributes"],
+        ["xpath=//div[@id='cacheDetails']/div/h2/span", "xpath:idRelative"],
+        ["xpath=//h2/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Ngorongoro View')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "045382e4-2064-4d6a-a5f2-8104e04a214b",
+      "comment": "Check anchor to attach output is present",
+      "command": "verifyElementPresent",
+      "target": "id=uxLatLon",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "9ce4e11c-6f72-4f4b-913d-ccff041829f0",
+      "comment": "Wait for script output",
+      "command": "waitForElementPresent",
+      "target": "id=jriCacheHeight",
+      "targets": [
+        ["id=jriCacheHeight", "id"],
+        ["css=#jriCacheHeight", "css:finder"],
+        ["xpath=//span[@id='jriCacheHeight']", "xpath:attributes"],
+        ["xpath=//a[@id='uxLatLonLink']/strong/span[2]", "xpath:idRelative"],
+        ["xpath=//strong/span[2]", "xpath:position"],
+        ["xpath=//span[contains(.,'+2213m')]", "xpath:innerText"]
+      ],
+      "value": "10000"
+    }, {
+      "id": "d8390251-db89-4ce7-aa4a-2b48409a5bf7",
+      "comment": "Check correct height",
+      "command": "assertText",
+      "target": "id=jriCacheHeight",
+      "targets": [],
+      "value": "-86m"
+    }]
+  }, {
+    "id": "75309f21-927b-4ef8-837b-c98cc80c8f9b",
+    "name": "No data cache",
+    "commands": [{
+      "id": "5a35aca5-b367-4f57-abd2-cfe55b14bd33",
+      "comment": "",
+      "command": "open",
+      "target": "https://www.geocaching.com/geocache/GCG822_rainbow-hydrothermal-vents",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "1752b893-0d36-4219-825a-c8782dc8eeaf",
+      "comment": "Check URI containing coordinates is present",
+      "command": "verifyElementPresent",
+      "target": "id=ctl00_ContentBody_uxViewLargerMap",
+      "targets": [
+        ["id=ctl00_ContentBody_CacheName", "id"],
+        ["css=#ctl00_ContentBody_CacheName", "css:finder"],
+        ["xpath=//span[@id='ctl00_ContentBody_CacheName']", "xpath:attributes"],
+        ["xpath=//div[@id='cacheDetails']/div/h2/span", "xpath:idRelative"],
+        ["xpath=//h2/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Ngorongoro View')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "8ad9e19e-c978-4052-b2a1-2db5ab2a5d83",
+      "comment": "Check anchor to attach output is present",
+      "command": "verifyElementPresent",
+      "target": "id=uxLatLon",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "2655e6dc-5197-4a8a-9291-56c7914753e4",
+      "comment": "",
+      "command": "pause",
+      "target": "",
+      "targets": [],
+      "value": "5000"
+    }, {
+      "id": "efa13c16-ea72-4c19-a1b7-a0da95cf27d8",
+      "comment": "Check no script output",
+      "command": "assertElementNotPresent",
+      "target": "id=jriCacheHeight",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "56b58d09-5b27-44ad-9788-6f4bf92c4db5",
+    "name": "PM cache",
+    "commands": [{
+      "id": "302ea7a2-6c2a-45bc-9d19-235c7e0f5d22",
+      "comment": "",
+      "command": "open",
+      "target": "https://www.geocaching.com/geocache/GC73071_a-fine-pair-800-westbury-on-trym",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "bd413d62-a15e-4572-9c2a-34213058ada1",
+      "comment": "Check URI containing coordinates is not present",
+      "command": "verifyElementNotPresent",
+      "target": "id=ctl00_ContentBody_uxViewLargerMap",
+      "targets": [
+        ["id=ctl00_ContentBody_CacheName", "id"],
+        ["css=#ctl00_ContentBody_CacheName", "css:finder"],
+        ["xpath=//span[@id='ctl00_ContentBody_CacheName']", "xpath:attributes"],
+        ["xpath=//div[@id='cacheDetails']/div/h2/span", "xpath:idRelative"],
+        ["xpath=//h2/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Ngorongoro View')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "725f79f6-c8f6-48a7-a100-4b230d11e1e6",
+      "comment": "Check anchor to attach output is not present",
+      "command": "verifyElementNotPresent",
+      "target": "id=uxLatLon",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "db6dcd89-4d23-4776-8071-ee1894f12bab",
+      "comment": "Check PM cache detected",
+      "command": "assertElementPresent",
+      "target": "css=form#aspnetForm[action*='cache_pmo']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "642b0af1-b664-48e5-bb5c-086b05b7c596",
+      "comment": "Check no script output",
+      "command": "assertElementNotPresent",
+      "target": "id=jriCacheHeight",
+      "targets": [
+        ["id=jriCacheHeight", "id"],
+        ["css=#jriCacheHeight", "css:finder"],
+        ["xpath=//span[@id='jriCacheHeight']", "xpath:attributes"],
+        ["xpath=//a[@id='uxLatLonLink']/strong/span[2]", "xpath:idRelative"],
+        ["xpath=//strong/span[2]", "xpath:position"],
+        ["xpath=//span[contains(.,'+2213m')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }]
+  }, {
+    "id": "45ffd416-f5f5-4edc-a3a5-4d88832586ec",
+    "name": "High cache",
+    "commands": [{
+      "id": "2dfad4e8-9a35-4620-b509-417dab646ff5",
+      "comment": "",
+      "command": "open",
+      "target": "/geocache/GC1GA4V_ngorongoro-view",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "e482ed06-3f72-419f-8ed7-a18f118619f8",
+      "comment": "Check URI containing coordinates is present",
+      "command": "verifyElementPresent",
+      "target": "id=ctl00_ContentBody_uxViewLargerMap",
+      "targets": [
+        ["id=ctl00_ContentBody_CacheName", "id"],
+        ["css=#ctl00_ContentBody_CacheName", "css:finder"],
+        ["xpath=//span[@id='ctl00_ContentBody_CacheName']", "xpath:attributes"],
+        ["xpath=//div[@id='cacheDetails']/div/h2/span", "xpath:idRelative"],
+        ["xpath=//h2/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Ngorongoro View')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "c85c044a-c4f2-4cc7-8af5-37e21ca764e3",
+      "comment": "Check anchor to attach output is present",
+      "command": "verifyElementPresent",
+      "target": "id=uxLatLon",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "36f81f1f-3309-4b1f-8fb3-7f1bdcc9191f",
+      "comment": "Wait for script output",
+      "command": "waitForElementPresent",
+      "target": "id=jriCacheHeight",
+      "targets": [
+        ["id=jriCacheHeight", "id"],
+        ["css=#jriCacheHeight", "css:finder"],
+        ["xpath=//span[@id='jriCacheHeight']", "xpath:attributes"],
+        ["xpath=//a[@id='uxLatLonLink']/strong/span[2]", "xpath:idRelative"],
+        ["xpath=//strong/span[2]", "xpath:position"],
+        ["xpath=//span[contains(.,'+2213m')]", "xpath:innerText"]
+      ],
+      "value": "10000"
+    }, {
+      "id": "7c3ac1c1-5e94-4b66-8525-135ea0c89834",
+      "comment": "Check correct height",
+      "command": "assertText",
+      "target": "id=jriCacheHeight",
+      "targets": [],
+      "value": "+2213m"
+    }]
+  }, {
+    "id": "06efa801-9b74-4ddb-8e5a-33d7082b9505",
+    "name": "Low cache (feet)",
+    "commands": [{
+      "id": "12b7e688-adc6-4b3f-81cd-4f3fccefee1a",
+      "comment": "",
+      "command": "open",
+      "target": "/geocache/GCH657_dont-drink-the-water",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "03f9aeeb-e372-4206-9921-7e21956d95c5",
+      "comment": "Check URI containing coordinates is present",
+      "command": "verifyElementPresent",
+      "target": "id=ctl00_ContentBody_uxViewLargerMap",
+      "targets": [
+        ["id=ctl00_ContentBody_CacheName", "id"],
+        ["css=#ctl00_ContentBody_CacheName", "css:finder"],
+        ["xpath=//span[@id='ctl00_ContentBody_CacheName']", "xpath:attributes"],
+        ["xpath=//div[@id='cacheDetails']/div/h2/span", "xpath:idRelative"],
+        ["xpath=//h2/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Ngorongoro View')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "5670e1d8-00ef-4a67-9c9e-34fe6ec80cac",
+      "comment": "Check anchor to attach output is present",
+      "command": "verifyElementPresent",
+      "target": "id=uxLatLon",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "95d4187e-cfef-4a4b-8c77-bc4893718e60",
+      "comment": "Wait for script output",
+      "command": "waitForElementPresent",
+      "target": "id=jriCacheHeightFt",
+      "targets": [
+        ["id=jriCacheHeight", "id"],
+        ["css=#jriCacheHeight", "css:finder"],
+        ["xpath=//span[@id='jriCacheHeight']", "xpath:attributes"],
+        ["xpath=//a[@id='uxLatLonLink']/strong/span[2]", "xpath:idRelative"],
+        ["xpath=//strong/span[2]", "xpath:position"],
+        ["xpath=//span[contains(.,'+2213m')]", "xpath:innerText"]
+      ],
+      "value": "10000"
+    }, {
+      "id": "08537914-61d1-4918-b1f6-d231d316d53b",
+      "comment": "Check correct height",
+      "command": "assertText",
+      "target": "id=jriCacheHeightFt",
+      "targets": [],
+      "value": "-282ft"
+    }]
+  }],
+  "suites": [{
+    "id": "a3d8bb48-0d64-4490-b1cf-b32c9df4a01b",
+    "name": "Metres",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["6b4bf13d-3f4b-424d-8133-baefe322f5d2", "75309f21-927b-4ef8-837b-c98cc80c8f9b", "56b58d09-5b27-44ad-9788-6f4bf92c4db5", "45ffd416-f5f5-4edc-a3a5-4d88832586ec"]
+  }, {
+    "id": "a5dc0458-4c06-4357-90fc-fa2d09ee3f62",
+    "name": "Feet",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["62332dfa-b439-4cb6-8202-c516ef2c6314", "06efa801-9b74-4ddb-8e5a-33d7082b9505", "75309f21-927b-4ef8-837b-c98cc80c8f9b", "56b58d09-5b27-44ad-9788-6f4bf92c4db5"]
+  }],
+  "urls": ["https://www.geocaching.com/"],
+  "plugins": []
+}
