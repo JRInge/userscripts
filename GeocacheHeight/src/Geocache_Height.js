@@ -1,14 +1,15 @@
     function getCoords(uriId) {
         /* Looks for coordinates in the href of an element with the given id, and returns them as at LatLng object
-           Returns undefined on failure
+         * Returns undefined on failure
          */
         const target = document.getElementById(uriId);
         const pattern = /lat=([\-0-9.]+)&lng=([\-0-9.]+)/;
         let matched;
 
-        return target && target.href && (matched = target.href.match(pattern), matched.length === 3)
+        return (target && target.href && (matched = target.href.match(pattern), matched.length === 3)
             ? {lat: matched[1], lng: matched[2]}
             : void 0
+        );
     }
 
     function isPMOnly() {
@@ -17,6 +18,9 @@
     }
 
     function parseHeight(jsonString) {
+        /* Extracts height information from JSON response.  Returns a number
+         * in metres on success, null for no data or undefined on failure.
+         */
         try {
             const json = JSON.parse(jsonString);
             return (
@@ -24,11 +28,11 @@
                 ? (
                     json.astergdem > -9999
                     ? json.astergdem
-                    : null)
+                    : (console.debug(`${scriptId}received no height data for this location.`), null))
                 : (console.error(`${scriptId}didn't get the data format it expected from Geonames`), null)
             );
         } catch (e) {
-            console.error(`${e}: ${scriptId} didn't get valid JSON data from Geonames`);
+            console.error(`${e}: ${scriptId}didn't get valid JSON data from Geonames`);
         }
     }
 
