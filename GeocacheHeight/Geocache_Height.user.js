@@ -83,7 +83,7 @@
 
     const coords = getCoords("ctl00_ContentBody_uxViewLargerMap");
     const target = document.getElementById("uxLatLon");
-    const scriptId = "Geocache Height v1.1.2 ";
+    const scriptId = "Geocache Height v1.1.3 ";
 
     //don't run on frames or iframes
     if (window.top !== window.self) {
