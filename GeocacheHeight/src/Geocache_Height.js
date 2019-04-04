@@ -70,7 +70,7 @@
         console.info(scriptId);
         xhr({
             method: "GET",
-            url: `http://api.geonames.org/astergdemJSON?lat=${coords.lat}&lng=${coords.lng}&username=gme`,
+            url: `http://api.geonames.org/astergdemJSON?lat=${coords.lat}&lng=${coords.lng}&username=gme_h`,
             onload: function (responseDetails) {
                 var height = parseHeight(responseDetails.responseText);
                 if (height != null) {
