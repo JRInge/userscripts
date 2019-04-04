@@ -14,5 +14,5 @@
 // @icon        https://geo.inge.org.uk/userscripts/height48.png
 // @icon64      https://geo.inge.org.uk/userscripts/height64.png
 // @updateURL   https://geo.inge.org.uk/userscripts/Geocache_Height_feet.meta.js
-// @downloadURL https://openuserjs.org/install/JRI/Geocache_Height_feet.user.js
+// @downloadURL https://openuserjs.org/install/JRI/Geocache_Height_(feet).user.js
 // ==/UserScript==
