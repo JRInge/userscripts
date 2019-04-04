@@ -9,10 +9,11 @@
 //  v1.1.0  Update and re-write for changes to geocaching.com.
 //  v1.1.1  Add @connect metadata to request permission to connect to Google, avoiding security pop-ups in Tampermonkey.
 //  v1.1.2  Added compatibility with Greasemonkey 4
+//  v1.1.3  Switched from Google Elevation API to Geonames
 //
 
 /*jslint browser, devel */
-/*global mapLatLng, window, GM, GM_xmlhttpRequest */
+/*global window, GM, GM_xmlhttpRequest */
 
 (function () {
     "use strict";
