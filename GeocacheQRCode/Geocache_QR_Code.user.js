@@ -6,7 +6,7 @@
 // @include     https://www.geocaching.com/map*
 // @include     https://www.geocaching.com/track/details.aspx*
 // @oujs:author JRI
-// @license     MIT License; http://www.opensource.org/licenses/mit-license.php
+// @license     MIT; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2011-19, James Inge (http://geo.inge.org.uk/)
 // @version     1.2.3
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/GeocacheQRCode/QRicon48.png
