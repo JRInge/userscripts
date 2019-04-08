@@ -51,10 +51,10 @@
     }, {
       "id": "b8e12792-9a92-4b46-bebe-4ad0559fe052",
       "comment": "Check QR code present",
-      "command": "assertElementPresent",
+      "command": "waitForElementPresent",
       "target": "css=img[src='https://qrcode.kaywa.com/img.php?s=6&d=https://coord.info/GCE5E4']",
       "targets": [],
-      "value": ""
+      "value": "5000"
     }]
   }, {
     "id": "a75e7c56-b6a1-4ff8-9d41-ec8bfd5741b1",
@@ -104,10 +104,10 @@
     }, {
       "id": "055119a0-f379-4283-abe7-7e5a88d145da",
       "comment": "Check QR code present",
-      "command": "assertElementPresent",
+      "command": "waitForElementPresent",
       "target": "css=img[src='https://qrcode.kaywa.com/img.php?s=6&d=https://coord.info/TB4FZRW']",
       "targets": [],
-      "value": ""
+      "value": "5000"
     }]
   }, {
     "id": "615e0767-8db4-420f-b1e5-ce06956063ea",
@@ -186,10 +186,10 @@
     }, {
       "id": "8000df17-3c33-4080-8071-ae93c0530439",
       "comment": "Check QR image present",
-      "command": "assertElementPresent",
+      "command": "waitForElementPresent",
       "target": "css=#fancybox-content img[src='https://qrcode.kaywa.com/img.php?s=6&d=https://coord.info/GCE5E4']",
       "targets": [],
-      "value": ""
+      "value": "5000"
     }]
   }],
   "suites": [{
