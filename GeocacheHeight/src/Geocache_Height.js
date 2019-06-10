@@ -1,13 +1,9 @@
-    function getCoords(uriId) {
-        /* Looks for coordinates in the href of an element with the given id, and returns them as at LatLng object
+    function getCoords() {
+        /* Looks for coordinates in global content variables lat and lng, and returns them as a LatLng object
          * Returns undefined on failure
          */
-        const target = document.getElementById(uriId);
-        const pattern = /lat=([\-0-9.]+)&lng=([\-0-9.]+)/;
-        let matched;
-
-        return (target && target.href && (matched = target.href.match(pattern), matched.length === 3)
-            ? {lat: matched[1], lng: matched[2]}
+        return (typeof unsafeWindow.lat === "number" && typeof unsafeWindow.lng === "number"
+            ? {lat: unsafeWindow.lat, lng: unsafeWindow.lng}
             : void 0
         );
     }
@@ -36,9 +32,9 @@
         }
     }
 
-    const coords = getCoords("ctl00_ContentBody_uxViewLargerMap");
+    const coords = getCoords();
     const target = document.getElementById("uxLatLon");
-    const scriptId = "Geocache Height v1.1.2 ";
+    const scriptId = "Geocache Height v1.1.4 ";
 
     //don't run on frames or iframes
     if (window.top !== window.self) {

@@ -7,7 +7,7 @@
 // @oujs:author JRI
 // @copyright   2010-19, James Inge (http://geo.inge.org.uk/)
 // @license     MIT; http://www.opensource.org/licenses/mit-license.php
-// @version     1.1.3
+// @version     1.1.4
 // @grant       GM_xmlhttpRequest
 // @grant       GM.xmlHttpRequest
 // @connect     api.geonames.org
