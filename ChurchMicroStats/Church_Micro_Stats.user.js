@@ -12,7 +12,7 @@
 // @include     /^https?://www\.geocaching\.com/(account|my/default.aspx|my/myfriends.aspx|default|geocache|profile|seek/cache_details.aspx|p)/
 // @exclude     /^https?://www\.geocaching\.com/(login|about|articles)/
 // @grant       GM_xmlhttpRequest
-// @version     0.1.0
+// @version     0.2.0
 // @updateURL   http://geo.inge.org.uk/userscripts/Church_Micro_Stats.meta.js
 // @downloadURL https://openuserjs.org/install/JRI/Church_Micro_Stats.user.js
 // ==/UserScript==
