@@ -22,6 +22,11 @@ __Update:__ This should no longer be true in the new UI.
 
 ## Version History
 
+### Version 0.2.1
+
+* The widget wasn't displaying on the new profile page.
+* Adjusted metadata.
+
 ### Version 0.2.0
 
 * Fixed some pages not displaying the widget.

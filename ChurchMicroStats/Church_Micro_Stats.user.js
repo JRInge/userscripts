@@ -12,9 +12,8 @@
 // @include     /^https?://www\.geocaching\.com/(account|my/default.aspx|my/myfriends.aspx|default|geocache|profile|seek/cache_details.aspx|p)/
 // @exclude     /^https?://www\.geocaching\.com/(login|about|articles)/
 // @grant       GM_xmlhttpRequest
-// @version     0.2.0
-// @updateURL   http://geo.inge.org.uk/userscripts/Church_Micro_Stats.meta.js
-// @downloadURL https://openuserjs.org/install/JRI/Church_Micro_Stats.user.js
+// @version     0.2.1
+// @supportURL	https://github.com/Cryo99/userscripts/tree/master/ChurchMicroStats
 // ==/UserScript==
 
 /* global GM_xmlhttpRequest */
@@ -29,46 +28,69 @@
     currentPage,
     handler = document.createElement("script"),
     jsonp = document.createElement("script"),
-	profileNameOld = document.getElementById("ctl00_ContentBody_ProfilePanel1_lblMemberName"),
-	profileName = document.getElementById("ctl00_ProfileHead_ProfileHeader_lblMemberName"),
+    profileNameOld = document.getElementById("ctl00_ContentBody_ProfilePanel1_lblMemberName"),
+    profileName = document.getElementById("ctl00_ProfileHead_ProfileHeader_lblMemberName"),
     statsUri = "http://www.15ddv.me.uk/geo/cm/awards/cm_data.php?name=",
-	userField = document.getElementsByClassName("user-name"),
+    userField = document.getElementsByClassName("user-name"),
     userName = "",
     userNames = [];
 
   function displayStats(stats, page) {
     function getAward(num) {
-      var levels = [ "Novice", "Reader", "Deacon", "Curate", "Vicar", "Archdeacon", "Bishop", "Archbishop", "Primate", "Saint" ];
+      var levels = ["Novice", "Reader", "Deacon", "Curate", "Vicar", "Archdeacon", "Bishop", "Archbishop", "Primate", "Saint"];
       if (num >= 0 && num < levels.length) {
         return levels[num];
       }
       return "Infidel";
     }
+
     function getHtml(uname, level, award, finds) {
       switch (level) {
-      case -1:
-        return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't got any Church Micro finds in the database yet.</a>";
-      case 0:
-        return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't qualified for a Church Micros award yet (only " + finds + " finds in the database).</a>";
-      default:
-        // Get the stats banner.
-        return "<a class='cms-badge' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful: " + uname + " is a Level " + level + " " + award + ", having found " + finds + " Church Micro caches.'><img src='http://www.15ddv.me.uk/geo/cm/awards/cm_award.php?name=" + uname + "' /></a>";
+        case -1:
+          return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't got any Church Micro finds in the database yet.</a>";
+        case 0:
+          return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't qualified for a Church Micros award yet (only " + finds + " finds in the database).</a>";
+        default:
+          // Get the stats banner.
+          return "<a class='cms-badge' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful: " + uname + " is a Level " + level + " " + award + ", having found " + finds + " Church Micro caches.'><img src='http://www.15ddv.me.uk/geo/cm/awards/cm_award.php?name=" + uname + "' /></a>";
       }
     }
+
     function getLevel(num) {
       var n = parseInt(num, 10);
-      if (isNaN(n) || n < 1) { return -1; }
-      if (n < 10) { return 0; }
-      if (n < 25) { return 1; }
-      if (n < 50) { return 2; }
-      if (n < 100) { return 3; }
-      if (n < 250) { return 4; }
-      if (n < 500) { return 5; }
-      if (n < 1000) { return 6; }
-      if (n < 2500) { return 7; }
-      if (n < 5000) { return 8; }
+      if (isNaN(n) || n < 1) {
+        return -1;
+      }
+      if (n < 10) {
+        return 0;
+      }
+      if (n < 25) {
+        return 1;
+      }
+      if (n < 50) {
+        return 2;
+      }
+      if (n < 100) {
+        return 3;
+      }
+      if (n < 250) {
+        return 4;
+      }
+      if (n < 500) {
+        return 5;
+      }
+      if (n < 1000) {
+        return 6;
+      }
+      if (n < 2500) {
+        return 7;
+      }
+      if (n < 5000) {
+        return 8;
+      }
       return 9;
     }
+
     function insertFriends(statslist) {
       var i, j, list, headers;
       headers = document.getElementsByTagName("H4");
@@ -109,36 +131,42 @@
     }
 
     switch (page) {
-    case "my":
-      target = document.getElementById("ctl00_ContentBody_lnkProfile");
-      break;
-	case "account":
-      target = document.getElementsByClassName('sidebar-right')[0];
-      break;
-    case "cache":
-      target = document.getElementsByClassName('sidebar')[0];
-      break;
-    case "profile":
-      target2 = document.getElementsByClassName("player-stats");
-      if (target2.length > 0) {
-        target2[0].innerHTML += '<div id="cms_summary_stats" class="stat"><img width="25" height="16" src="' + churchImage + '" /> ' + finds + ' <acronym title="Church Micro cache">CM</acronym> finds</div>';
-      }
-      // Abort if award badge already on profile page
-      images = document.getElementsByTagName("IMG");
-      for (loop = 0; loop < images.length; loop++) {
-        if (/15ddv.me.uk\/geo\/cm\/awards\/cm_award.php/.test(images[loop].src)) {
-          console.info("Church micro badge not inserted: already on profile of " + userName);
-          return;
+      case "my":
+        target = document.getElementById("ctl00_ContentBody_lnkProfile");
+        break;
+      case "account":
+        target = document.getElementsByClassName('sidebar-right')[0];
+        break;
+      case "cache":
+        target = document.getElementsByClassName('sidebar')[0];
+        break;
+      case "profile":
+        target2 = document.getElementsByClassName("player-stats");
+        if (target2.length > 0) {
+          target2[0].innerHTML += '<div id="cms_summary_stats" class="stat"><img width="25" height="16" src="' + churchImage + '" /> ' + finds + ' <acronym title="Church Micro cache">CM</acronym> finds</div>';
         }
-      }
-      target = document.getElementById("ctl00_ContentBody_ProfilePanel1_lblProfile");
-      if (target) {
-        target = target.parentNode;
-      }
-      break;
-    case "friends":
-      insertFriends(stats);
-      return;
+        // Abort if award badge already on profile page
+        images = document.getElementsByTagName("IMG");
+        for (loop = 0; loop < images.length; loop++) {
+          if (/15ddv.me.uk\/geo\/cm\/awards\/cm_award.php/.test(images[loop].src)) {
+            console.info("Church micro badge not inserted: already on profile of " + userName);
+            return;
+          }
+        }
+        if (profileName) {
+          target = document.getElementById("ctl00_ContentBody_ProfilePanel1_lblProfile");
+          if (target) {
+            target = target.parentNode;
+          }
+        } else if (profileNameOld) {
+          target = document.getElementById("HiddenProfileContent");
+        }
+
+
+        break;
+      case "friends":
+        insertFriends(stats);
+        return;
     }
 
     if (!target && !target2) {
@@ -149,10 +177,10 @@
     if (html) {
       cmsWidget.className = "cms-container";
       cmsWidget.innerHTML = html;
-      switch(page){
+      switch (page) {
         case "my":
         case "profile":
-      target.parentNode.insertBefore(cmsWidget, target.nextSibling);
+          target.parentNode.insertBefore(cmsWidget, target.nextSibling);
           break;
         default:
           target.insertBefore(cmsWidget, target.firstChild.nextSibling.nextSibling);
@@ -164,7 +192,8 @@
   }
 
   function getFriendNames() {
-    var i, names = [], headers = document.getElementsByTagName("H4");
+    var i, names = [],
+      headers = document.getElementsByTagName("H4");
     for (i = 0; i < headers.length; i++) {
       if (headers[i].parentElement.className === "FriendText") {
         names.push(headers[i].textContent.trim());
@@ -172,6 +201,7 @@
     }
     return names;
   }
+
   function getHiderName() {
     var i,
       links = document.getElementsByTagName("a"),
@@ -189,13 +219,19 @@
   function parseNames(names) {
     // Filter out null or undefined entries, convert commas to semicolons, then convert to a comma-separated string.
     return encodeURIComponent(names
-      .filter(function (n) {return n != undefined; })
-      .map(function (n) {return (n + "").replace(/,/g, ";"); })
+      .filter(function (n) {
+        return n != undefined;
+      })
+      .map(function (n) {
+        return (n + "").replace(/,/g, ";");
+      })
       .join());
   }
 
   // Don't run on frames or iframes
-  if (window.top !== window.self) { return false; }
+  if (window.top !== window.self) {
+    return false;
+  }
 
   console.info("Church Micro Stats v" + GM_info.script.version);
 
@@ -206,9 +242,9 @@
     if (/\/my\//.test(location.pathname)) {
       // On a My Profile page
       currentPage = "my";
-    }else if(/\/account\//.test(location.pathname)){
-	  // On an Account page
-	  currentPage = "account";
+    } else if (/\/account\//.test(location.pathname)) {
+      // On an Account page
+      currentPage = "account";
     } else {
       if (cacheName) {
         // On a Geocache page...
@@ -224,22 +260,22 @@
   }
 
   switch (currentPage) {
-  case "friends":
-    userNames = getFriendNames();
-    break;
-  case "profile":
-    if (profileName) {
-      userNames = [profileName.textContent.trim()];
-    }else if(profileNameOld){
-      userNames = [profileNameOld.textContent.trim()];
-    }
-    break;
-  default:
-	if(userField.length > 0){
-	  userNames.push(userField[0].innerHTML.trim());
-    }
-    userNames.push(getHiderName());
-    break;
+    case "friends":
+      userNames = getFriendNames();
+      break;
+    case "profile":
+      if (profileName) {
+        userNames = [profileName.textContent.trim()];
+      } else if (profileNameOld) {
+        userNames = [profileNameOld.textContent.trim()];
+      }
+      break;
+    default:
+      if (userField.length > 0) {
+        userNames.push(userField[0].innerHTML.trim());
+      }
+      userNames.push(getHiderName());
+      break;
   }
 
   userName = parseNames(userNames);
@@ -256,7 +292,7 @@
   } else {
     cmsCSS.appendChild(document.createTextNode(css));
   }
-	document.head.appendChild(cmsCSS);
+  document.head.appendChild(cmsCSS);
 
   if (typeof GM_xmlhttpRequest === "function") { // jshint ignore:line
     // Use cross-site XHR to get raw stats
