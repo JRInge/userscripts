@@ -10,9 +10,9 @@
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon64.png
 // @include     /^https?://www\.geocaching\.com/(account|my/default.aspx|my/myfriends.aspx|default|geocache|profile|seek/cache_details.aspx|p)/
-// @exclude     /^https?://www\.geocaching\.com/(login|about|articles)/
+// @exclude     /^https?://www\.geocaching\.com/(login|about|articles|account/dashboard)/
 // @grant       GM_xmlhttpRequest
-// @version     0.2.1
+// @version     0.2.2
 // @supportURL	https://github.com/Cryo99/userscripts/tree/master/ChurchMicroStats
 // ==/UserScript==
 

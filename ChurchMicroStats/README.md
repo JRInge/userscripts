@@ -22,6 +22,10 @@ __Update:__ This should no longer be true in the new UI.
 
 ## Version History
 
+### Version 0.2.2
+
+* Prevented the widget from appearing on the user dashboard page.
+
 ### Version 0.2.1
 
 * The widget wasn't displaying on the new profile page.
