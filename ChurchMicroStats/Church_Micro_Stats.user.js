@@ -10,10 +10,14 @@
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon64.png
 // @include     /^https?://www\.geocaching\.com/(account|my/default.aspx|my/myfriends.aspx|default|geocache|profile|seek/cache_details.aspx|p)/
-// @exclude     /^https?://www\.geocaching\.com/(login|about|articles|account/dashboard)/
-// @grant       GM_xmlhttpRequest
-// @version     0.2.2
+// @exclude     /^https?://www\.geocaching\.com/(login|about|articles|account/*)/
 // @supportURL	https://github.com/Cryo99/userscripts/tree/master/ChurchMicroStats
+// @require     https://openuserjs.org/src/libs/sizzle/GM_config.js
+// @grant       GM_xmlhttpRequest
+// @grant       GM_registerMenuCommand
+// @grant       GM_setValue
+// @grant       GM_getValue
+// @version     0.3.0
 // ==/UserScript==
 
 /* global GM_xmlhttpRequest */
@@ -35,16 +39,34 @@
     userName = "",
     userNames = [];
 
-  function displayStats(stats, page) {
+  function displayStats(stats, page, brand) {
     function getAward(num) {
-      var levels = ["Novice", "Reader", "Deacon", "Curate", "Vicar", "Archdeacon", "Bishop", "Archbishop", "Primate", "Saint"];
+      var levels_cofe = ["Novice", "Reader", "Deacon", "Curate", "Vicar", "Archdeacon", "Bishop", "Archbishop", "Primate", "Saint", "Angel",
+						 "Archangel", "Principality", "Power", "Virtue", "Dominion", "Throne", "Cherub", "Seraph", "God"],
+          levels_secular = ["Workman", "Apprentice - Beginner", "Apprentice - Intermediate", "Apprentice - Advanced", "Journeyman - Beginner",
+							"Journeyman - Intermediate", "Journeyman - Advanced", "Master", "Grandmaster", "Grandmaster 2nd Dan",
+							"Grandmaster 3rd Dan", "Grandmaster 4th Dan", "Grandmaster 5th Dan", "Grandmaster 6th Dan", "Grandmaster 7th Dan",
+							"Grandmaster 8th Dan", "Grandmaster 9th Dan", "Grandmaster 10th Dan", "Grandmaster 11th Dan", "Grandmaster 12th Dan"],
+		  levels;
+
+	  switch(brand){
+  	    case 'cofe':
+		  levels = levels_cofe;
+		  break;
+	    case 'secular':
+		  levels = levels_secular;
+		  break;
+	    case 'none':
+		  levels = [];
+		  break;
+	  }
       if (num >= 0 && num < levels.length) {
         return levels[num];
       }
       return "Infidel";
     }
 
-    function getHtml(uname, level, award, finds) {
+    function getHtml(uname, level, award, finds, brand) {
       switch (level) {
         case -1:
           return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't got any Church Micro finds in the database yet.</a>";
@@ -52,7 +74,7 @@
           return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't qualified for a Church Micros award yet (only " + finds + " finds in the database).</a>";
         default:
           // Get the stats banner.
-          return "<a class='cms-badge' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful: " + uname + " is a Level " + level + " " + award + ", having found " + finds + " Church Micro caches.'><img src='http://www.15ddv.me.uk/geo/cm/awards/cm_award.php?name=" + uname + "' /></a>";
+          return "<a class='cms-badge' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful.\n" + uname + " is a Level " + level + " " + award + ", having\nfound " + finds + " Church Micro caches.'><img src='http://www.15ddv.me.uk/geo/cm/awards/cm_award.php?name=" + uname + "&brand=" + brand + "' /></a>";
       }
     }
 
@@ -88,7 +110,37 @@
       if (n < 5000) {
         return 8;
       }
+      if (n < 10000) {
       return 9;
+    }
+      if (n < 20000) {
+        return 10;
+      }
+      if (n < 30000) {
+        return 11;
+      }
+      if (n < 40000) {
+        return 12;
+      }
+      if (n < 50000) {
+        return 13;
+      }
+      if (n < 60000) {
+        return 14;
+      }
+      if (n < 70000) {
+        return 15;
+      }
+      if (n < 80000) {
+        return 16;
+      }
+      if (n < 90000) {
+        return 17;
+      }
+      if (n < 100000) {
+        return 18;
+      }
+      return 19;
     }
 
     function insertFriends(statslist) {
@@ -126,7 +178,7 @@
       level = getLevel(finds);
       award = getAward(level);
       if (i === 0 || stats[i].name !== stats[0].name) {
-        html += getHtml(name, level, award, finds);
+        html += getHtml(name, level, award, finds, brand);
       }
     }
 
@@ -228,12 +280,12 @@
       .join());
   }
 
+
+	//// EXECUTION STARTS HERE
   // Don't run on frames or iframes
   if (window.top !== window.self) {
     return false;
   }
-
-  console.info("Church Micro Stats v" + GM_info.script.version);
 
   if (/\/my\/myfriends\.aspx/.test(location.pathname)) {
     // Your Friends
@@ -258,6 +310,50 @@
       }
     }
   }
+
+	// We're going to display so we can announce ourselves and prepare the dialogue.
+	console.info("Church Micro Stats V" + GM_info.script.version);
+
+    //******* Configuration dialogue *******
+	// Register the menu item.
+	GM_registerMenuCommand("Options", function(){
+		GM_config.open();
+	}, 'S');
+
+	GM_config.init({
+		'id': 'cm_config', // The id used for this instance of GM_config
+		'title': 'Church Micro Stats', // Panel Title
+		'fields': { // Fields object
+			'cm_branding': { // This is the id of the field
+				'label': 'Branding', // Appears next to field
+				'type': 'select', // Makes this setting a dropdown
+				'options': ['CofE', 'Secular', 'None'], // Possible choices
+				'default': 'Levels' // Default value if user doesn't change it
+			}
+		},
+		// Dialogue internal styles.
+		'css': '#cm_config {position: static !important; width: 75% !important; margin: 1.5em auto !important; border: 10 !important;} #cm_config_cm_branding_var {padding-top: 30px;}',
+		'events': {
+			'open': function(document, window, frame){
+				// iframe styles.
+				frame.style.width = '300px';
+				frame.style.height = '250px';
+				frame.style.left = parent.document.body.clientWidth / 2 - 150 + 'px';
+				frame.style.borderWidth = '5px';
+				frame.style.borderStyle = 'ridge';
+				frame.style.borderColor = '#999999';
+			},
+			'save': function(){
+				GM_setValue('cm_branding', GM_config.get('cm_branding'));
+				location.reload();                              // reload the page when configuration was changed
+			}
+		}
+	});
+
+	var brand = GM_getValue('cm_branding', 'CofE');
+	console.info("Church Micro Stats branding: " + brand);
+	brand = brand.toLowerCase()
+    //**************************************
 
   switch (currentPage) {
     case "friends":
@@ -312,7 +408,7 @@
             console.error("Could not process Church Micro stats data. " + e);
           }
           if (jsontext && jsontext.cmstats && jsontext.cmstats.length > 0) {
-            displayStats(jsontext.cmstats, currentPage);
+            displayStats(jsontext.cmstats, currentPage, brand);
           } else {
             if (jsontext.error) {
               console.error("Received error message from Church Micro stats server: " + jsontext.error);
@@ -338,7 +434,7 @@
     handler.text = "function handleCMstats(jsonp) { " +
       'var churchImage = "' + churchImage + '", userName = "' + userName + '";\n' +
       displayStats.toString() +
-      "if (jsonp.cmstats && jsonp.cmstats.length > 0) { displayStats(jsonp.cmstats, '" + currentPage + "'); } else { console.error('Could not process Church Micro stats data.');}}";
+      "if (jsonp.cmstats && jsonp.cmstats.length > 0) { displayStats(jsonp.cmstats, '" + currentPage + "', '" + brand + "'); } else { console.error('Could not process Church Micro stats data.');}}";
     handler.type = "text/javascript";
     document.documentElement.firstChild.appendChild(handler);
     document.documentElement.firstChild.removeChild(handler);

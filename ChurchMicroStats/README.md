@@ -22,6 +22,17 @@ __Update:__ This should no longer be true in the new UI.
 
 ## Version History
 
+### Version 0.3.0
+
+* Added a configuration dialogue which allows you to select the brand displayed on the banner.
+* Updated branding to include the CofE levels beyond saint/5000 finds and added the secular levels.
+* Improved the banner tooltip formatting. It now wraps for neatness and readability.
+* Improved start-up efficiency, avoided unnecessary console output.
+
+### Version 0.2.3
+
+* Prevented the widget from appearing on all account pages.
+
 ### Version 0.2.2
 
 * Prevented the widget from appearing on the user dashboard page.
