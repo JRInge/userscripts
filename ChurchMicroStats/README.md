@@ -1,6 +1,6 @@
 # Church Micro Stats
 
-A userscript that shows Church Micro cache stats on geocaching.com. It adds the Church Micro stats banner in the following places:
+A userscript that shows Church Micro cache stats on geocaching.com. It adds the [Church Micro stats](http://15ddv.me.uk/geo/cm/index.html) banner in the following places:
 
 * the Stats Bar area of your account dashboard (old UI);
 * the sidebar of your account dashboard (new UI)
@@ -9,6 +9,8 @@ A userscript that shows Church Micro cache stats on geocaching.com. It adds the 
 * SideTracked cache pages.
 
 On cache pages it adds the C. O.'s banner as well.
+
+## Credits
 
 This is JRI's Church Micro Stats script updated to work on the latest version of geocaching.com.
 
