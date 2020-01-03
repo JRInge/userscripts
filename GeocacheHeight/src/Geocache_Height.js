@@ -7,7 +7,7 @@
          */
         return (typeof unsafeWindow.lat === "number" && typeof unsafeWindow.lng === "number"
             ? {lat: unsafeWindow.lat, lng: unsafeWindow.lng}
-            : void 0
+            : undefined
         );
     }
 
@@ -36,27 +36,27 @@
     }
   
     async function load(id, delayedFn, requiredVars = []) {
-      //don't run on frames or iframes
-      if (window.top !== window.self) {
-          return;
-      }
+        //don't run on frames or iframes
+        if (window.top !== window.self) {
+            return;
+        }
 
-      if (isPMOnly()) {
-          console.warn(id + "run on Premium Member cache - coordinates not available");
-          return;
-      }
+        if (isPMOnly()) {
+            console.warn(id + "run on Premium Member cache - coordinates not available");
+            return;
+        }
 
-      if (target === null) {
-          console.error(id + "couldn't find where to display height on the cache page");
-          return;
-      }
+        if (target === null) {
+            console.error(id + "couldn't find where to display height on the cache page");
+            return;
+        }
       
-      console.log(`${id}initializing: waiting for variables: ${requiredVars.join()}`);
-      while(!requiredVars.every((v) => unsafeWindow.hasOwnProperty(v))) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-      console.log(`${id}running`);
-      delayedFn(id);
+        console.log(`${id}initializing: waiting for variables: ${requiredVars.join()}`);
+        while(!requiredVars.every((v) => unsafeWindow.hasOwnProperty(v))) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        console.log(`${id}running`);
+        delayedFn(id);
     }
   
     function main(id) {
