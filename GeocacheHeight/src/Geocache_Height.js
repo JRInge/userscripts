@@ -1,4 +1,4 @@
-    const scriptId = "Geocache Height v1.1.4 ";
+    const scriptId = "Geocache Height v1.2.0 ";
     const target = document.getElementById("uxLatLon");
 
     function getCoords() {
