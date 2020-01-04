@@ -1,10 +1,13 @@
+    const scriptId = "Geocache Height v1.2.0 ";
+    const target = document.getElementById("uxLatLon");
+
     function getCoords() {
         /* Looks for coordinates in global content variables lat and lng, and returns them as a LatLng object
          * Returns undefined on failure
          */
         return (typeof unsafeWindow.lat === "number" && typeof unsafeWindow.lng === "number"
             ? {lat: unsafeWindow.lat, lng: unsafeWindow.lng}
-            : void 0
+            : undefined
         );
     }
 
@@ -31,49 +34,59 @@
             console.error(`${e}: ${scriptId}didn't get valid JSON data from Geonames`);
         }
     }
+  
+    async function load(id, delayedFn, requiredVars = []) {
+        //don't run on frames or iframes
+        if (window.top !== window.self) {
+            return;
+        }
 
-    const coords = getCoords();
-    const target = document.getElementById("uxLatLon");
-    const scriptId = "Geocache Height v1.1.4 ";
+        if (isPMOnly()) {
+            console.warn(id + "run on Premium Member cache - coordinates not available");
+            return;
+        }
 
-    //don't run on frames or iframes
-    if (window.top !== window.self) {
-        return;
+        if (target === null) {
+            console.error(id + "couldn't find where to display height on the cache page");
+            return;
+        }
+      
+        console.log(`${id}initializing: waiting for variables: ${requiredVars.join()}`);
+        while(!requiredVars.every((v) => unsafeWindow.hasOwnProperty(v))) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        console.log(`${id}running`);
+        delayedFn(id);
     }
+  
+    function main(id) {
+        const coords = getCoords();
 
-    if (isPMOnly()) {
-        console.warn(scriptId + "run on Premium Member cache - coordinates not available");
-        return;
-    }
+        if (!coords) {
+            console.error(scriptId + "couldn't work out coordinates for cache");
+            return;
+        }
 
-    if (target === null) {
-        console.error(scriptId + "couldn't find where to display height on the cache page");
-        return;
-    }
+        const xhr = (typeof GM_xmlhttpRequest === "function")
+            ? GM_xmlhttpRequest
+            : ((typeof GM === "object" && typeof GM.xmlHttpRequest === "function")
+                ? GM.xmlHttpRequest
+                : undefined);
 
-    if (!coords) {
-        console.error(scriptId + "couldn't work out coordinates for cache");
-        return;
-    }
-
-    const xhr = (typeof GM_xmlhttpRequest === "function")
-        ? GM_xmlhttpRequest
-        : ((typeof GM === "object" && typeof GM.xmlHttpRequest === "function")
-            ? GM.xmlHttpRequest
-            : undefined);
-
-    if (xhr) {
-        console.info(scriptId);
-        xhr({
-            method: "GET",
-            url: `http://api.geonames.org/astergdemJSON?lat=${coords.lat}&lng=${coords.lng}&username=gme_h`,
-            onload: function (responseDetails) {
-                var height = parseHeight(responseDetails.responseText);
-                if (height != null) {
-                    target.parentElement.appendChild(formatHeight(height));
+        if (xhr) {
+            xhr({
+                method: "GET",
+                url: `http://api.geonames.org/astergdemJSON?lat=${coords.lat}&lng=${coords.lng}&username=gme_h`,
+                onload: function (responseDetails) {
+                    var height = parseHeight(responseDetails.responseText);
+                    if (height != null) {
+                        target.parentElement.appendChild(formatHeight(height));
+                    }
                 }
-            }
-        });
-    } else {
-        console.error(scriptId + "needs a userscript manager that supports cross-site XHR");
+            });
+        } else {
+            console.error(scriptId + "needs a userscript manager that supports cross-site XHR");
+        }
     }
+
+    load(scriptId, main, ["lat", "lng"]);

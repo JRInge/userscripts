@@ -11,6 +11,7 @@
 //  v1.1.2  Added compatibility with Greasemonkey 4
 //  v1.1.3  Switched from Google Elevation API to Geonames
 //  v1.1.4	Fixed for geocaching.com page change
+//  v1.2.0  Fixed to wait for web page to load all variables before running.
 //
 
 /*jslint browser, devel */
