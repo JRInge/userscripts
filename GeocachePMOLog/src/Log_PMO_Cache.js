@@ -1,8 +1,8 @@
     const scriptId = 'Log PMO Cache v0.0.2';
     const css = `div.CacheDetailNavigation {border-radius: 3px; background-color: #f0edeb;}
-			.btn {margin: 1em 0;};`;
+        .btn {margin: 1em 0;}`;
 
-  	// Takes the GCxxxxx code and constructs HTML text representing the "Log Visit" button
+    // Takes the GCxxxxx code and constructs HTML text representing the "Log Visit" button
     const buildHTML = (code) => `<div class="CacheDetailNavigation NoPrint"><a href="/play/geocache/${code}/log" id="ctl00_ContentBody_GeoNav_logButton" class="btn btn-primary">Log a new visit</a></div>`;
 
     function getGCCode() {
@@ -20,7 +20,7 @@
 
     function getSidebar() {
         const sbs = document.getElementsByClassName('sidebar');
-      	return (sbs ? sbs[0]: void 0);
+        return (sbs ? sbs[0]: void 0);
     }
 
     function injectCSS(code) {
@@ -38,8 +38,8 @@
         document.getElementsByTagName('head')[0].appendChild(style);
     }
 
-	  const pmoBanner = document.getElementsByClassName('premium-upgrade-widget');
-  	if (pmoBanner.length !== 1) {
+      const pmoBanner = document.getElementsByClassName('premium-upgrade-widget');
+    if (pmoBanner.length !== 1) {
         // Doesn't seem to be a PMO cache, so quit silently.
         return;
     }
