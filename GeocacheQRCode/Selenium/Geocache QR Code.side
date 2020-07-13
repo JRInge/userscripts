@@ -1,0 +1,205 @@
+{
+  "id": "8d3d2b6b-1205-4db0-ba91-5ba74d40d3f2",
+  "version": "2.0",
+  "name": "Geocache QR Code",
+  "url": "https://www.geocaching.com/",
+  "tests": [{
+    "id": "bef7438a-c443-4e1d-bb11-0b2454e3c1e2",
+    "name": "Cache",
+    "commands": [{
+      "id": "2d5ed628-9eee-4595-8dd2-1e3d6fd7aa6e",
+      "comment": "",
+      "command": "open",
+      "target": "/geocache/GCE5E4_where-eagles-dare-wye-valley",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "68bff4ac-2301-421f-bc5e-a5eef5c23b9a",
+      "comment": "Check coordinates available",
+      "command": "assertElementPresent",
+      "target": "id=ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "7a0d615f-bd22-404e-a659-e93e1bd76bf0",
+      "comment": "Check popup not already present",
+      "command": "verifyElementNotPresent",
+      "target": "id=qtip-0",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "1a02ac13-5dfb-4a73-ad13-2e4a9791535b",
+      "comment": "Check QR code not already present",
+      "command": "verifyElementNotPresent",
+      "target": "css=img[src='https://qrcode.kaywa.com/img.php?s=6&d=https://coord.info/GCE5E4']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "0066e5d9-0248-4e5c-9661-394856e91dfd",
+      "comment": "Check we can find the link to click",
+      "command": "verifyElementPresent",
+      "target": "id=ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f8492da3-8988-4251-8d38-50ea4513d0e6",
+      "comment": "",
+      "command": "click",
+      "target": "id=ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b8e12792-9a92-4b46-bebe-4ad0559fe052",
+      "comment": "Check QR code present",
+      "command": "waitForElementPresent",
+      "target": "css=img[src='https://qrcode.kaywa.com/img.php?s=6&d=https://coord.info/GCE5E4']",
+      "targets": [],
+      "value": "5000"
+    }]
+  }, {
+    "id": "a75e7c56-b6a1-4ff8-9d41-ec8bfd5741b1",
+    "name": "Trackable",
+    "commands": [{
+      "id": "c1c45e9b-e87f-4571-9234-9a7a70e874fc",
+      "comment": "",
+      "command": "open",
+      "target": "/track/details.aspx?tracker=TB4FZRW",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "230e458a-8d92-48b5-9771-715eb9c64d20",
+      "comment": "Check coordinates available",
+      "command": "assertElementPresent",
+      "target": "id=ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "57b51f4e-c0d4-4dc4-93e4-731a6f5f238d",
+      "comment": "Check popup not already present",
+      "command": "verifyElementNotPresent",
+      "target": "id=qtip-0",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "a8e9a0eb-1f5d-4e04-a25c-e2c9cb776530",
+      "comment": "Check QR code not already present",
+      "command": "verifyElementNotPresent",
+      "target": "css=img[src='https://qrcode.kaywa.com/img.php?s=6&d=https://coord.info/GCE5E4']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f780f5d1-96d9-4162-9070-1515323738d2",
+      "comment": "Check we can find the link to click",
+      "command": "verifyElementPresent",
+      "target": "id=ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "49ef416b-04ab-4493-94dc-5d02885f937e",
+      "comment": "",
+      "command": "click",
+      "target": "id=ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "055119a0-f379-4283-abe7-7e5a88d145da",
+      "comment": "Check QR code present",
+      "command": "waitForElementPresent",
+      "target": "css=img[src='https://qrcode.kaywa.com/img.php?s=6&d=https://coord.info/TB4FZRW']",
+      "targets": [],
+      "value": "5000"
+    }]
+  }, {
+    "id": "615e0767-8db4-420f-b1e5-ce06956063ea",
+    "name": "Map",
+    "commands": [{
+      "id": "2c3efd28-c860-4b4c-a8ed-6a87dbdcc99b",
+      "comment": "",
+      "command": "open",
+      "target": "/map/#?ll=51.67452,-2.68337&z=16",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "42008c47-bf30-4795-9815-be93c1b52219",
+      "comment": "Wait for map to load",
+      "command": "waitForElementPresent",
+      "target": "css=img[src*='geocaching.com/map.png?ts=1&x=32279&y=21743&z=16']",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "b8c3436f-e34f-4d67-b734-ef972fb88f14",
+      "comment": "",
+      "command": "verifyElementNotPresent",
+      "target": "id=gmCacheInfo",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "d3fd895d-e50c-4593-80d9-a3045710b4ed",
+      "comment": "Click the map to request cache data",
+      "command": "clickAt",
+      "target": "css=.leaflet-layer:nth-child(1) > .leaflet-tile:nth-child(1)",
+      "targets": [
+        ["css=.leaflet-layer:nth-child(1) > .leaflet-tile:nth-child(1)", "css:finder"],
+        ["xpath=//div[@id='map_canvas']/div/div/div/img", "xpath:idRelative"],
+        ["xpath=//div/div/div/img", "xpath:position"]
+      ],
+      "value": "128,120"
+    }, {
+      "id": "8fa490ec-38af-45d3-9305-12f51d1ae34d",
+      "comment": "",
+      "command": "pause",
+      "target": "",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "750d5a30-8b18-4295-8741-b9fe5c19837f",
+      "comment": "Click the map to trigger the cache details popup",
+      "command": "clickAt",
+      "target": "css=.leaflet-layer:nth-child(1) > .leaflet-tile:nth-child(1)",
+      "targets": [
+        ["css=.leaflet-layer:nth-child(1) > .leaflet-tile:nth-child(1)", "css:finder"],
+        ["xpath=//div[@id='map_canvas']/div/div/div/img", "xpath:idRelative"],
+        ["xpath=//div/div/div/img", "xpath:position"]
+      ],
+      "value": "128,118"
+    }, {
+      "id": "a5d49fc2-86a0-4616-8906-d0e600add64c",
+      "comment": "Wait for the popup",
+      "command": "waitForElementPresent",
+      "target": "id=gmCacheInfo",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "015bed87-f344-4281-979b-a61f0bf6ce36",
+      "comment": "Check QR link in place",
+      "command": "assertElementPresent",
+      "target": "id=jri-qr-link",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "a2185598-0890-40ee-a078-c848a84df70e",
+      "comment": "",
+      "command": "click",
+      "target": "id=jri-qr-link",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "8000df17-3c33-4080-8071-ae93c0530439",
+      "comment": "Check QR image present",
+      "command": "waitForElementPresent",
+      "target": "css=#fancybox-content img[src='https://qrcode.kaywa.com/img.php?s=6&d=https://coord.info/GCE5E4']",
+      "targets": [],
+      "value": "5000"
+    }]
+  }],
+  "suites": [{
+    "id": "be677d81-5b6a-4ddd-9d8c-7de2d80b8f4b",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["bef7438a-c443-4e1d-bb11-0b2454e3c1e2"]
+  }],
+  "urls": ["https://www.geocaching.com/"],
+  "plugins": []
+}

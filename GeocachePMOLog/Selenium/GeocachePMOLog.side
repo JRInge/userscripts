@@ -1,0 +1,116 @@
+{
+  "id": "777a57b5-9e45-498e-8a70-8b2ee9e42296",
+  "name": "GeocachePMOLog",
+  "url": "https://www.geocaching.com/geocache/GC6BFGT_little-bridges-803-a-leap-over-the-trym",
+  "tests": [{
+    "id": "NormalChecks.html",
+    "name": "Check normal cache",
+    "commands": [{
+      "id": "fe31e9d8-936f-4987-b9b8-dd34d982cf86",
+      "comment": "",
+      "command": "assertElementNotPresent",
+      "target": "id=pmo-log-div",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "OpenPMO.html",
+    "name": "Open PMO cache",
+    "commands": [{
+      "id": "335f1c03-f28c-42c3-b5e2-0cd81a2565bd",
+      "comment": "",
+      "command": "open",
+      "target": "https://www.geocaching.com/geocache/GC6BFGT_little-bridges-803-a-leap-over-the-trym",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "e9253937-1c38-4da3-8ce0-d91a88e3dafd",
+      "comment": "",
+      "command": "verifyElementPresent",
+      "target": "css=.premium-upgrade-widget",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ba16ed45-7323-4af3-a5b9-ad73bd41c8dc",
+      "comment": "",
+      "command": "verifyElementPresent",
+      "target": "css=.li__gccode",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "9073f48f-36bb-4466-b9c1-c693f2729805",
+      "comment": "",
+      "command": "verifyElementPresent",
+      "target": "css=.sidebar",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "PMOChecks.html",
+    "name": "Check PMO cache",
+    "commands": [{
+      "id": "4fa4a4bd-3f26-4f93-96bd-472e510c78e7",
+      "comment": "",
+      "command": "open",
+      "target": "https://www.geocaching.com/geocache/GC6BFGT_little-bridges-803-a-leap-over-the-trym",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "7c350be9-3d1b-4692-a566-1d8329538d05",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "id=pmo-log-div",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "a2b96c68-a519-4e91-a5d4-b6d213d60f41",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "id=ctl00_ContentBody_GeoNav_logButton",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "44efe132-f6ac-4aae-9ecd-aa683cb5627b",
+      "comment": "",
+      "command": "click",
+      "target": "id=ctl00_ContentBody_GeoNav_logButton",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ac9bf363-d344-415b-ad6c-249a07f5c0e6",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "id=logContent",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "d894730e-aaa3-407c-a967-11880facd6c5",
+    "name": "Open normal cache",
+    "commands": [{
+      "id": "330dc7ca-c48b-403b-a0d1-e2bf89f840fa",
+      "comment": "",
+      "command": "open",
+      "target": "/geocache/GC57XFP_church-micro-5874-bristol-st-thomas-the-martyr",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "246c7fc8-1ae3-4c6a-8bfe-c55d4f53a4c3",
+      "comment": "",
+      "command": "verifyElementNotPresent",
+      "target": "css=.premium-upgrade-widget",
+      "targets": [],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "7e429805-1f6b-4edb-a990-053dcc637a37",
+    "name": "Log PMO",
+    "persistSession": true,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["d894730e-aaa3-407c-a967-11880facd6c5", "NormalChecks.html", "OpenPMO.html", "PMOChecks.html"]
+  }],
+  "urls": ["https://www.geocaching.com/", "https://www.geocaching.com/geocache/GC6BFGT_little-bridges-803-a-leap-over-the-trym"],
+  "plugins": []
+}

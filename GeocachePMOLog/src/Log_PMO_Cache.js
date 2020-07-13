@@ -1,19 +1,13 @@
-    var pmoBanner = document.getElementsByClassName('pmo-banner');
-    var gccode;
-    var logDiv;
-    var sidebar;
-    var css = '.CacheDetailNavigation .Button{ display:block; margin-bottom: 1em; text-align:left; padding:.4em 1em; border:1px solid #667343; border-radius:3px; background-color:#677547; background-image: -moz-linear-gradient(top, #778556, #4e5d30); background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#778556), to(#4e5d30)); background-image: -webkit-linear-gradient(top, #778556, #4e5d30); background-image: -o-linear-gradient(top, #778556, #4e5d30); background-image: linear-gradient(to bottom, #778556, #4e5d30); background-repeat:repeat-x; color:#fff !important; font-weight:bold; text-decoration:none; cursor:pointer; } .CacheDetailNavigation .Button:hover{ background-color: #fcaf3d; background: -moz-linear-gradient(top,  rgba(252,175,61,1) 0%, rgba(250,142,30,1) 100%); background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,175,61,1)), color-stop(100%,rgba(250,142,30,1))); background: -webkit-linear-gradient(top,  rgba(252,175,61,1) 0%,rgba(250,142,30,1) 100%); background: -o-linear-gradient(top,  rgba(252,175,61,1) 0%,rgba(250,142,30,1) 100%); background: -ms-linear-gradient(top,  rgba(252,175,61,1) 0%,rgba(250,142,30,1) 100%); background: linear-gradient(to bottom,  rgba(252,175,61,1) 0%,rgba(250,142,30,1) 100%); background-position:0 100%; border-color:#fd9201; } .Button.LogVisit:before{ content:url(/images/icons/16/write_log_white.png); vertical-align:middle; margin-right:8px; }';
+    const scriptId = 'Log PMO Cache v0.0.2';
+    const css = `div.CacheDetailNavigation {border-radius: 3px; background-color: #f0edeb;}
+        .btn {margin: 1em 0;}`;
 
-    function buildHTML(code) {
-        // Takes the GCxxxxx code and constructs HTML text representing the "Log Visit" button
-        return ('<div class="CacheDetailNavigation NoPrint"><a href="/seek/log.aspx?WP=' +
-                code +
-                '" id="ctl00_ContentBody_GeoNav_logButton" class="Button LogVisit">Log your visit</a></div>');
-    }
+    // Takes the GCxxxxx code and constructs HTML text representing the "Log Visit" button
+    const buildHTML = (code) => `<div class="CacheDetailNavigation NoPrint"><a href="/play/geocache/${code}/log" id="ctl00_ContentBody_GeoNav_logButton" class="btn btn-primary">Log a new visit</a></div>`;
 
     function getGCCode() {
         // Get the GCxxxxx code from the cache listing
-        var codes = document.getElementsByClassName('li__gccode');
+        const codes = document.getElementsByClassName('li__gccode');
         var theCode;
 
         if (codes.length > 0) {
@@ -25,14 +19,12 @@
     }
 
     function getSidebar() {
-        var sbs = document.getElementsByClassName('sidebar');
-        if (sbs.length > 0) {
-            return sbs[0];
-        }
+        const sbs = document.getElementsByClassName('sidebar');
+        return (sbs ? sbs[0]: void 0);
     }
 
     function injectCSS(code) {
-        var style = document.createElement('style');
+        const style = document.createElement('style');
         style.type = 'text/css';
 
         if (style.styleSheet) {
@@ -46,26 +38,27 @@
         document.getElementsByTagName('head')[0].appendChild(style);
     }
 
+      const pmoBanner = document.getElementsByClassName('premium-upgrade-widget');
     if (pmoBanner.length !== 1) {
         // Doesn't seem to be a PMO cache, so quit silently.
         return;
     }
 
-    gccode = getGCCode();
+    const gccode = getGCCode();
     if (!gccode) {
-        console.error("Log PMO Cache v0.0.1 couldn't work out the GC code of the cache");
+        console.error(`${scriptId}couldn't work out the GC code of the cache`);
         return;
     }
 
-    sidebar = getSidebar();
+    const sidebar = getSidebar();
     if (!sidebar) {
-        console.error("Log PMO Cache v0.0.1 couldn't find where to insert its link");
+        console.error(`${scriptId}couldn't find where to insert its link`);
         return;
     }
 
-    console.info('Log PMO Cache v0.0.1');
+    console.info(scriptId);
+    const logDiv = document.createElement('div');
     injectCSS(css);
-    logDiv = document.createElement('div');
     logDiv.id = 'pmo-log-div';
     logDiv.innerHTML = buildHTML(gccode);
     sidebar.insertBefore(logDiv, sidebar.firstChild);
