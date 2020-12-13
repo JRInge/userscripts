@@ -5,19 +5,20 @@
 // @oujs:author JRI
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
 // @copyright   2014-2018, James Inge (http://geo.inge.org.uk/)
+// @copyright   2019-2020, Cryo99
 // @attribution Church Micro stats provided by BaSHful (http://www.15ddv.me.uk/geo/cm/cm.html)
 // @attribution Image by Lorna Mulligan
 // @icon        https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon48.png
 // @icon64      https://raw.githubusercontent.com/JRInge/userscripts/master/ChurchMicroStats/churchIcon64.png
-// @include     /^https?://www\.geocaching\.com/(account|my/default.aspx|my/myfriends.aspx|default|geocache|profile|seek/cache_details.aspx|p)/
-// @exclude     /^https?://www\.geocaching\.com/(login|about|articles|account/*)/
+// @include     /^https?://www\.geocaching\.com/(account/dashboard|my|default|geocache|profile|seek/cache_details|p)/
+// @exclude     /^https?://www\.geocaching\.com/(login|about|articles|myfriends)/
 // @supportURL	https://github.com/Cryo99/userscripts/tree/master/ChurchMicroStats
 // @require     https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant       GM_xmlhttpRequest
 // @grant       GM_registerMenuCommand
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     0.3.0
+// @version     0.4.0
 // ==/UserScript==
 
 /* global GM_xmlhttpRequest */
@@ -34,7 +35,7 @@
     jsonp = document.createElement("script"),
     profileNameOld = document.getElementById("ctl00_ContentBody_ProfilePanel1_lblMemberName"),
     profileName = document.getElementById("ctl00_ProfileHead_ProfileHeader_lblMemberName"),
-    statsUri = "http://www.15ddv.me.uk/geo/cm/awards/cm_data.php?name=",
+    statsUri = "https://www.15ddv.me.uk/geo/cm/awards/cm_data.php?name=",
     userField = document.getElementsByClassName("user-name"),
     userName = "",
     userNames = [];
@@ -69,12 +70,12 @@
     function getHtml(uname, level, award, finds, brand) {
       switch (level) {
         case -1:
-          return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't got any Church Micro finds in the database yet.</a>";
+          return "<a class='cms-msg' href='https://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't got any Church Micro finds in the database yet.</a>";
         case 0:
-          return "<a class='cms-msg' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't qualified for a Church Micros award yet (only " + finds + " finds in the database).</a>";
+          return "<a class='cms-msg' href='https://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful'><strong>Church Micros:</strong> " + uname + " hasn't qualified for a Church Micros award yet (only " + finds + " finds in the database).</a>";
         default:
           // Get the stats banner.
-          return "<a class='cms-badge' href='http://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful.\n" + uname + " is a Level " + level + " " + award + ", having\nfound " + finds + " Church Micro caches.'><img src='http://www.15ddv.me.uk/geo/cm/awards/cm_award.php?name=" + uname + "&brand=" + brand + "' /></a>";
+          return "<a class='cms-badge' href='https://www.15ddv.me.uk/geo/cm/cm.html' title='Church Micro statistics by BaSHful.\n" + uname + " is a Level " + level + " " + award + ", having\nfound " + finds + " Church Micro caches.'><img src='https://www.15ddv.me.uk/geo/cm/awards/cm_award.php?name=" + uname + "&brand=" + brand + "' /></a>";
       }
     }
 
@@ -187,7 +188,8 @@
         target = document.getElementById("ctl00_ContentBody_lnkProfile");
         break;
       case "account":
-        target = document.getElementsByClassName('sidebar-right')[0];
+        // New account dashboard.
+        target = document.querySelector(".sidebar-right");
         break;
       case "cache":
         target = document.getElementsByClassName('sidebar')[0];
@@ -234,7 +236,51 @@
         case "profile":
           target.parentNode.insertBefore(cmsWidget, target.nextSibling);
           break;
-        default:
+          case "account":
+            // If the StatsWidget isn't present, create it.
+            var el = document.getElementById("StatsWidget");
+            if(!el){
+              console.log('Creating widget.', 'StatsWidget');
+              var divStats = document.createElement('div');
+              divStats.id = "StatsWidget";
+              divStats.classList.add("panel", "collapsible");
+              divStats.innerHTML = '<div class="panel-header isActive" aria-expanded="true">\
+        <h1 id="stats-widget-label" class="h5 no-margin">Statistics</h1>\
+        <button aria-controls="StatsWidget" aria-labelledby="stats-widget-label">\
+          <svg height="22" width="22" class="opener" role="img">\
+            <use xlink:href="/account/app/ui-icons/sprites/global.svg#icon-expand-svg-fill"></use>\
+          </svg>\
+        </button>\
+      </div>\
+      <div id="StatsComponents" class="panel-body">\
+        <div id="StatsPanel" class="widget-panel"></div>\
+      </div>';
+      
+              target.append(divStats);
+      
+              if (!GM_getValue('statsWidget_visible', false)) {
+              document.querySelector('#StatsWidget .panel-body').style.display = "none";
+              document.querySelector('#StatsWidget .panel-header').classList.remove('isActive');
+              fadeOut(document.querySelector('#StatsWidget .panel-body'));
+              }
+      
+              // Add the click handler.
+              document.querySelector('#StatsWidget .panel-header').addEventListener('click', function() {
+              if (GM_getValue('statsWidget_visible', true)) {
+              document.querySelector('#StatsWidget .panel-header').classList.remove('isActive');
+              fadeOut(document.querySelector('#StatsWidget .panel-body'));
+              GM_setValue('statsWidget_visible', false);
+              }else{
+              document.querySelector('#StatsWidget .panel-header').classList.add('isActive');
+              fadeIn(document.querySelector('#StatsWidget .panel-body'));
+              GM_setValue('statsWidget_visible', true);
+              }
+            });
+            }
+            // Finally, append the banner.
+            document.querySelector('#StatsPanel').appendChild(cmsWidget);
+          break;
+              default:
           target.insertBefore(cmsWidget, target.firstChild.nextSibling.nextSibling);
           break;
       }
@@ -344,7 +390,6 @@
 				frame.style.borderColor = '#999999';
 			},
 			'save': function(){
-				GM_setValue('cm_branding', GM_config.get('cm_branding'));
 				location.reload();                              // reload the page when configuration was changed
 			}
 		}
