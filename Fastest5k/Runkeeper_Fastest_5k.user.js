@@ -26,7 +26,7 @@ async function main() {
     {title: "10km", dist: 10000},
     {title: "10mi", dist: 16093.4},
     {title: "20km", dist: 20000},
-    {title: "½ mar", dist: 21097.5},
+    {title: "Â½ mar", dist: 21097.5},
     {title: "mar", dist: 42195}
   ];
 
